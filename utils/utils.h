@@ -37,6 +37,13 @@
 #endif
 
 /**
+ * Значение в границах.
+ */
+#ifndef CLAMP
+#define CLAMP(v, min_v, max_v) (MIN(MAX(v, min_v), max_v))
+#endif
+
+/**
  * Меняет значения в переменных A и B, используя переменную TMP
  */
 #define SWAP(A, B, TMP) do{ (TMP) = (A); (A) = (B); (B) = (TMP); }while(0)

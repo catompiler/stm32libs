@@ -1,6 +1,6 @@
 #include "i2c.h"
 #include <stdio.h>
-#include <sys/stat.h>
+#include <stddef.h>
 #include "utils/utils.h"
 #include "dma/dma.h"
 
@@ -119,10 +119,12 @@ static bool i2c_bus_dma_lock_channels(i2c_bus_t* i2c, bool lock_rx, bool lock_tx
 static void i2c_bus_dma_unlock_channels(i2c_bus_t* i2c)
 {
     if(i2c->dma_rx_locked){
+        DMA_DeInit(i2c->dma_rx_channel);
         dma_channel_unlock(i2c->dma_rx_channel);
         i2c->dma_rx_locked = false;
     }
     if(i2c->dma_tx_locked){
+        DMA_DeInit(i2c->dma_tx_channel);
         dma_channel_unlock(i2c->dma_tx_channel);
         i2c->dma_tx_locked = false;
     }

@@ -11,6 +11,11 @@
 #include <errors/errors.h>
 #include "buffer/buffer.h"
 
+//! Ошибки I2C.
+#define E_I2C (E_USER + 10)
+//! Ошибка при некорректном сообщении.
+#define E_I2C_INVALID_MESSAGE (E_I2C)
+
 //! Тип адреса i2c-устройств.
 typedef uint8_t i2c_address_t;
 
@@ -34,10 +39,8 @@ typedef uint8_t i2c_transfer_id_t;
 //! Тип статуса шины i2c.
 typedef enum _i2c_status {
     I2C_STATUS_IDLE = 0,//!< Бездействие.
-    I2C_STATUS_WRITING,//!< Запись данных.
-    I2C_STATUS_READING,//!< Чтение данных.
-    I2C_STATUS_WRITED,//!< Данные записаны.
-    I2C_STATUS_READED,//!< Данные прочитаны.
+    I2C_STATUS_TRANSFERING,//!< Обмен данными.
+    I2C_STATUS_TRANSFERED,//!< Обмен данными завершён.
     I2C_STATUS_ERROR//!< Ошибка.
 } i2c_status_t;
 
@@ -53,11 +56,16 @@ typedef enum _i2c_error {
     I2C_ERROR_UNKNOWN//!< Прочие ошибки (SMBus).
 } i2c_error_t;
 
+//! Направление передачи i2c.
+typedef enum _i2c_direction {
+    I2C_READ = 0,//!< Чтение.
+    I2C_WRITE//!< Запись.
+} i2c_direction_t;
+
 //! Тип сообщения i2c.
 typedef struct _I2C_Message {
     i2c_address_t address;//!< Адрес устройства i2c.
-    void* rom_address;//!< Адрес памяти устройства.
-    size_t rom_address_size;//!< Размер адреса устройства.
+    i2c_direction_t direction;//!< Режим передачи.
     void* data;//!< Данные для приёма/передачи.
     size_t data_size;//!< Размер данных.
 } i2c_message_t;
@@ -71,7 +79,9 @@ typedef struct _I2C {
     i2c_error_t error;//!< Ошибка шины.
     i2c_callback_t callback;//!< Функция обратного вызова.
     i2c_transfer_id_t transfer_id;//!< Идентификатор передачи.
-    i2c_message_t* message;//!< Текущее сообщение.
+    i2c_message_t* messages;//!< Массив сообщений.
+    size_t messages_count;//!< Число сообщений.
+    size_t message_index;//!< Индекс текущего сообщения.
     uint8_t state;//!< Состояние передачи.
     bool dma_rx_locked;//!< Заблокирован канал получения.
     bool dma_tx_locked;//!< Заблокирован канал передачи.
@@ -175,19 +185,23 @@ extern i2c_status_t i2c_bus_status(i2c_bus_t* i2c);
 extern i2c_error_t i2c_bus_error(i2c_bus_t* i2c);
 
 /**
- * Передаёт данные сообщения по шине i2c.
- * @param i2c Шина i2c.
+ * Инициализирует сообщение.
  * @param message Сообщение.
+ * @param address Адрес устройства.
+ * @param direction Направление передачи.
+ * @param data Данные для приёма/передачи.
+ * @param data_size Размер буфера для приёма данных.
  * @return Код ошибки.
  */
-extern err_t i2c_bus_send(i2c_bus_t* i2c, i2c_message_t* message);
+err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direction_t direction, void* data, size_t data_size);
 
 /**
- * Принимает данные сообщения по шине i2c.
- * @param i2c Шина i2c.
- * @param message Сообщение.
+ * Обменивается сообщениями по шине I2C.
+ * @param i2c Шина I2C.
+ * @param messages Сообщения.
+ * @param messages_count Число сообщений.
  * @return Код ошибки.
  */
-extern err_t i2c_bus_recv(i2c_bus_t* i2c, i2c_message_t* message);
+err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_count);
 
 #endif	/* I2C_H */

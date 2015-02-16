@@ -83,7 +83,7 @@
  * @param f Число с фиксированной запятой.
  * @return Модуль числа с фиксированной запятой.
  */
-#define fixed_abs(f) ((f < 0) ? (-f) : (f))
+#define fixed_abs(f) (((f) < 0) ? -(f) : (f))
 
 /**
  * Получает округлённое значение числа с фиксированной запятой.
@@ -92,7 +92,8 @@
  * @param fractbits Число бит дробной части.
  * @return Округлённое значение числа с фиксированной запятой.
  */
-#define fixed_round_bits(f, intbits, fractbits) ((f + (1 << (fractbits - 1))) & (fixed_make_mask(intbits) << fractbits))
+#define fixed_round_bits(f, intbits, fractbits)\
+                (((f) < 0) ? -((-(f) + (1 << (fractbits - 1))) & (fixed_make_mask(intbits) << fractbits)) : (((f) + (1 << (fractbits - 1))) & (fixed_make_mask(intbits) << fractbits)))
 
 /**
  * Получает целую часть числа с фиксированной запятой при заданной размерности дробной части.
@@ -101,8 +102,8 @@
  * @return Целая часть числа с фиксированной запятой.
  */
 #define fixed_get_int_bits(f, fractbits)\
-                ((f < 0) ?\
-                        (-((-f) >> (fractbits))) :\
+                (((f) < 0) ?\
+                        (-((-(f)) >> (fractbits))) :\
                         ((f) >> (fractbits)))
 
 /**
@@ -131,5 +132,23 @@
  * @param Дробную часть числа с фиксированной запятой.
  */
 #define fixed_get_fract_by_denom_bits(f, denom, fractbits) ((fixed_get_fract_bits(f, fractbits) * (denom)) >> fractbits)
+
+/**
+ * Умножает одно число с фиксированной запятой на другое.
+ * @param f1 Множитель.
+ * @param f2 Множитель.
+ * @param fractbits Число бит дробной части.
+ * @return Произведение.
+ */
+#define fixed_mul_bits(f1, f2, fractbits) (((f1) * (f2)) >> (fractbits))
+
+/**
+ * Делит одно число с фиксированной запятой на другое.
+ * @param f1 Делимое.
+ * @param f2 Делитель.
+ * @param fractbits Число бит дробной части.
+ * @return Частное от деления.
+ */
+#define fixed_div_bits(f1, f2, fractbits) (((f1) << (fractbits)) / (f2))
 
 #endif	/* FIXED_H */

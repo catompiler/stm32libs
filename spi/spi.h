@@ -174,9 +174,8 @@ extern spi_error_t spi_bus_error(spi_bus_t* spi);
  * @param message Сообщение.
  * @param direction Направление передачи.
  * @param tx_data Данные для передачи.
- * @param tx_data_size Размер данных для передачи.
  * @param rx_data Буфер для приёма данных.
- * @param rx_data_size Размер буфера для приёма данных.
+ * @param data_size Размер буфера для приёма данных.
  * @return Код ошибки.
  */
 err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const void* tx_data, void* rx_data, size_t data_size);

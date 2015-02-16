@@ -33,6 +33,20 @@ void delay_cycles(uint32_t cycles_count)
 }
 
 
+void delay_ns(uint32_t ns)
+{
+#define _DELAY_NS_CALCULATING_CYCLES (35 + 2) // 2 - вызов функции.
+    
+    register uint32_t cycles_to_delay = (SystemCoreClock / 1000000UL) * ns / 1000UL;
+    
+    if(cycles_to_delay > _DELAY_NS_CALCULATING_CYCLES){
+        cycles_to_delay -= _DELAY_NS_CALCULATING_CYCLES;
+        delay_cycles(cycles_to_delay);
+    }
+#undef _DELAY_NS_CALCULATING_CYCLES
+}
+
+
 void delay_us(uint32_t us)
 {
 #define _DELAY_US_CALCULATING_CYCLES (21 + 2) // 2 - вызов функции.

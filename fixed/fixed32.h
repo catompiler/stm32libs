@@ -33,6 +33,8 @@ typedef fixed_make_stdint_type(FIXED32_SIZE_BITS)       fixed_make_type(      FI
 #define fixed32_get_fract_denom()                       fixed_get_fract_denom_bits(                     FIXED32_FRACT_BITS)
 #define fixed32_get_fract(f)                            fixed_get_fract_bits(f,                         FIXED32_FRACT_BITS)
 #define fixed32_get_fract_by_denom(f, base)             fixed_get_fract_by_denom_bits(f, base,          FIXED32_FRACT_BITS)
+#define fixed32_mul(f1, f2)                             fixed_mul_bits(f1, f2,                          FIXED32_FRACT_BITS)
+#define fixed32_div(f1, f2)                             fixed_div_bits(f1, f2,                          FIXED32_FRACT_BITS)
 
 /*
  * Макросы по-умолчанию.
@@ -47,6 +49,8 @@ typedef fixed_int32_t   fixed_int_t;
 #define fixed_get_fract_denom()                       fixed32_get_fract_denom()
 #define fixed_get_fract(f)                            fixed32_get_fract(f)
 #define fixed_get_fract_by_denom(f, base)             fixed32_get_fract_by_denom(f, base)
+#define fixed_mul(f1, f2)                             fixed32_mul(f1, f2)
+#define fixed_div(f1, f2)                             fixed32_div(f1, f2)
 #endif
 
 
@@ -75,6 +79,8 @@ typedef fixed_make_stdint_type(FIXED24_8_SIZE_BITS)       fixed_make_type2(     
 #define fixed24_8_get_fract_denom()                       fixed_get_fract_denom_bits(                     FIXED24_8_FRACT_BITS)
 #define fixed24_8_get_fract(f)                            fixed_get_fract_bits(f,                         FIXED24_8_FRACT_BITS)
 #define fixed24_8_get_fract_by_denom(f, base)             fixed_get_fract_by_denom_bits(f, base,          FIXED24_8_FRACT_BITS)
+#define fixed24_8_mul(f1, f2)                             fixed_mul_bits(f1, f2,                          FIXED24_8_FRACT_BITS)
+#define fixed24_8_div(f1, f2)                             fixed_div_bits(f1, f2,                          FIXED24_8_FRACT_BITS)
 
 /*
  * Макросы по-умолчанию.
@@ -89,6 +95,8 @@ typedef fixed_int24_8_t   fixed_int_t;
 #define fixed_get_fract_denom()                       fixed24_8_get_fract_denom()
 #define fixed_get_fract(f)                            fixed24_8_get_fract(f)
 #define fixed_get_fract_by_denom(f, base)             fixed24_8_get_fract_by_denom(f, base)
+#define fixed_mul(f1, f2)                             fixed24_8_mul(f1, f2)
+#define fixed_div(f1, f2)                             fixed24_8_div(f1, f2)
 #endif
 
 
@@ -117,6 +125,8 @@ typedef fixed_make_stdint_type(FIXED8_24_SIZE_BITS)       fixed_make_type2(     
 #define fixed8_24_get_fract_denom()                       fixed_get_fract_denom_bits(                     FIXED8_24_FRACT_BITS)
 #define fixed8_24_get_fract(f)                            fixed_get_fract_bits(f,                         FIXED8_24_FRACT_BITS)
 #define fixed8_24_get_fract_by_denom(f, base)             fixed_get_fract_by_denom_bits(f, base,          FIXED8_24_FRACT_BITS)
+#define fixed8_24_mul(f1, f2)                             fixed_mul_bits(f1, f2,                          FIXED8_24_FRACT_BITS)
+#define fixed8_24_div(f1, f2)                             fixed_div_bits(f1, f2,                          FIXED8_24_FRACT_BITS)
 
 /*
  * Макросы по-умолчанию.
@@ -131,6 +141,8 @@ typedef fixed_int8_24_t   fixed_int_t;
 #define fixed_get_fract_denom()                       fixed8_24_get_fract_denom()
 #define fixed_get_fract(f)                            fixed8_24_get_fract(f)
 #define fixed_get_fract_by_denom(f, base)             fixed8_24_get_fract_by_denom(f, base)
+#define fixed_mul(f1, f2)                             fixed8_24_mul(f1, f2)
+#define fixed_div(f1, f2)                             fixed8_24_div(f1, f2)
 #endif
 
 #endif	/* FIXED32_H */

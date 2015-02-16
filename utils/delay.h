@@ -54,6 +54,28 @@ extern void delay_cycles(uint32_t cycles_count);
 
 /**
  * Выполняет задержку выполнения на
+ * заданное число наносекунд.
+ * @param ns Время в наносекундах.
+ */
+#ifdef INLINE_DELAY
+static inline void delay_ns(uint32_t ns)
+{
+#define _DELAY_NS_CALCULATING_CYCLES (35 + 2) // 2 - вызов функции.
+    
+    register uint32_t cycles_to_delay = (SystemCoreClock / 1000000UL) * ns / 1000UL;
+    
+    if(cycles_to_delay > _DELAY_NS_CALCULATING_CYCLES){
+        cycles_to_delay -= _DELAY_NS_CALCULATING_CYCLES;
+        delay_cycles(cycles_to_delay);
+    }
+#undef _DELAY_NS_CALCULATING_CYCLES
+}
+#else
+extern void delay_ns(uint32_t ns);
+#endif
+
+/**
+ * Выполняет задержку выполнения на
  * заданное число микросекунд.
  * @param us Время в микросекундах.
  */

@@ -33,6 +33,8 @@ typedef fixed_make_stdint_type(FIXED16_SIZE_BITS)       fixed_make_type(      FI
 #define fixed16_get_fract_denom()                       fixed_get_fract_denom_bits(                     FIXED16_FRACT_BITS)
 #define fixed16_get_fract(f)                            fixed_get_fract_bits(f,                         FIXED16_FRACT_BITS)
 #define fixed16_get_fract_by_denom(f, base)             fixed_get_fract_by_denom_bits(f, base,          FIXED16_FRACT_BITS)
+#define fixed16_mul(f1, f2)                             fixed_mul_bits(f1, f2,                          FIXED16_FRACT_BITS)
+#define fixed16_div(f1, f2)                             fixed_div_bits(f1, f2,                          FIXED16_FRACT_BITS)
 
 /*
  * Макросы по-умолчанию.
@@ -47,6 +49,8 @@ typedef fixed_int16_t   fixed_int_t;
 #define fixed_get_fract_denom()                       fixed16_get_fract_denom()
 #define fixed_get_fract(f)                            fixed16_get_fract(f)
 #define fixed_get_fract_by_denom(f, base)             fixed16_get_fract_by_denom(f, base)
+#define fixed_mul(f1, f2)                             fixed16_mul(f1, f2)
+#define fixed_div(f1, f2)                             fixed16_div(f1, f2)
 #endif
 
 
@@ -75,6 +79,8 @@ typedef fixed_make_stdint_type(FIXED10_6_SIZE_BITS)       fixed_make_type2(     
 #define fixed10_6_get_fract_denom()                       fixed_get_fract_denom_bits(                     FIXED10_6_FRACT_BITS)
 #define fixed10_6_get_fract(f)                            fixed_get_fract_bits(f,                         FIXED10_6_FRACT_BITS)
 #define fixed10_6_get_fract_by_denom(f, base)             fixed_get_fract_by_denom_bits(f, base,          FIXED10_6_FRACT_BITS)
+#define fixed10_6_mul(f1, f2)                             fixed_mul_bits(f1, f2,                          FIXED10_6_FRACT_BITS)
+#define fixed10_6_div(f1, f2)                             fixed_div_bits(f1, f2,                          FIXED10_6_FRACT_BITS)
 
 /*
  * Макросы по-умолчанию.
@@ -89,6 +95,8 @@ typedef fixed_int10_6_t   fixed_int_t;
 #define fixed_get_fract_denom()                       fixed10_6_get_fract_denom()
 #define fixed_get_fract(f)                            fixed10_6_get_fract(f)
 #define fixed_get_fract_by_denom(f, base)             fixed10_6_get_fract_by_denom(f, base)
+#define fixed_mul(f1, f2)                             fixed10_6_mul(f1, f2)
+#define fixed_div(f1, f2)                             fixed10_6_div(f1, f2)
 #endif
 
 
@@ -117,6 +125,8 @@ typedef fixed_make_stdint_type(FIXED6_10_SIZE_BITS)       fixed_make_type2(     
 #define fixed6_10_get_fract_denom()                       fixed_get_fract_denom_bits(                     FIXED6_10_FRACT_BITS)
 #define fixed6_10_get_fract(f)                            fixed_get_fract_bits(f,                         FIXED6_10_FRACT_BITS)
 #define fixed6_10_get_fract_by_denom(f, base)             fixed_get_fract_by_denom_bits(f, base,          FIXED6_10_FRACT_BITS)
+#define fixed6_10_mul(f1, f2)                             fixed_mul_bits(f1, f2,                          FIXED6_10_FRACT_BITS)
+#define fixed6_10_div(f1, f2)                             fixed_div_bits(f1, f2,                          FIXED6_10_FRACT_BITS)
 
 /*
  * Макросы по-умолчанию.
@@ -131,6 +141,8 @@ typedef fixed_int6_10_t   fixed_int_t;
 #define fixed_get_fract_denom()                       fixed6_10_get_fract_denom()
 #define fixed_get_fract(f)                            fixed6_10_get_fract(f)
 #define fixed_get_fract_by_denom(f, base)             fixed6_10_get_fract_by_denom(f, base)
+#define fixed_mul(f1, f2)                             fixed6_10_mul(f1, f2)
+#define fixed_div(f1, f2)                             fixed6_10_div(f1, f2)
 #endif
 
 
@@ -159,6 +171,8 @@ typedef fixed_make_stdint_type(FIXED12_4_SIZE_BITS)       fixed_make_type2(     
 #define fixed12_4_get_fract_denom()                       fixed_get_fract_denom_bits(                     FIXED12_4_FRACT_BITS)
 #define fixed12_4_get_fract(f)                            fixed_get_fract_bits(f,                         FIXED12_4_FRACT_BITS)
 #define fixed12_4_get_fract_by_denom(f, base)             fixed_get_fract_by_denom_bits(f, base,          FIXED12_4_FRACT_BITS)
+#define fixed12_4_mul(f1, f2)                             fixed_mul_bits(f1, f2,                          FIXED12_4_FRACT_BITS)
+#define fixed12_4_div(f1, f2)                             fixed_div_bits(f1, f2,                          FIXED12_4_FRACT_BITS)
 
 /*
  * Макросы по-умолчанию.
@@ -173,6 +187,8 @@ typedef fixed_int12_4_t   fixed_int_t;
 #define fixed_get_fract_denom()                       fixed12_4_get_fract_denom()
 #define fixed_get_fract(f)                            fixed12_4_get_fract(f)
 #define fixed_get_fract_by_denom(f, base)             fixed12_4_get_fract_by_denom(f, base)
+#define fixed_mul(f1, f2)                             fixed12_4_mul(f1, f2)
+#define fixed_div(f1, f2)                             fixed12_4_div(f1, f2)
 #endif
 
 
@@ -201,6 +217,8 @@ typedef fixed_make_stdint_type(FIXED4_12_SIZE_BITS)       fixed_make_type2(     
 #define fixed4_12_get_fract_denom()                       fixed_get_fract_denom_bits(                     FIXED4_12_FRACT_BITS)
 #define fixed4_12_get_fract(f)                            fixed_get_fract_bits(f,                         FIXED4_12_FRACT_BITS)
 #define fixed4_12_get_fract_by_denom(f, base)             fixed_get_fract_by_denom_bits(f, base,          FIXED4_12_FRACT_BITS)
+#define fixed4_12_mul(f1, f2)                             fixed_mul_bits(f1, f2,                          FIXED4_12_FRACT_BITS)
+#define fixed4_12_div(f1, f2)                             fixed_div_bits(f1, f2,                          FIXED4_12_FRACT_BITS)
 
 /*
  * Макросы по-умолчанию.
@@ -215,6 +233,8 @@ typedef fixed_int4_12_t   fixed_int_t;
 #define fixed_get_fract_denom()                       fixed4_12_get_fract_denom()
 #define fixed_get_fract(f)                            fixed4_12_get_fract(f)
 #define fixed_get_fract_by_denom(f, base)             fixed4_12_get_fract_by_denom(f, base)
+#define fixed_mul(f1, f2)                             fixed4_12_mul(f1, f2)
+#define fixed_div(f1, f2)                             fixed4_12_div(f1, f2)
 #endif
 
 #endif	/* FIXED16_H */

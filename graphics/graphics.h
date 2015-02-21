@@ -15,31 +15,34 @@
 //! Перечисление форматов изображения.
 typedef enum _Graphics_format {
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
-    GRAPHICS_FORMAT_BW_1_V, // Чёрно-белый, 1 бит, байт вертикально.
+    GRAPHICS_FORMAT_BW_1_V, //!< Чёрно-белый, 1 бит, байт вертикально.
 #endif
 #ifdef USE_GRAPHICS_FORMAT_BW_1_H
-    GRAPHICS_FORMAT_BW_1_H, // Чёрно-белый, 1 бит, байт горизонтально.
+    GRAPHICS_FORMAT_BW_1_H, //!<  Чёрно-белый, 1 бит, байт горизонтально.
 #endif
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_V
-    GRAPHICS_FORMAT_GRAY_2_V, // Оттенки серого, 2 бита, байт вертикально.
+    GRAPHICS_FORMAT_GRAY_2_V, //!<  Оттенки серого, 2 бита, байт вертикально.
 #endif
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
-    GRAPHICS_FORMAT_GRAY_2_H, // Оттенки серого, 2 бита, байт горизонтально.
+    GRAPHICS_FORMAT_GRAY_2_H, //!<  Оттенки серого, 2 бита, байт горизонтально.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+    GRAPHICS_FORMAT_GRAY_2_VFD, //!<  Оттенки серого, 2 бита, байт вертикально. Рост адреса сверху вниз. Обратный порядок бит.
 #endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
-    GRAPHICS_FORMAT_RGB_121_V, // Цветной, 4 бита, байт вертикально.
+    GRAPHICS_FORMAT_RGB_121_V, //!<  Цветной, 4 бита, байт вертикально.
 #endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_H
-    GRAPHICS_FORMAT_RGB_121_H, // Цветной, 4 бита, байт горизонтально.
+    GRAPHICS_FORMAT_RGB_121_H, //!<  Цветной, 4 бита, байт горизонтально.
 #endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_332
-    GRAPHICS_FORMAT_RGB_332, // Цветной, 8 бит.
+    GRAPHICS_FORMAT_RGB_332, //!<  Цветной, 8 бит.
 #endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_565
-    GRAPHICS_FORMAT_RGB_565, // Цветной, 16 бит.
+    GRAPHICS_FORMAT_RGB_565, //!<  Цветной, 16 бит.
 #endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_8
-    GRAPHICS_FORMAT_RGB_8 // Цветной, 24 бита.
+    GRAPHICS_FORMAT_RGB_8 //!<  Цветной, 24 бита.
 #endif
 } graphics_format_t;
 

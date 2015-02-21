@@ -39,7 +39,11 @@ size_t graphics_data_size(const graphics_t* graphics)
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             size >>= 2;
             break;
 #endif
@@ -116,6 +120,11 @@ bool graphics_get_pixel_pos(const graphics_t* graphics, graphics_pos_t x, graphi
             graphics_gray_2_h_get_pixel_pos(graphics, x, y, byte, bit);
             break;
 #endif
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+            graphics_gray_2_vfd_get_pixel_pos(graphics, x, y, byte, bit);
+            break;
+#endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
         case GRAPHICS_FORMAT_RGB_121_V:
             graphics_rgb_121_v_get_pixel_pos(graphics, x, y, byte, bit);
@@ -169,6 +178,11 @@ graphics_color_t graphics_get_pixel(const graphics_t* graphics, graphics_pos_t x
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
             return graphics_gray_2_h_get_pixel(graphics, x, y);
+#endif
+
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+            return graphics_gray_2_vfd_get_pixel(graphics, x, y);
 #endif
 
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
@@ -226,6 +240,11 @@ bool graphics_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
             graphics_gray_2_h_set_pixel(graphics, x, y, color);
             break;
 #endif
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+            graphics_gray_2_vfd_set_pixel(graphics, x, y, color);
+            break;
+#endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
         case GRAPHICS_FORMAT_RGB_121_V:
             graphics_rgb_121_v_set_pixel(graphics, x, y, color);
@@ -279,6 +298,11 @@ bool graphics_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y,
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
             graphics_gray_2_h_or_pixel(graphics, x, y, color);
+            break;
+#endif
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+            graphics_gray_2_vfd_or_pixel(graphics, x, y, color);
             break;
 #endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
@@ -336,6 +360,11 @@ bool graphics_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
             graphics_gray_2_h_xor_pixel(graphics, x, y, color);
             break;
 #endif
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+            graphics_gray_2_vfd_xor_pixel(graphics, x, y, color);
+            break;
+#endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
         case GRAPHICS_FORMAT_RGB_121_V:
             graphics_rgb_121_v_xor_pixel(graphics, x, y, color);
@@ -391,6 +420,11 @@ bool graphics_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
             graphics_gray_2_h_and_pixel(graphics, x, y, color);
             break;
 #endif
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+            graphics_gray_2_vfd_and_pixel(graphics, x, y, color);
+            break;
+#endif
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
         case GRAPHICS_FORMAT_RGB_121_V:
             graphics_rgb_121_v_and_pixel(graphics, x, y, color);
@@ -441,7 +475,11 @@ graphics_color_t graphics_convert_color(graphics_format_t to_format, graphics_fo
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             return graphics_gray_2_color_from(from_format, color);
 #endif
 
@@ -495,7 +533,11 @@ graphics_color_t graphics_apply_mask(graphics_format_t color_format, graphics_co
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             return graphics_gray_2_apply_mask(color, mask_format, mask);
 #endif
 

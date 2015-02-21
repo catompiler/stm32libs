@@ -52,6 +52,14 @@ static ALWAYS_INLINE void graphics_gray_2_h_get_pixel_pos(const graphics_t* grap
 }
 #endif
 
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+static ALWAYS_INLINE void graphics_gray_2_vfd_get_pixel_pos(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_size_t* byte, graphics_size_t* bit)
+{
+    if(byte) *byte = (y >> 2) + x * (graphics->height >> 2);
+    if(bit)  *bit  = 7 - ((y & 0x3) << 1);
+}
+#endif
+
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
 static ALWAYS_INLINE void graphics_rgb_121_v_get_pixel_pos(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_size_t* byte, graphics_size_t* bit)
 {
@@ -135,6 +143,17 @@ static ALWAYS_INLINE graphics_color_t graphics_gray_2_h_get_pixel(const graphics
     graphics_size_t byte = 0, bit = 0;
 
     graphics_gray_2_h_get_pixel_pos(graphics, x, y, &byte, &bit);
+
+    return (graphics->data[byte] >> bit) & 0x3;
+}
+#endif
+
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+static ALWAYS_INLINE graphics_color_t graphics_gray_2_vfd_get_pixel(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y)
+{
+    graphics_size_t byte = 0, bit = 0;
+
+    graphics_gray_2_vfd_get_pixel_pos(graphics, x, y, &byte, &bit);
 
     return (graphics->data[byte] >> bit) & 0x3;
 }
@@ -256,6 +275,18 @@ static ALWAYS_INLINE void graphics_gray_2_h_set_pixel(graphics_t* graphics, grap
 }
 #endif
 
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+static ALWAYS_INLINE void graphics_gray_2_vfd_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
+{
+    graphics_size_t byte = 0, bit = 0;
+
+    graphics_gray_2_vfd_get_pixel_pos(graphics, x, y, &byte, &bit);
+
+    uint8_t c = graphics->data[byte] & ~(0x3 << bit);
+    graphics->data[byte] = c | ((color /*& 0x3*/) << bit);
+}
+#endif
+
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
 static ALWAYS_INLINE void graphics_rgb_121_v_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
 {
@@ -359,6 +390,17 @@ static ALWAYS_INLINE void graphics_gray_2_h_or_pixel(graphics_t* graphics, graph
     graphics_size_t byte = 0, bit = 0;
 
     graphics_gray_2_h_get_pixel_pos(graphics, x, y, &byte, &bit);
+
+    graphics->data[byte] |= (color /*& 0x3*/) << bit;
+}
+#endif
+
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+static ALWAYS_INLINE void graphics_gray_2_vfd_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
+{
+    graphics_size_t byte = 0, bit = 0;
+
+    graphics_gray_2_vfd_get_pixel_pos(graphics, x, y, &byte, &bit);
 
     graphics->data[byte] |= (color /*& 0x3*/) << bit;
 }
@@ -470,6 +512,17 @@ static ALWAYS_INLINE void graphics_gray_2_h_xor_pixel(graphics_t* graphics, grap
 }
 #endif
 
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+static ALWAYS_INLINE void graphics_gray_2_vfd_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
+{
+    graphics_size_t byte = 0, bit = 0;
+
+    graphics_gray_2_vfd_get_pixel_pos(graphics, x, y, &byte, &bit);
+
+    graphics->data[byte] ^= (color /*& 0x3*/) << bit;
+}
+#endif
+
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
 static ALWAYS_INLINE void graphics_rgb_121_v_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
 {
@@ -576,6 +629,17 @@ static ALWAYS_INLINE void graphics_gray_2_h_and_pixel(graphics_t* graphics, grap
 }
 #endif
 
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+static ALWAYS_INLINE void graphics_gray_2_vfd_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
+{
+    graphics_size_t byte = 0, bit = 0;
+
+    graphics_gray_2_vfd_get_pixel_pos(graphics, x, y, &byte, &bit);
+
+    graphics->data[byte] &= ((color /*& 0x3*/) << bit) | (~(0x3 << bit));
+}
+#endif
+
 #ifdef USE_GRAPHICS_FORMAT_RGB_121_V
 static ALWAYS_INLINE void graphics_rgb_121_v_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
 {
@@ -658,7 +722,11 @@ static ALWAYS_INLINE graphics_color_t graphics_bw_1_color_from(graphics_format_t
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             return color >= 0x2;
 #endif
 
@@ -692,7 +760,8 @@ static ALWAYS_INLINE graphics_color_t graphics_bw_1_color_from(graphics_format_t
 }
 #endif
 
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
 static ALWAYS_INLINE graphics_color_t graphics_gray_2_color_from(graphics_format_t from_format, graphics_color_t color)
 {
     switch(from_format){
@@ -712,7 +781,11 @@ static ALWAYS_INLINE graphics_color_t graphics_gray_2_color_from(graphics_format
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             return color;
 #endif
 
@@ -767,7 +840,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_121_color_from(graphics_forma
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color_r = color >> 1;
             color_g = color;
             color_b = color_r;
@@ -834,7 +911,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_332_color_from(graphics_forma
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color_r = color * 0x7; color_r = GRAPHICS_FAST_DIV_3(color_r);
             color_g = color_r;
             color_b = color;
@@ -901,7 +982,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_565_color_from(graphics_forma
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color_r = color * 0x1f; color_r = GRAPHICS_FAST_DIV_3(color_r);
             color_g = color * 0x3f; color_g = GRAPHICS_FAST_DIV_3(color_g);
             color_b = color_r;
@@ -968,7 +1053,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_8_color_from(graphics_format_
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color_r = color * 0xff; color_r = GRAPHICS_FAST_DIV_3(color_r);
             color_g = color_r;
             color_b = color_r;
@@ -1039,7 +1128,11 @@ static ALWAYS_INLINE graphics_color_t graphics_bw_1_apply_mask(graphics_color_t 
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             return (mask >= 0x2) ? color : 0x0;
 #endif
 
@@ -1073,7 +1166,8 @@ static ALWAYS_INLINE graphics_color_t graphics_bw_1_apply_mask(graphics_color_t 
 }
 #endif
 
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
 static ALWAYS_INLINE graphics_color_t graphics_gray_2_apply_mask(graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask)
 {
     //if(color == 0 || mask == 0) return 0;
@@ -1094,7 +1188,11 @@ static ALWAYS_INLINE graphics_color_t graphics_gray_2_apply_mask(graphics_color_
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color *= mask;
             return GRAPHICS_FAST_DIV_3(color);
 #endif
@@ -1151,7 +1249,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_121_apply_mask(graphics_color
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color_r = (GRAPHICS_RED_RGB_121(color) * (mask >> 1));
             color_g = (GRAPHICS_GREEN_RGB_121(color) * mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
             color_b = (GRAPHICS_BLUE_RGB_121(color) * (mask >> 1));
@@ -1222,7 +1324,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_332_apply_mask(graphics_color
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color_r = (GRAPHICS_RED_RGB_332(color) * mask); color_r = GRAPHICS_FAST_DIV_3(color_r);
             color_g = (GRAPHICS_GREEN_RGB_332(color) * mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
             color_b = (GRAPHICS_BLUE_RGB_332(color) * mask); color_b = GRAPHICS_FAST_DIV_3(color_b);
@@ -1293,7 +1399,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_565_apply_mask(graphics_color
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color_r = (GRAPHICS_RED_RGB_565(color) * mask); color_r = GRAPHICS_FAST_DIV_3(color_r);
             color_g = (GRAPHICS_GREEN_RGB_565(color) * mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
             color_b = (GRAPHICS_BLUE_RGB_565(color) * mask); color_b = GRAPHICS_FAST_DIV_3(color_b);
@@ -1364,7 +1474,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_8_apply_mask(graphics_color_t
 #ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
         case GRAPHICS_FORMAT_GRAY_2_H:
 #endif
-#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_VFD
+        case GRAPHICS_FORMAT_GRAY_2_VFD:
+#endif
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H)\
+                                          || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)
             color_r = (GRAPHICS_RED_RGB_8(color) * mask); color_r = GRAPHICS_FAST_DIV_3(color_r);
             color_g = (GRAPHICS_GREEN_RGB_8(color) * mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
             color_b = (GRAPHICS_BLUE_RGB_8(color) * mask); color_b = GRAPHICS_FAST_DIV_3(color_b);

@@ -144,6 +144,8 @@ void painter_put_line_pixel(painter_t* painter, graphics_pos_t x, graphics_pos_t
 
 void painter_draw_vline(painter_t* painter, graphics_pos_t x, graphics_pos_t y0, graphics_pos_t y1)
 {
+    if(x < 0 || x >= graphics_width(painter->graphics)) return;
+    
     size_t pixel_number = 0;
 
     if(y1 < y0){
@@ -159,6 +161,8 @@ void painter_draw_vline(painter_t* painter, graphics_pos_t x, graphics_pos_t y0,
 
 void painter_draw_hline(painter_t* painter, graphics_pos_t y, graphics_pos_t x0, graphics_pos_t x1)
 {
+    if(y < 0 || y >= graphics_height(painter->graphics)) return;
+    
     size_t pixel_number = 0;
 
     if(x1 < x0){
@@ -414,6 +418,9 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
 
 void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t radius)
 {
+    if(center_x + radius < 0 || center_x - radius >= graphics_width(painter->graphics)) return;
+    if(center_y + radius < 0 || center_y - radius >= graphics_height(painter->graphics)) return;
+    
     size_t pixel_number = 0;
 
     graphics_pos_t x = -radius;
@@ -625,6 +632,9 @@ graphics_pos_t painter_rotate_y(graphics_pos_t y, int32_t angle)
 void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
                       graphics_pos_t radius, int32_t from_angle, int32_t to_angle)
 {
+    if(center_x + radius < 0 || center_x - radius >= graphics_width(painter->graphics)) return;
+    if(center_y + radius < 0 || center_y - radius >= graphics_height(painter->graphics)) return;
+    
     //printf("\n\nArc!\n\n");
 
     if(to_angle - from_angle >= 360){
@@ -857,6 +867,11 @@ void painter_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y)
 
 void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c)
 {
+    if(painter->font == NULL) return;
+    
+    if(x + font_char_width(painter->font) < 0 || x >= graphics_width(painter->graphics)) return;
+    if(y + font_char_height(painter->font) < 0 || y >= graphics_height(painter->graphics)) return;
+    
     const font_bitmap_t* font_bitmap = font_bitmap_by_char(painter->font, c);
 
     if(font_bitmap == NULL) return;
@@ -870,6 +885,8 @@ void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, f
 
 void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s)
 {
+    if(painter->font == NULL) return;
+    
     if(x >= (graphics_pos_t)graphics_width(painter->graphics) ||
        y >= (graphics_pos_t)graphics_height(painter->graphics)) return;
 

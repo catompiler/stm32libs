@@ -179,7 +179,7 @@ static ALWAYS_INLINE void graphics_bw_1_v_set_pixel(graphics_t* graphics, graphi
     graphics_bw_1_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
     uint8_t c = graphics->data[byte] & ~(0x1 << bit);
-    graphics->data[byte] = c | ((color & 0x1) << bit);
+    graphics->data[byte] = c | ((color /*& 0x1*/) << bit);
 }
 
 static ALWAYS_INLINE void graphics_bw_1_h_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -189,7 +189,7 @@ static ALWAYS_INLINE void graphics_bw_1_h_set_pixel(graphics_t* graphics, graphi
     graphics_bw_1_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
     uint8_t c = graphics->data[byte] & ~(0x1 << bit);
-    graphics->data[byte] = c | ((color & 0x1) << bit);
+    graphics->data[byte] = c | ((color /*& 0x1*/) << bit);
 }
 
 static ALWAYS_INLINE void graphics_gray_2_v_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -199,7 +199,7 @@ static ALWAYS_INLINE void graphics_gray_2_v_set_pixel(graphics_t* graphics, grap
     graphics_gray_2_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
     uint8_t c = graphics->data[byte] & ~(0x3 << bit);
-    graphics->data[byte] = c | ((color & 0x3) << bit);
+    graphics->data[byte] = c | ((color /*& 0x3*/) << bit);
 }
 
 static ALWAYS_INLINE void graphics_gray_2_h_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -209,7 +209,7 @@ static ALWAYS_INLINE void graphics_gray_2_h_set_pixel(graphics_t* graphics, grap
     graphics_gray_2_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
     uint8_t c = graphics->data[byte] & ~(0x3 << bit);
-    graphics->data[byte] = c | ((color & 0x3) << bit);
+    graphics->data[byte] = c | ((color /*& 0x3*/) << bit);
 }
 
 static ALWAYS_INLINE void graphics_rgb_121_v_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -219,7 +219,7 @@ static ALWAYS_INLINE void graphics_rgb_121_v_set_pixel(graphics_t* graphics, gra
     graphics_rgb_121_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
     uint8_t c = graphics->data[byte] & ~(0xf << bit);
-    graphics->data[byte] = c | ((color & 0xf) << bit);
+    graphics->data[byte] = c | ((color /*& 0xf*/) << bit);
 }
 
 static ALWAYS_INLINE void graphics_rgb_121_h_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -229,7 +229,7 @@ static ALWAYS_INLINE void graphics_rgb_121_h_set_pixel(graphics_t* graphics, gra
     graphics_rgb_121_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
     uint8_t c = graphics->data[byte] & ~(0xf << bit);
-    graphics->data[byte] = c | ((color & 0xf) << bit);
+    graphics->data[byte] = c | ((color /*& 0xf*/) << bit);
 }
 
 static ALWAYS_INLINE void graphics_rgb_332_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -238,7 +238,7 @@ static ALWAYS_INLINE void graphics_rgb_332_set_pixel(graphics_t* graphics, graph
 
     graphics_rgb_332_get_pixel_pos(graphics, x, y, &byte, NULL);
 
-    graphics->data[byte] = color & 0xff;
+    graphics->data[byte] = color /*& 0xff*/;
 }
 
 static ALWAYS_INLINE void graphics_rgb_565_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -248,7 +248,7 @@ static ALWAYS_INLINE void graphics_rgb_565_set_pixel(graphics_t* graphics, graph
     graphics_rgb_565_get_pixel_pos(graphics, x, y, &byte, NULL);
 
     graphics->data[byte]     = color & 0xff;
-    graphics->data[byte + 1] = (color >> 8) & 0xff;
+    graphics->data[byte + 1] = (color >> 8) /*& 0xff*/;
 }
 
 static ALWAYS_INLINE void graphics_rgb_8_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -259,7 +259,7 @@ static ALWAYS_INLINE void graphics_rgb_8_set_pixel(graphics_t* graphics, graphic
 
     graphics->data[byte]     = color & 0xff;
     graphics->data[byte + 1] = (color >> 8) & 0xff;
-    graphics->data[byte + 2] = (color >> 16) & 0xff;
+    graphics->data[byte + 2] = (color >> 16) /*& 0xff*/;
 }
 
 /*
@@ -272,7 +272,7 @@ static ALWAYS_INLINE void graphics_bw_1_v_or_pixel(graphics_t* graphics, graphic
 
     graphics_bw_1_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] |= (color & 0x1) << bit;
+    graphics->data[byte] |= (color /*& 0x1*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_bw_1_h_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -281,7 +281,7 @@ static ALWAYS_INLINE void graphics_bw_1_h_or_pixel(graphics_t* graphics, graphic
 
     graphics_bw_1_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] |= (color & 0x1) << bit;
+    graphics->data[byte] |= (color /*& 0x1*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_gray_2_v_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -290,7 +290,7 @@ static ALWAYS_INLINE void graphics_gray_2_v_or_pixel(graphics_t* graphics, graph
 
     graphics_gray_2_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] |= (color & 0x3) << bit;
+    graphics->data[byte] |= (color /*& 0x3*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_gray_2_h_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -299,7 +299,7 @@ static ALWAYS_INLINE void graphics_gray_2_h_or_pixel(graphics_t* graphics, graph
 
     graphics_gray_2_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] |= (color & 0x3) << bit;
+    graphics->data[byte] |= (color /*& 0x3*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_rgb_121_v_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -308,7 +308,7 @@ static ALWAYS_INLINE void graphics_rgb_121_v_or_pixel(graphics_t* graphics, grap
 
     graphics_rgb_121_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] |= (color & 0xf) << bit;
+    graphics->data[byte] |= (color /*& 0xf*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_rgb_121_h_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -317,7 +317,7 @@ static ALWAYS_INLINE void graphics_rgb_121_h_or_pixel(graphics_t* graphics, grap
 
     graphics_rgb_121_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] |= (color & 0xf) << bit;
+    graphics->data[byte] |= (color /*& 0xf*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_rgb_332_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -326,7 +326,7 @@ static ALWAYS_INLINE void graphics_rgb_332_or_pixel(graphics_t* graphics, graphi
 
     graphics_rgb_332_get_pixel_pos(graphics, x, y, &byte, NULL);
 
-    graphics->data[byte] |= color & 0xff;
+    graphics->data[byte] |= color /*& 0xff*/;
 }
 
 static ALWAYS_INLINE void graphics_rgb_565_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -336,7 +336,7 @@ static ALWAYS_INLINE void graphics_rgb_565_or_pixel(graphics_t* graphics, graphi
     graphics_rgb_565_get_pixel_pos(graphics, x, y, &byte, NULL);
 
     graphics->data[byte]     |= color & 0xff;
-    graphics->data[byte + 1] |= (color >> 8) & 0xff;
+    graphics->data[byte + 1] |= (color >> 8) /*& 0xff*/;
 }
 
 static ALWAYS_INLINE void graphics_rgb_8_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -347,7 +347,7 @@ static ALWAYS_INLINE void graphics_rgb_8_or_pixel(graphics_t* graphics, graphics
 
     graphics->data[byte]     |= color & 0xff;
     graphics->data[byte + 1] |= (color >> 8) & 0xff;
-    graphics->data[byte + 2] |= (color >> 16) & 0xff;
+    graphics->data[byte + 2] |= (color >> 16) /*& 0xff*/;
 }
 
 /*
@@ -360,7 +360,7 @@ static ALWAYS_INLINE void graphics_bw_1_v_xor_pixel(graphics_t* graphics, graphi
 
     graphics_bw_1_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] ^= (color & 0x1) << bit;
+    graphics->data[byte] ^= (color /*& 0x1*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_bw_1_h_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -369,7 +369,7 @@ static ALWAYS_INLINE void graphics_bw_1_h_xor_pixel(graphics_t* graphics, graphi
 
     graphics_bw_1_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] ^= (color & 0x1) << bit;
+    graphics->data[byte] ^= (color /*& 0x1*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_gray_2_v_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -378,7 +378,7 @@ static ALWAYS_INLINE void graphics_gray_2_v_xor_pixel(graphics_t* graphics, grap
 
     graphics_gray_2_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] ^= (color & 0x3) << bit;
+    graphics->data[byte] ^= (color /*& 0x3*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_gray_2_h_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -387,7 +387,7 @@ static ALWAYS_INLINE void graphics_gray_2_h_xor_pixel(graphics_t* graphics, grap
 
     graphics_gray_2_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] ^= (color & 0x3) << bit;
+    graphics->data[byte] ^= (color /*& 0x3*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_rgb_121_v_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -396,7 +396,7 @@ static ALWAYS_INLINE void graphics_rgb_121_v_xor_pixel(graphics_t* graphics, gra
 
     graphics_rgb_121_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] ^= (color & 0xf) << bit;
+    graphics->data[byte] ^= (color /*& 0xf*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_rgb_121_h_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -405,7 +405,7 @@ static ALWAYS_INLINE void graphics_rgb_121_h_xor_pixel(graphics_t* graphics, gra
 
     graphics_rgb_121_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] ^= (color & 0xf) << bit;
+    graphics->data[byte] ^= (color /*& 0xf*/) << bit;
 }
 
 static ALWAYS_INLINE void graphics_rgb_332_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -414,7 +414,7 @@ static ALWAYS_INLINE void graphics_rgb_332_xor_pixel(graphics_t* graphics, graph
 
     graphics_rgb_332_get_pixel_pos(graphics, x, y, &byte, NULL);
 
-    graphics->data[byte] ^= color & 0xff;
+    graphics->data[byte] ^= color /*& 0xff*/;
 }
 
 static ALWAYS_INLINE void graphics_rgb_565_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -424,7 +424,7 @@ static ALWAYS_INLINE void graphics_rgb_565_xor_pixel(graphics_t* graphics, graph
     graphics_rgb_565_get_pixel_pos(graphics, x, y, &byte, NULL);
 
     graphics->data[byte]     ^= color & 0xff;
-    graphics->data[byte + 1] ^= (color >> 8) & 0xff;
+    graphics->data[byte + 1] ^= (color >> 8) /*& 0xff*/;
 }
 
 static ALWAYS_INLINE void graphics_rgb_8_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -435,7 +435,7 @@ static ALWAYS_INLINE void graphics_rgb_8_xor_pixel(graphics_t* graphics, graphic
 
     graphics->data[byte]     ^= color & 0xff;
     graphics->data[byte + 1] ^= (color >> 8) & 0xff;
-    graphics->data[byte + 2] ^= (color >> 16) & 0xff;
+    graphics->data[byte + 2] ^= (color >> 16) /*& 0xff*/;
 }
 
 /*
@@ -448,7 +448,7 @@ static ALWAYS_INLINE void graphics_bw_1_v_and_pixel(graphics_t* graphics, graphi
 
     graphics_bw_1_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] &= ((color & 0x1) << bit) | (~(1 << bit));
+    graphics->data[byte] &= ((color /*& 0x1*/) << bit) | (~(1 << bit));
 }
 
 static ALWAYS_INLINE void graphics_bw_1_h_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -457,7 +457,7 @@ static ALWAYS_INLINE void graphics_bw_1_h_and_pixel(graphics_t* graphics, graphi
 
     graphics_bw_1_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] &= ((color & 0x1) << bit) | (~(1 << bit));
+    graphics->data[byte] &= ((color /*& 0x1*/) << bit) | (~(1 << bit));
 }
 
 static ALWAYS_INLINE void graphics_gray_2_v_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -466,7 +466,7 @@ static ALWAYS_INLINE void graphics_gray_2_v_and_pixel(graphics_t* graphics, grap
 
     graphics_gray_2_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] &= ((color & 0x3) << bit) | (~(0x3 << bit));
+    graphics->data[byte] &= ((color /*& 0x3*/) << bit) | (~(0x3 << bit));
 }
 
 static ALWAYS_INLINE void graphics_gray_2_h_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -475,7 +475,7 @@ static ALWAYS_INLINE void graphics_gray_2_h_and_pixel(graphics_t* graphics, grap
 
     graphics_gray_2_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] &= ((color & 0x3) << bit) | (~(0x3 << bit));
+    graphics->data[byte] &= ((color /*& 0x3*/) << bit) | (~(0x3 << bit));
 }
 
 static ALWAYS_INLINE void graphics_rgb_121_v_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -484,7 +484,7 @@ static ALWAYS_INLINE void graphics_rgb_121_v_and_pixel(graphics_t* graphics, gra
 
     graphics_rgb_121_v_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] &= ((color & 0xf) << bit) | (~(0xf << bit));
+    graphics->data[byte] &= ((color /*& 0xf*/) << bit) | (~(0xf << bit));
 }
 
 static ALWAYS_INLINE void graphics_rgb_121_h_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -493,7 +493,7 @@ static ALWAYS_INLINE void graphics_rgb_121_h_and_pixel(graphics_t* graphics, gra
 
     graphics_rgb_121_h_get_pixel_pos(graphics, x, y, &byte, &bit);
 
-    graphics->data[byte] &= ((color & 0xf) << bit) | (~(0xf << bit));
+    graphics->data[byte] &= ((color /*& 0xf*/) << bit) | (~(0xf << bit));
 }
 
 static ALWAYS_INLINE void graphics_rgb_332_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -502,7 +502,7 @@ static ALWAYS_INLINE void graphics_rgb_332_and_pixel(graphics_t* graphics, graph
 
     graphics_rgb_332_get_pixel_pos(graphics, x, y, &byte, NULL);
 
-    graphics->data[byte] &= color & 0xff;
+    graphics->data[byte] &= color /*& 0xff*/;
 }
 
 static ALWAYS_INLINE void graphics_rgb_565_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -512,7 +512,7 @@ static ALWAYS_INLINE void graphics_rgb_565_and_pixel(graphics_t* graphics, graph
     graphics_rgb_565_get_pixel_pos(graphics, x, y, &byte, NULL);
 
     graphics->data[byte]     &= color & 0xff;
-    graphics->data[byte + 1] &= (color >> 8) & 0xff;
+    graphics->data[byte + 1] &= (color >> 8) /*& 0xff*/;
 }
 
 static ALWAYS_INLINE void graphics_rgb_8_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
@@ -523,7 +523,7 @@ static ALWAYS_INLINE void graphics_rgb_8_and_pixel(graphics_t* graphics, graphic
 
     graphics->data[byte]     &= color & 0xff;
     graphics->data[byte + 1] &= (color >> 8) & 0xff;
-    graphics->data[byte + 2] &= (color >> 16) & 0xff;
+    graphics->data[byte + 2] &= (color >> 16) /*& 0xff*/;
 }
 
 /*
@@ -542,16 +542,16 @@ static ALWAYS_INLINE graphics_color_t graphics_bw_1_color_from(graphics_format_t
 
         case GRAPHICS_FORMAT_RGB_121_V:
         case GRAPHICS_FORMAT_RGB_121_H:
-            return GRAPHICS_RGB_121_TO_GRAY(color) >= (GRAPHICS_RGB_121_TO_GRAY_MAX / 2);
+            return GRAPHICS_RGB_121_TO_GRAY(color) >= (GRAPHICS_RGB_121_TO_GRAY_MAX >> 1);
 
         case GRAPHICS_FORMAT_RGB_332:
-            return GRAPHICS_RGB_332_TO_GRAY(color) >= (GRAPHICS_RGB_332_TO_GRAY_MAX / 2);
+            return GRAPHICS_RGB_332_TO_GRAY(color) >= (GRAPHICS_RGB_332_TO_GRAY_MAX >> 1);
 
         case GRAPHICS_FORMAT_RGB_565:
-            return GRAPHICS_RGB_565_TO_GRAY(color) >= (GRAPHICS_RGB_565_TO_GRAY_MAX / 2);
+            return GRAPHICS_RGB_565_TO_GRAY(color) >= (GRAPHICS_RGB_565_TO_GRAY_MAX >> 1);
 
         case GRAPHICS_FORMAT_RGB_8:
-            return GRAPHICS_RGB_8_TO_GRAY(color) >= (GRAPHICS_RGB_8_TO_GRAY_MAX / 2);
+            return GRAPHICS_RGB_8_TO_GRAY(color) >= (GRAPHICS_RGB_8_TO_GRAY_MAX >> 1);
     }
 
     return 0;
@@ -587,6 +587,7 @@ static ALWAYS_INLINE graphics_color_t graphics_gray_2_color_from(graphics_format
 
 static ALWAYS_INLINE graphics_color_t graphics_rgb_121_color_from(graphics_format_t from_format, graphics_color_t color)
 {
+    uint32_t color_r, color_g, color_b;
     switch(from_format){
         case GRAPHICS_FORMAT_BW_1_V:
         case GRAPHICS_FORMAT_BW_1_H:
@@ -594,21 +595,32 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_121_color_from(graphics_forma
 
         case GRAPHICS_FORMAT_GRAY_2_V:
         case GRAPHICS_FORMAT_GRAY_2_H:
-            color &= 0x3;
-            return GRAPHICS_COLOR_RGB_121(color > 0x1, color, color > 0x1);
+            color_r = color >> 1;
+            color_g = color;
+            color_b = color_r;
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_121_V:
         case GRAPHICS_FORMAT_RGB_121_H:
             return color;
 
         case GRAPHICS_FORMAT_RGB_332:
-            return GRAPHICS_COLOR_RGB_121(GRAPHICS_RED_RGB_332(color) > 0x3, GRAPHICS_GREEN_RGB_332(color) * 0x3 / 0x7, GRAPHICS_BLUE_RGB_332(color) > 0x3);
+            color_r = GRAPHICS_RED_RGB_332(color) >> 2;
+            color_g = GRAPHICS_GREEN_RGB_332(color) * 0x3; color_g = GRAPHICS_FAST_DIV_7(color_g);
+            color_b = GRAPHICS_BLUE_RGB_332(color) >> 1;
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_565:
-            return GRAPHICS_COLOR_RGB_121(GRAPHICS_RED_RGB_565(color) > 0xf, GRAPHICS_GREEN_RGB_565(color) * 0x3 / 0x3f, GRAPHICS_BLUE_RGB_565(color) > 0xf);
+            color_r = GRAPHICS_RED_RGB_565(color) >> 4;
+            color_g = GRAPHICS_GREEN_RGB_565(color) * 0x3; color_g = GRAPHICS_FAST_DIV_63(color_g);
+            color_b = GRAPHICS_BLUE_RGB_565(color) >> 4;
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_8:
-            return GRAPHICS_COLOR_RGB_121(GRAPHICS_RED_RGB_8(color) > 0x7f, GRAPHICS_GREEN_RGB_8(color) * 0x3 / 0xff, GRAPHICS_BLUE_RGB_8(color) > 0x7f);
+            color_r = GRAPHICS_RED_RGB_8(color) >> 7;
+            color_g = GRAPHICS_GREEN_RGB_8(color) * 0x3; color_g = GRAPHICS_FAST_DIV_255(color_g);
+            color_b = GRAPHICS_BLUE_RGB_8(color) >> 7;
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
     }
 
     return 0;
@@ -616,30 +628,40 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_121_color_from(graphics_forma
 
 static ALWAYS_INLINE graphics_color_t graphics_rgb_332_color_from(graphics_format_t from_format, graphics_color_t color)
 {
+    uint32_t color_r, color_g, color_b;
     switch(from_format){
         case GRAPHICS_FORMAT_BW_1_V:
         case GRAPHICS_FORMAT_BW_1_H:
             return (color == 0x0) ? 0x0 : 0xff;
 
         case GRAPHICS_FORMAT_GRAY_2_V:
-        case GRAPHICS_FORMAT_GRAY_2_H:{
-            color &= 0x3;
-            uint32_t c = color * 0x7 / 0x3;
-            return GRAPHICS_COLOR_RGB_332(c, c, color);
-        }
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            color_r = color * 0x7; color_r = GRAPHICS_FAST_DIV_3(color_r);
+            color_g = color_r;
+            color_b = color;
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_121_V:
         case GRAPHICS_FORMAT_RGB_121_H:
-            return GRAPHICS_COLOR_RGB_332(GRAPHICS_RED_RGB_121(color) * 0x7, GRAPHICS_GREEN_RGB_121(color) * 0x7 / 0x3, GRAPHICS_BLUE_RGB_121(color) * 0x3);
+            color_r = GRAPHICS_RED_RGB_121(color) * 0x7;
+            color_g = GRAPHICS_GREEN_RGB_121(color) * 0x7; color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = GRAPHICS_BLUE_RGB_121(color) * 0x3;
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_332:
             return color;
 
         case GRAPHICS_FORMAT_RGB_565:
-            return GRAPHICS_COLOR_RGB_332(GRAPHICS_RED_RGB_565(color) * 0x7 / 0x1f, GRAPHICS_GREEN_RGB_565(color) * 0x7 / 0x3f, GRAPHICS_BLUE_RGB_565(color) * 0x3 / 0x1f);
+            color_r = GRAPHICS_RED_RGB_565(color) * 0x7; color_r = GRAPHICS_FAST_DIV_31(color_r);
+            color_g = GRAPHICS_GREEN_RGB_565(color) * 0x7; color_g = GRAPHICS_FAST_DIV_63(color_g);
+            color_b = GRAPHICS_BLUE_RGB_565(color) * 0x3; color_b = GRAPHICS_FAST_DIV_31(color_b);
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_8:
-            return GRAPHICS_COLOR_RGB_332(GRAPHICS_RED_RGB_8(color) * 0x7 / 0xff, GRAPHICS_GREEN_RGB_8(color) * 0x7 / 0xff, GRAPHICS_BLUE_RGB_8(color) * 0x3 / 0xff);
+            color_r = GRAPHICS_RED_RGB_8(color) * 0x7; color_r = GRAPHICS_FAST_DIV_255(color_r);
+            color_g = GRAPHICS_GREEN_RGB_8(color) * 0x7; color_g = GRAPHICS_FAST_DIV_255(color_g);
+            color_b = GRAPHICS_BLUE_RGB_8(color) * 0x3; color_b = GRAPHICS_FAST_DIV_255(color_b);
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
     }
 
     return 0;
@@ -647,30 +669,40 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_332_color_from(graphics_forma
 
 static ALWAYS_INLINE graphics_color_t graphics_rgb_565_color_from(graphics_format_t from_format, graphics_color_t color)
 {
+    uint32_t color_r, color_g, color_b;
     switch(from_format){
         case GRAPHICS_FORMAT_BW_1_V:
         case GRAPHICS_FORMAT_BW_1_H:
             return (color == 0x0) ? 0x0 : 0xffff;
 
         case GRAPHICS_FORMAT_GRAY_2_V:
-        case GRAPHICS_FORMAT_GRAY_2_H:{
-            color &= 0x3;
-            uint32_t c = color * 0x1f / 0x3;
-            return GRAPHICS_COLOR_RGB_565(c, color * 0x3f / 0x3, c);
-        }
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            color_r = color * 0x1f; color_r = GRAPHICS_FAST_DIV_3(color_r);
+            color_g = color * 0x3f; color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = color_r;
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_121_V:
         case GRAPHICS_FORMAT_RGB_121_H:
-            return GRAPHICS_COLOR_RGB_565(GRAPHICS_RED_RGB_121(color) * 0x1f, GRAPHICS_GREEN_RGB_121(color) * 0x3f / 0x3, GRAPHICS_BLUE_RGB_121(color) * 0x1f);
+            color_r = GRAPHICS_RED_RGB_121(color) * 0x1f;
+            color_g = GRAPHICS_GREEN_RGB_121(color) * 0x3f; color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = GRAPHICS_BLUE_RGB_121(color) * 0x1f;
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_332:
-            return GRAPHICS_COLOR_RGB_565(GRAPHICS_RED_RGB_332(color) * 0x1f / 0x7, GRAPHICS_GREEN_RGB_332(color) * 0x3f / 0x7, GRAPHICS_BLUE_RGB_332(color) * 0x1f / 0x3);
+            color_r = GRAPHICS_RED_RGB_332(color) * 0x1f; color_r = GRAPHICS_FAST_DIV_7(color_r);
+            color_g = GRAPHICS_GREEN_RGB_332(color) * 0x3f; color_g = GRAPHICS_FAST_DIV_7(color_g);
+            color_b = GRAPHICS_BLUE_RGB_332(color) * 0x1f; color_b = GRAPHICS_FAST_DIV_3(color_b);
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_565:
             return color;
 
         case GRAPHICS_FORMAT_RGB_8:
-            return GRAPHICS_COLOR_RGB_565(GRAPHICS_RED_RGB_8(color) * 0x1f / 0xff, GRAPHICS_GREEN_RGB_8(color) * 0x3f / 0xff, GRAPHICS_BLUE_RGB_8(color) * 0x1f / 0xff);
+            color_r = GRAPHICS_RED_RGB_8(color) * 0x1f; color_r = GRAPHICS_FAST_DIV_255(color_r);
+            color_g = GRAPHICS_GREEN_RGB_8(color) * 0x3f; color_g = GRAPHICS_FAST_DIV_255(color_g);
+            color_b = GRAPHICS_BLUE_RGB_8(color) * 0x1f; color_b = GRAPHICS_FAST_DIV_255(color_b);
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
     }
 
     return 0;
@@ -678,32 +710,285 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_565_color_from(graphics_forma
 
 static ALWAYS_INLINE graphics_color_t graphics_rgb_8_color_from(graphics_format_t from_format, graphics_color_t color)
 {
+    uint32_t color_r, color_g, color_b;
     switch(from_format){
         case GRAPHICS_FORMAT_BW_1_V:
         case GRAPHICS_FORMAT_BW_1_H:
             return (color == 0x0) ? 0x0 : 0x00ffffff;
 
         case GRAPHICS_FORMAT_GRAY_2_V:
-        case GRAPHICS_FORMAT_GRAY_2_H:{
-            color = (color & 0x3) * 0xff / 0x3;
-            return GRAPHICS_COLOR_RGB_565(color, color, color);
-        }
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            color_r = color * 0xff; color_r = GRAPHICS_FAST_DIV_3(color_r);
+            color_g = color_r;
+            color_b = color_r;
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_121_V:
         case GRAPHICS_FORMAT_RGB_121_H:
-            return GRAPHICS_COLOR_RGB_8(GRAPHICS_RED_RGB_121(color) * 0xff, GRAPHICS_GREEN_RGB_121(color) * 0xff / 0x3, GRAPHICS_BLUE_RGB_121(color) * 0xff);
+            color_r = GRAPHICS_RED_RGB_121(color) * 0xff;
+            color_g = GRAPHICS_GREEN_RGB_121(color) * 0xff; color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = GRAPHICS_BLUE_RGB_121(color) * 0xff;
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_332:
-            return GRAPHICS_COLOR_RGB_8(GRAPHICS_RED_RGB_332(color) * 0xff / 0x7, GRAPHICS_GREEN_RGB_332(color) * 0xff / 0x7, GRAPHICS_BLUE_RGB_332(color) * 0xff / 0x3);
+            color_r = GRAPHICS_RED_RGB_332(color) * 0xff; color_r = GRAPHICS_FAST_DIV_7(color_r);
+            color_g = GRAPHICS_GREEN_RGB_332(color) * 0xff; color_g = GRAPHICS_FAST_DIV_7(color_g);
+            color_b = GRAPHICS_BLUE_RGB_332(color) * 0xff; color_b = GRAPHICS_FAST_DIV_3(color_b);
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_565:
-            return GRAPHICS_COLOR_RGB_8(GRAPHICS_RED_RGB_565(color) * 0xff / 0x1f, GRAPHICS_GREEN_RGB_565(color) * 0xff / 0x3f, GRAPHICS_BLUE_RGB_565(color) * 0xff / 0x1f);
+            color_r = GRAPHICS_RED_RGB_565(color) * 0xff; color_r = GRAPHICS_FAST_DIV_31(color_r);
+            color_g = GRAPHICS_GREEN_RGB_565(color) * 0xff; color_g = GRAPHICS_FAST_DIV_63(color_g);
+            color_b = GRAPHICS_BLUE_RGB_565(color) * 0xff; color_b = GRAPHICS_FAST_DIV_31(color_b);
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
 
         case GRAPHICS_FORMAT_RGB_8:
             return color;
     }
 
     return 0;
+}
+
+/*
+ * COLOR AS MASK.
+ */
+static ALWAYS_INLINE graphics_color_t graphics_bw_1_apply_mask(graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask)
+{
+    //if(color == 0 || mask == 0) return 0;
+    switch(mask_format){
+        case GRAPHICS_FORMAT_BW_1_V:
+        case GRAPHICS_FORMAT_BW_1_H:
+            return color * mask;
+
+        case GRAPHICS_FORMAT_GRAY_2_V:
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            return (mask >= 0x2) ? color : 0x0;
+
+        case GRAPHICS_FORMAT_RGB_121_V:
+        case GRAPHICS_FORMAT_RGB_121_H:
+            return (GRAPHICS_RGB_121_TO_GRAY(mask) >= (GRAPHICS_RGB_121_TO_GRAY_MAX >> 1)) ? color : 0x0;
+
+        case GRAPHICS_FORMAT_RGB_332:
+            return (GRAPHICS_RGB_332_TO_GRAY(mask) >= (GRAPHICS_RGB_332_TO_GRAY_MAX >> 1)) ? color : 0x0;
+
+        case GRAPHICS_FORMAT_RGB_565:
+            return (GRAPHICS_RGB_565_TO_GRAY(mask) >= (GRAPHICS_RGB_565_TO_GRAY_MAX >> 1)) ? color : 0x0;
+
+        case GRAPHICS_FORMAT_RGB_8:
+            return (GRAPHICS_RGB_8_TO_GRAY(mask) >= (GRAPHICS_RGB_8_TO_GRAY_MAX >> 1)) ? color : 0x0;
+    }
+
+    return color;
+}
+
+static ALWAYS_INLINE graphics_color_t graphics_gray_2_apply_mask(graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask)
+{
+    //if(color == 0 || mask == 0) return 0;
+    switch(mask_format){
+        case GRAPHICS_FORMAT_BW_1_V:
+        case GRAPHICS_FORMAT_BW_1_H:
+            return color * mask;
+
+        case GRAPHICS_FORMAT_GRAY_2_V:
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            color *= mask;
+            return GRAPHICS_FAST_DIV_3(color);
+
+        case GRAPHICS_FORMAT_RGB_121_V:
+        case GRAPHICS_FORMAT_RGB_121_H:
+            return GRAPHICS_RGB_121_TO_GRAY(mask) * color / GRAPHICS_RGB_121_TO_GRAY_MAX;
+
+        case GRAPHICS_FORMAT_RGB_332:
+            return GRAPHICS_RGB_332_TO_GRAY(mask) * color / GRAPHICS_RGB_332_TO_GRAY_MAX;
+
+        case GRAPHICS_FORMAT_RGB_565:
+            return GRAPHICS_RGB_565_TO_GRAY(mask) * color / GRAPHICS_RGB_565_TO_GRAY_MAX;
+
+        case GRAPHICS_FORMAT_RGB_8:
+            return GRAPHICS_RGB_8_TO_GRAY(mask) * color / GRAPHICS_RGB_8_TO_GRAY_MAX;
+    }
+
+    return color;
+}
+
+static ALWAYS_INLINE graphics_color_t graphics_rgb_121_apply_mask(graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask)
+{
+    //if(color == 0 || mask == 0) return 0;
+    uint32_t color_r, color_g, color_b;
+    switch(mask_format){
+        case GRAPHICS_FORMAT_BW_1_V:
+        case GRAPHICS_FORMAT_BW_1_H:
+            return color * mask;
+
+        case GRAPHICS_FORMAT_GRAY_2_V:
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            color_r = (GRAPHICS_RED_RGB_121(color) * (mask >> 1));
+            color_g = (GRAPHICS_GREEN_RGB_121(color) * mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = (GRAPHICS_BLUE_RGB_121(color) * (mask >> 1));
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_121_V:
+        case GRAPHICS_FORMAT_RGB_121_H:
+            color_r = GRAPHICS_RED_RGB_121(color) * GRAPHICS_RED_RGB_121(mask);
+            color_g = GRAPHICS_GREEN_RGB_121(color) * GRAPHICS_GREEN_RGB_121(mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = GRAPHICS_BLUE_RGB_121(color) * GRAPHICS_BLUE_RGB_121(mask);
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_332:
+            color_r = GRAPHICS_RED_RGB_121(color) * (GRAPHICS_RED_RGB_332(mask) >> 2);
+            color_g = GRAPHICS_GREEN_RGB_121(color) * GRAPHICS_GREEN_RGB_332(mask); color_g = GRAPHICS_FAST_DIV_7(color_g);
+            color_b = GRAPHICS_BLUE_RGB_121(color) * (GRAPHICS_BLUE_RGB_332(mask) >> 1);
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_565:
+            color_r = GRAPHICS_RED_RGB_121(color) * (GRAPHICS_RED_RGB_565(mask) >> 4);
+            color_g = GRAPHICS_GREEN_RGB_121(color) * GRAPHICS_GREEN_RGB_565(mask); color_g = GRAPHICS_FAST_DIV_63(color_g);
+            color_b = GRAPHICS_BLUE_RGB_121(color) * (GRAPHICS_BLUE_RGB_565(mask) >> 4);
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_8:
+            color_r = GRAPHICS_RED_RGB_121(color) * (GRAPHICS_RED_RGB_8(mask) >> 7);
+            color_g = GRAPHICS_GREEN_RGB_121(color) * GRAPHICS_GREEN_RGB_8(mask); color_g = GRAPHICS_FAST_DIV_255(color_g);
+            color_b = GRAPHICS_BLUE_RGB_121(color) * (GRAPHICS_BLUE_RGB_8(mask) >> 7);
+            return GRAPHICS_COLOR_RGB_121(color_r, color_g, color_b);
+    }
+
+    return color;
+}
+
+static ALWAYS_INLINE graphics_color_t graphics_rgb_332_apply_mask(graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask)
+{
+    //if(color == 0 || mask == 0) return 0;
+    uint32_t color_r, color_g, color_b;
+    switch(mask_format){
+        case GRAPHICS_FORMAT_BW_1_V:
+        case GRAPHICS_FORMAT_BW_1_H:
+            return color * mask;
+
+        case GRAPHICS_FORMAT_GRAY_2_V:
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            color_r = (GRAPHICS_RED_RGB_332(color) * mask); color_r = GRAPHICS_FAST_DIV_3(color_r);
+            color_g = (GRAPHICS_GREEN_RGB_332(color) * mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = (GRAPHICS_BLUE_RGB_332(color) * mask); color_b = GRAPHICS_FAST_DIV_3(color_b);
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_121_V:
+        case GRAPHICS_FORMAT_RGB_121_H:
+            color_r = GRAPHICS_RED_RGB_332(color) * GRAPHICS_RED_RGB_121(mask);
+            color_g = GRAPHICS_GREEN_RGB_332(color) * GRAPHICS_GREEN_RGB_121(mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = GRAPHICS_BLUE_RGB_332(color) * GRAPHICS_BLUE_RGB_121(mask);
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_332:
+            color_r = GRAPHICS_RED_RGB_332(color) * GRAPHICS_RED_RGB_332(mask); color_r = GRAPHICS_FAST_DIV_7(color_r);
+            color_g = GRAPHICS_GREEN_RGB_332(color) * GRAPHICS_GREEN_RGB_332(mask); color_g = GRAPHICS_FAST_DIV_7(color_g);
+            color_b = GRAPHICS_BLUE_RGB_332(color) * GRAPHICS_BLUE_RGB_332(mask); color_b = GRAPHICS_FAST_DIV_3(color_b);
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_565:
+            color_r = GRAPHICS_RED_RGB_332(color) * GRAPHICS_RED_RGB_565(mask); color_r = GRAPHICS_FAST_DIV_31(color_r);
+            color_g = GRAPHICS_GREEN_RGB_332(color) * GRAPHICS_GREEN_RGB_565(mask); color_g = GRAPHICS_FAST_DIV_63(color_g);
+            color_b = GRAPHICS_BLUE_RGB_332(color) * GRAPHICS_BLUE_RGB_565(mask); color_b = GRAPHICS_FAST_DIV_31(color_b);
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_8:
+            color_r = GRAPHICS_RED_RGB_332(color) * GRAPHICS_RED_RGB_8(mask); color_r = GRAPHICS_FAST_DIV_255(color_r);
+            color_g = GRAPHICS_GREEN_RGB_332(color) * GRAPHICS_GREEN_RGB_8(mask); color_g = GRAPHICS_FAST_DIV_255(color_g);
+            color_b = GRAPHICS_BLUE_RGB_332(color) * GRAPHICS_BLUE_RGB_8(mask); color_b = GRAPHICS_FAST_DIV_255(color_b);
+            return GRAPHICS_COLOR_RGB_332(color_r, color_g, color_b);
+    }
+
+    return color;
+}
+
+static ALWAYS_INLINE graphics_color_t graphics_rgb_565_apply_mask(graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask)
+{
+    //if(color == 0 || mask == 0) return 0;
+    uint32_t color_r, color_g, color_b;
+    switch(mask_format){
+        case GRAPHICS_FORMAT_BW_1_V:
+        case GRAPHICS_FORMAT_BW_1_H:
+            return color * mask;
+
+        case GRAPHICS_FORMAT_GRAY_2_V:
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            color_r = (GRAPHICS_RED_RGB_565(color) * mask); color_r = GRAPHICS_FAST_DIV_3(color_r);
+            color_g = (GRAPHICS_GREEN_RGB_565(color) * mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = (GRAPHICS_BLUE_RGB_565(color) * mask); color_b = GRAPHICS_FAST_DIV_3(color_b);
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_121_V:
+        case GRAPHICS_FORMAT_RGB_121_H:
+            color_r = GRAPHICS_RED_RGB_565(color) * GRAPHICS_RED_RGB_121(mask);
+            color_g = GRAPHICS_GREEN_RGB_565(color) * GRAPHICS_GREEN_RGB_121(mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = GRAPHICS_BLUE_RGB_565(color) * GRAPHICS_BLUE_RGB_121(mask);
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_332:
+            color_r = GRAPHICS_RED_RGB_565(color) * GRAPHICS_RED_RGB_332(mask); color_r = GRAPHICS_FAST_DIV_7(color_r);
+            color_g = GRAPHICS_GREEN_RGB_565(color) * GRAPHICS_GREEN_RGB_332(mask); color_g = GRAPHICS_FAST_DIV_7(color_g);
+            color_b = GRAPHICS_BLUE_RGB_565(color) * GRAPHICS_BLUE_RGB_332(mask); color_b = GRAPHICS_FAST_DIV_3(color_b);
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_565:
+            color_r = GRAPHICS_RED_RGB_565(color) * GRAPHICS_RED_RGB_565(mask); color_r = GRAPHICS_FAST_DIV_31(color_r);
+            color_g = GRAPHICS_GREEN_RGB_565(color) * GRAPHICS_GREEN_RGB_565(mask); color_g = GRAPHICS_FAST_DIV_63(color_g);
+            color_b = GRAPHICS_BLUE_RGB_565(color) * GRAPHICS_BLUE_RGB_565(mask); color_b = GRAPHICS_FAST_DIV_31(color_b);
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_8:
+            color_r = GRAPHICS_RED_RGB_565(color) * GRAPHICS_RED_RGB_8(mask); color_r = GRAPHICS_FAST_DIV_255(color_r);
+            color_g = GRAPHICS_GREEN_RGB_565(color) * GRAPHICS_GREEN_RGB_8(mask); color_g = GRAPHICS_FAST_DIV_255(color_g);
+            color_b = GRAPHICS_BLUE_RGB_565(color) * GRAPHICS_BLUE_RGB_8(mask); color_b = GRAPHICS_FAST_DIV_255(color_b);
+            return GRAPHICS_COLOR_RGB_565(color_r, color_g, color_b);
+    }
+
+    return color;
+}
+
+static ALWAYS_INLINE graphics_color_t graphics_rgb_8_apply_mask(graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask)
+{
+    //if(color == 0 || mask == 0) return 0;
+    uint32_t color_r, color_g, color_b;
+    switch(mask_format){
+        case GRAPHICS_FORMAT_BW_1_V:
+        case GRAPHICS_FORMAT_BW_1_H:
+            return color * mask;
+
+        case GRAPHICS_FORMAT_GRAY_2_V:
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            color_r = (GRAPHICS_RED_RGB_8(color) * mask); color_r = GRAPHICS_FAST_DIV_3(color_r);
+            color_g = (GRAPHICS_GREEN_RGB_8(color) * mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = (GRAPHICS_BLUE_RGB_8(color) * mask); color_b = GRAPHICS_FAST_DIV_3(color_b);
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_121_V:
+        case GRAPHICS_FORMAT_RGB_121_H:
+            color_r = GRAPHICS_RED_RGB_8(color) * GRAPHICS_RED_RGB_121(mask);
+            color_g = GRAPHICS_GREEN_RGB_8(color) * GRAPHICS_GREEN_RGB_121(mask); color_g = GRAPHICS_FAST_DIV_3(color_g);
+            color_b = GRAPHICS_BLUE_RGB_8(color) * GRAPHICS_BLUE_RGB_121(mask);
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_332:
+            color_r = GRAPHICS_RED_RGB_8(color) * GRAPHICS_RED_RGB_332(mask); color_r = GRAPHICS_FAST_DIV_7(color_r);
+            color_g = GRAPHICS_GREEN_RGB_8(color) * GRAPHICS_GREEN_RGB_332(mask); color_g = GRAPHICS_FAST_DIV_7(color_g);
+            color_b = GRAPHICS_BLUE_RGB_8(color) * GRAPHICS_BLUE_RGB_332(mask); color_b = GRAPHICS_FAST_DIV_3(color_b);
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_565:
+            color_r = GRAPHICS_RED_RGB_8(color) * GRAPHICS_RED_RGB_565(mask); color_r = GRAPHICS_FAST_DIV_31(color_r);
+            color_g = GRAPHICS_GREEN_RGB_8(color) * GRAPHICS_GREEN_RGB_565(mask); color_g = GRAPHICS_FAST_DIV_63(color_g);
+            color_b = GRAPHICS_BLUE_RGB_8(color) * GRAPHICS_BLUE_RGB_565(mask); color_b = GRAPHICS_FAST_DIV_31(color_b);
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
+
+        case GRAPHICS_FORMAT_RGB_8:
+            color_r = GRAPHICS_RED_RGB_8(color) * GRAPHICS_RED_RGB_8(mask); color_r = GRAPHICS_FAST_DIV_255(color_r);
+            color_g = GRAPHICS_GREEN_RGB_8(color) * GRAPHICS_GREEN_RGB_8(mask); color_g = GRAPHICS_FAST_DIV_255(color_g);
+            color_b = GRAPHICS_BLUE_RGB_8(color) * GRAPHICS_BLUE_RGB_8(mask); color_b = GRAPHICS_FAST_DIV_255(color_b);
+            return GRAPHICS_COLOR_RGB_8(color_r, color_g, color_b);
+    }
+
+    return color;
 }
 
 

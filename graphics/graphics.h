@@ -114,6 +114,48 @@ typedef enum _Graphics_format {
 // BGR 8.
 #define GRAPHICS_BGR_8_TO_GRAY_MAX 25500
 
+// Приближённо делит число на DIV,
+// равное числу POW2 - 1, которое является
+// степенью двойки,
+// используя преобразование к интервалу [0..256].
+//#define GRAPHICS_FAST_DIV(N, DIV, POW2) (((N) * ((1 << (POW2) + 1) / (DIV))) >> (POW2 + POW2))
+#define GRAPHICS_FAST_DIV(N, POW2) (((N) + ((N) >> POW2) + (1 << (POW2 - 1))) >> POW2)
+
+// Приближённо делит число на 255,
+// используя преобразование к интервалу [0..256].
+//#define GRAPHICS_FAST_DIV_255(N) (((N) * 257) >> 16)
+#define GRAPHICS_FAST_DIV_255(N) GRAPHICS_FAST_DIV(N, 8)
+
+// Приближённо делит число на 127,
+// используя преобразование к интервалу [0..128].
+//#define GRAPHICS_FAST_DIV_127(N) (((N) * 129) >> 14)
+#define GRAPHICS_FAST_DIV_127(N) GRAPHICS_FAST_DIV(N, 7)
+
+// Приближённо делит число на 63,
+// используя преобразование к интервалу [0..64].
+//#define GRAPHICS_FAST_DIV_63(N) (((N) * 65) >> 12)
+#define GRAPHICS_FAST_DIV_63(N) GRAPHICS_FAST_DIV(N, 6)
+
+// Приближённо делит число на 31,
+// используя преобразование к интервалу [0..32].
+//#define GRAPHICS_FAST_DIV_31(N) (((N) * 33) >> 10)
+#define GRAPHICS_FAST_DIV_31(N) GRAPHICS_FAST_DIV(N, 5)
+
+// Приближённо делит число на 15,
+// используя преобразование к интервалу [0..16].
+//#define GRAPHICS_FAST_DIV_15(N) (((N) * 17) >> 8)
+#define GRAPHICS_FAST_DIV_15(N) GRAPHICS_FAST_DIV(N, 4)
+
+// Приближённо делит число на 7,
+// используя преобразование к интервалу [0..8].
+//#define GRAPHICS_FAST_DIV_7(N) (((N) * 9) >> 6)
+#define GRAPHICS_FAST_DIV_7(N) GRAPHICS_FAST_DIV(N, 3)
+
+// Приближённо делит число на 3,
+// используя преобразование к интервалу [0..8].
+//#define GRAPHICS_FAST_DIV_3(N) (((N) * 5) >> 4)
+#define GRAPHICS_FAST_DIV_3(N) GRAPHICS_FAST_DIV(N, 2)
+
 
 //! Тип цвета.
 typedef uint32_t graphics_color_t;
@@ -291,5 +333,15 @@ extern bool graphics_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_
  * @return Преобразованное значение цвета.
  */
 extern graphics_color_t graphics_convert_color(graphics_format_t to_format, graphics_format_t from_format, graphics_color_t color);
+
+/**
+ * Применяет к цвету значение маски яркости.
+ * @param color_format Исходный цвет.
+ * @param color Формат цвета.
+ * @param mask_format Формат маски.
+ * @param mask Маска цвета.
+ * @return Значение цвета с применённой маской.
+ */
+extern graphics_color_t graphics_apply_mask(graphics_format_t color_format, graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask);
 
 #endif  //_GRAPHICS_H_

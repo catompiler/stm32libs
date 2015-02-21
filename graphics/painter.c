@@ -7,15 +7,15 @@
 
 
 static const uint16_t sin_table[] = {
-    0x477, 0x8ef, 0xd65, 0x11db, 0x164f, 0x1ac2, 0x1f32, 0x23a0, 0x280c, 
-    0x2c74, 0x30d8, 0x3539, 0x3996, 0x3dee, 0x4241, 0x4690, 0x4ad8, 0x4f1b, 0x5358, 
-    0x578e, 0x5bbe, 0x5fe6, 0x6406, 0x681f, 0x6c30, 0x7039, 0x7438, 0x782f, 0x7c1c, 
-    0x7fff, 0x83d9, 0x87a8, 0x8b6d, 0x8f27, 0x92d5, 0x9679, 0x9a10, 0x9d9b, 0xa11b, 
-    0xa48d, 0xa7f3, 0xab4c, 0xae97, 0xb1d5, 0xb504, 0xb826, 0xbb39, 0xbe3e, 0xc134, 
-    0xc41b, 0xc6f3, 0xc9bb, 0xcc73, 0xcf1b, 0xd1b3, 0xd43b, 0xd6b3, 0xd919, 0xdb6f, 
-    0xddb3, 0xdfe7, 0xe208, 0xe419, 0xe617, 0xe803, 0xe9de, 0xeba6, 0xed5b, 0xeeff, 
-    0xf08f, 0xf20d, 0xf378, 0xf4d0, 0xf615, 0xf746, 0xf865, 0xf970, 0xfa67, 0xfb4b, 
-    0xfc1c, 0xfcd9, 0xfd82, 0xfe17, 0xfe98, 0xff06, 0xff60, 0xffa6, 0xffd8, 0xfff6, 
+    0x477, 0x8ef, 0xd65, 0x11db, 0x164f, 0x1ac2, 0x1f32, 0x23a0, 0x280c,
+    0x2c74, 0x30d8, 0x3539, 0x3996, 0x3dee, 0x4241, 0x4690, 0x4ad8, 0x4f1b, 0x5358,
+    0x578e, 0x5bbe, 0x5fe6, 0x6406, 0x681f, 0x6c30, 0x7039, 0x7438, 0x782f, 0x7c1c,
+    0x7fff, 0x83d9, 0x87a8, 0x8b6d, 0x8f27, 0x92d5, 0x9679, 0x9a10, 0x9d9b, 0xa11b,
+    0xa48d, 0xa7f3, 0xab4c, 0xae97, 0xb1d5, 0xb504, 0xb826, 0xbb39, 0xbe3e, 0xc134,
+    0xc41b, 0xc6f3, 0xc9bb, 0xcc73, 0xcf1b, 0xd1b3, 0xd43b, 0xd6b3, 0xd919, 0xdb6f,
+    0xddb3, 0xdfe7, 0xe208, 0xe419, 0xe617, 0xe803, 0xe9de, 0xeba6, 0xed5b, 0xeeff,
+    0xf08f, 0xf20d, 0xf378, 0xf4d0, 0xf615, 0xf746, 0xf865, 0xf970, 0xfa67, 0xfb4b,
+    0xfc1c, 0xfcd9, 0xfd82, 0xfe17, 0xfe98, 0xff06, 0xff60, 0xffa6, 0xffd8, 0xfff6,
 };
 
 
@@ -27,11 +27,15 @@ err_t painter_init(painter_t* painter, graphics_t* graphics)
     painter->mode = PAINTER_MODE_SET;
     painter->pen = PAINTER_PEN_SOLID;
     painter->brush = PAINTER_BRUSH_NONE;
+    painter->font = NULL;
     painter->fill_mode = PAINTER_FILL_MODE_ALL;
+    painter->source_image_mode = PAINTER_SOURCE_IMAGE_MODE_NORMAL;
     painter->pen_color = GRAPHICS_COLOR_BLACK;
     painter->brush_color = GRAPHICS_COLOR_BLACK;
     painter->fill_color = GRAPHICS_COLOR_BLACK;
     painter->fill_target_color = GRAPHICS_COLOR_BLACK;
+    painter->transparent_color = GRAPHICS_COLOR_BLACK;
+    painter->transparent_color_enabled = false;
     painter->custom_pen_graphics = NULL;
     painter->custom_brush_graphics = NULL;
 
@@ -49,6 +53,7 @@ bool painter_set_graphics(painter_t* painter, graphics_t* graphics)
 
 static ALWAYS_INLINE void painter_put_pixel(painter_t* painter, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
 {
+    if(painter->transparent_color_enabled && color == painter->transparent_color) return;
     switch(painter->mode){
         default:
         case PAINTER_MODE_SET:
@@ -94,15 +99,45 @@ void painter_put_line_pixel(painter_t* painter, graphics_pos_t x, graphics_pos_t
             break;
         case PAINTER_PEN_CUSTOM:{
             if(painter->custom_pen_graphics == NULL) break;
-            graphics_color_t color = graphics_convert_color(
-                                            graphics_format(painter->graphics),
-                                            graphics_format(painter->custom_pen_graphics),
-                                            graphics_get_pixel(
+
+            graphics_color_t color = graphics_get_pixel(
                                                 painter->custom_pen_graphics,
                                                 pixel_number % graphics_width(painter->custom_pen_graphics), 0
-                                            )
+                                            );
+
+            switch(painter->source_image_mode){
+                default:
+                case PAINTER_SOURCE_IMAGE_MODE_NORMAL:
+                    color = graphics_convert_color(
+                                            graphics_format(painter->graphics),
+                                            graphics_format(painter->custom_pen_graphics),
+                                            color
                                         );
-            painter_put_pixel(painter, x, y, color);
+                    painter_put_pixel(painter, x, y, color);
+                    break;
+                case PAINTER_SOURCE_IMAGE_MODE_MASK:{
+                    color = graphics_apply_mask(
+                                            graphics_format(painter->graphics),
+                                            painter_get_pixel(painter, x, y),
+                                            graphics_format(painter->custom_pen_graphics),
+                                            color
+                                        );
+                    painter_put_pixel(painter, x, y, color);
+                    }break;
+                case PAINTER_SOURCE_IMAGE_MODE_MAP:
+                    color = graphics_apply_mask(
+                                            graphics_format(painter->graphics),
+                                            painter->pen_color,
+                                            graphics_format(painter->custom_pen_graphics),
+                                            color
+                                        );
+                    painter_put_pixel(painter, x, y, color);
+                    break;
+                case PAINTER_SOURCE_IMAGE_MODE_BITMAP:
+                    if(color) painter_put_pixel(painter, x, y, painter->pen_color);
+                    break;
+            }
+
             }break;
     }
 }
@@ -259,16 +294,46 @@ void painter_fill_back_put_pixel(painter_t* painter, graphics_pos_t x_first, gra
             break;
         case PAINTER_BRUSH_CUSTOM:{
             if(painter->custom_brush_graphics == NULL) break;
-            graphics_color_t color = graphics_convert_color(
-                                            graphics_format(painter->graphics),
-                                            graphics_format(painter->custom_brush_graphics),
-                                            graphics_get_pixel(
+
+            graphics_color_t color = graphics_get_pixel(
                                                 painter->custom_brush_graphics,
                                                 dx % graphics_width(painter->custom_brush_graphics),
                                                 dy % graphics_height(painter->custom_brush_graphics)
-                                            )
+                                            );
+
+            switch(painter->source_image_mode){
+                default:
+                case PAINTER_SOURCE_IMAGE_MODE_NORMAL:
+                    color = graphics_convert_color(
+                                            graphics_format(painter->graphics),
+                                            graphics_format(painter->custom_brush_graphics),
+                                            color
                                         );
-            painter_put_pixel(painter, x, y, color);
+                    painter_put_pixel(painter, x, y, color);
+                    break;
+                case PAINTER_SOURCE_IMAGE_MODE_MASK:{
+                    color = graphics_apply_mask(
+                                            graphics_format(painter->graphics),
+                                            painter_get_pixel(painter, x, y),
+                                            graphics_format(painter->custom_brush_graphics),
+                                            color
+                                        );
+                    painter_put_pixel(painter, x, y, color);
+                    }break;
+                case PAINTER_SOURCE_IMAGE_MODE_MAP:
+                    color = graphics_apply_mask(
+                                            graphics_format(painter->graphics),
+                                            painter->brush_color,
+                                            graphics_format(painter->custom_brush_graphics),
+                                            color
+                                        );
+                    painter_put_pixel(painter, x, y, color);
+                    break;
+                case PAINTER_SOURCE_IMAGE_MODE_BITMAP:
+                    if(color) painter_put_pixel(painter, x, y, painter->brush_color);
+                    break;
+            }
+
             }break;
     }
 }
@@ -341,50 +406,50 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
 void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t radius)
 {
     size_t pixel_number = 0;
-    
+
     graphics_pos_t x = -radius;
     graphics_pos_t y = 0;
-    
+
     graphics_pos_t r2 = radius * radius;
-    
+
     graphics_pos_t err_x = 0;
     graphics_pos_t err_y = 0;
-    
+
     graphics_pos_t x1 = x;
     graphics_pos_t y1 = y;
-    
+
     graphics_pos_t x_first = center_x - radius + 1;
     graphics_pos_t y_first = center_y - radius + 1;
     graphics_pos_t x_fill_from = 0;
     graphics_pos_t x_fill_to = 0;
     graphics_pos_t old_x = 0;
     graphics_pos_t old_y = 0;
-    
+
     //printf("circle\n");
-    
+
     for(; x < 0;){
-        
+
         old_y = y;
         old_x = x;
-        
+
         painter_put_line_pixel(painter, center_x + x, center_y + y, pixel_number);
         painter_put_line_pixel(painter, center_x - x, center_y - y, pixel_number);
         painter_put_line_pixel(painter, center_x + y, center_y - x, pixel_number);
         painter_put_line_pixel(painter, center_x - y, center_y + x, pixel_number);
-        
+
         //printf("(%d, %d) -> ", x, y);
-        
+
         pixel_number ++;
-        
+
         x1 = x + 1;
         y1 = y + 1;
-        
+
         err_x = x1 * x1 + y * y - r2;
         err_x = ABS(err_x);
-        
+
         err_y = x * x + y1 * y1 - r2;
         err_y = ABS(err_y);
-        
+
         if(err_x < err_y){
             x ++;
         }else if(err_y < err_x){
@@ -394,13 +459,13 @@ void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_p
             y ++;
         }
         //printf("(%d, %d)\n", x, y);
-        
+
         if(painter->brush != PAINTER_BRUSH_NONE){
-            
+
             if(y != old_y){
                 x_fill_from = center_x + old_x + 1;
                 x_fill_to = center_x - old_x - 1;
-            
+
                 painter_fill_back(painter, x_first, y_first, center_y + old_y, x_fill_from, x_fill_to);
                 if(old_y != 0) painter_fill_back(painter, x_first, y_first, center_y - old_y, x_fill_from, x_fill_to);
             }
@@ -417,37 +482,71 @@ void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_pos_t dst
        dst_y >= graphics_height(painter->graphics)) return;
     if(src_x >= graphics_width(src_graphics) ||
        src_y >= graphics_height(src_graphics)) return;
-    
+    if((dst_x + graphics_width(src_graphics)) < 0 ||
+       (dst_y + graphics_height(src_graphics)) < 0) return;
+
     graphics_pos_t cur_dst_x = 0;
     graphics_pos_t cur_dst_y = 0;
-    
+
     graphics_pos_t cur_src_x = 0;
     graphics_pos_t cur_src_y = 0;
-    
+
     graphics_pos_t src_right = src_x + src_width;
     graphics_pos_t src_bottom = src_y + src_height;
-    
+
     graphics_color_t color;
-    
+
     for(cur_src_y = src_y, cur_dst_y = dst_y;; cur_src_y ++, cur_dst_y ++){
-        
+
         if(cur_src_y >= graphics_height(src_graphics) ||
            cur_src_y >= src_bottom) break;
         if(cur_dst_y >= graphics_height(painter->graphics)) break;
-        
+
         cur_src_x = src_x;
         cur_dst_x = dst_x;
-        
+
         for(;; cur_src_x ++, cur_dst_x ++){
-            
+
             if(cur_src_x >= graphics_width(src_graphics) ||
                cur_src_x >= src_right) break;
             if(cur_dst_x >= graphics_width(painter->graphics)) break;
-            
-            color = graphics_convert_color(graphics_format(painter->graphics),
-                                           graphics_format(src_graphics),
-                                           graphics_get_pixel(src_graphics, cur_src_x, cur_src_y));
-            painter_put_pixel(painter, cur_dst_x, cur_dst_y, color);
+
+            color = graphics_get_pixel(src_graphics, cur_src_x, cur_src_y);
+
+
+            switch(painter->source_image_mode){
+                default:
+                case PAINTER_SOURCE_IMAGE_MODE_NORMAL:
+                    color = graphics_convert_color(
+                                            graphics_format(painter->graphics),
+                                            graphics_format(src_graphics),
+                                            color
+                                        );
+                    painter_put_pixel(painter, cur_dst_x, cur_dst_y, color);
+                    break;
+                case PAINTER_SOURCE_IMAGE_MODE_MASK:
+                    color = graphics_apply_mask(
+                                            graphics_format(painter->graphics),
+                                            painter_get_pixel(painter, cur_dst_x, cur_dst_y),
+                                            graphics_format(src_graphics),
+                                            color
+                                        );
+                    painter_put_pixel(painter, cur_dst_x, cur_dst_y, color);
+                    break;
+                case PAINTER_SOURCE_IMAGE_MODE_MAP:
+                    color = graphics_apply_mask(
+                                            graphics_format(painter->graphics),
+                                            painter->pen_color,
+                                            graphics_format(src_graphics),
+                                            color
+                                        );
+                    painter_put_pixel(painter, cur_dst_x, cur_dst_y, color);
+                    break;
+                case PAINTER_SOURCE_IMAGE_MODE_BITMAP:
+                    if(color) painter_put_pixel(painter, cur_dst_x, cur_dst_y, painter->pen_color);
+                    break;
+            }
+
         }
     }
 }
@@ -456,14 +555,14 @@ int32_t painter_normalize_angle(int32_t angle)
 {
     if(angle >= 360 || angle <= -360) angle %= 360;
     if(angle < 0) angle += 360;
-    
+
     return angle;
 }
 
 fixed32_t painter_sin(int32_t angle)
 {
     angle = painter_normalize_angle(angle);
-    
+
     if(angle < 90){
         if(angle == 0) return 0;
         return (fixed32_t)sin_table[angle - 1];
@@ -483,7 +582,7 @@ fixed32_t painter_sin(int32_t angle)
 fixed32_t painter_cos(int32_t angle)
 {
     angle = painter_normalize_angle(angle);
-    
+
     if(angle < 90){
         if(angle == 0) return fixed32_make_from_int(1);
         return (fixed32_t)sin_table[89 - angle];
@@ -518,26 +617,26 @@ void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_
                       graphics_pos_t radius, int32_t from_angle, int32_t to_angle)
 {
     //printf("\n\nArc!\n\n");
-    
+
     if(to_angle - from_angle >= 360){
         painter_draw_circle(painter, center_x, center_y, radius);
         return;
     }
-    
+
     size_t pixel_number = 0;
-    
+
     from_angle = painter_normalize_angle(from_angle);
     to_angle = painter_normalize_angle(to_angle);
-    
+
     graphics_pos_t x = painter_rotate_x(radius, from_angle);
     graphics_pos_t y = painter_rotate_y(radius, from_angle);
-    
+
     graphics_pos_t x_to = painter_rotate_x(radius, to_angle);
     graphics_pos_t y_to = painter_rotate_y(radius, to_angle);
-    
+
     graphics_pos_t dx = 0;
     graphics_pos_t dy = 0;
-    
+
     if(from_angle < 90){
         dx = -1;
         dy = 1;
@@ -551,35 +650,35 @@ void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_
         dx = 1;
         dy = 1;
     }
-    
+
     graphics_pos_t r2 = radius * radius;
-    
+
     graphics_pos_t err_x = 0;
     graphics_pos_t err_y = 0;
-    
+
     graphics_pos_t x1 = 0;
     graphics_pos_t y1 = 0;
-    
+
     //printf("from (%d, %d) to (%d, %d)\n", x, y, x_to, y_to);
-    
+
     for(;;){
         //printf("(%d, %d) : (%d, %d)\n", x, y, dx, dy);
-        
+
         painter_put_line_pixel(painter, center_x + x, center_y - y, pixel_number);
-        
+
         if(x == x_to && y == y_to) break;
-        
+
         pixel_number ++;
-        
+
         x1 = x + dx;
         y1 = y + dy;
-        
+
         err_x = x1 * x1 + y * y - r2;
         err_x = ABS(err_x);
-        
+
         err_y = x * x + y1 * y1 - r2;
         err_y = ABS(err_y);
-        
+
         if(err_x < err_y){
             x += dx;
         }else if(err_y < err_x){
@@ -588,10 +687,10 @@ void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_
             x += dx;
             y += dy;
         }
-        
+
         if(x == 0) dy = -dy;
         if(y == 0) dx = -dx;
-        
+
         if(pixel_number >= 360){
             //printf("Overfill!");
             break;
@@ -603,34 +702,34 @@ static graphics_pos_t painter_fill_all_impl(painter_t* painter, graphics_pos_t x
 {
     //painter_fill_back_put_pixel
     //painter_put_pixel(painter, x, y, painter->fill_color)
-    
+
     if(x < 0 || y < 0) return x;
     if(x >= graphics_width(painter->graphics) || y >= graphics_height(painter->graphics)) return x;
-    
+
     graphics_color_t color = 0;
-    
+
     color = painter_get_pixel(painter, x, y);
     if(color == painter->pen_color || color == painter->fill_color) return x;
-    
+
     painter_put_pixel(painter, x, y, painter->fill_color);
-    
+
     graphics_pos_t x_left = x - 1;
     graphics_pos_t x_right = x + 1;
-    
+
     for(; x_left >= 0; x_left --){
         color = painter_get_pixel(painter, x_left, y);
         if(color == painter->pen_color || color == painter->fill_color) break;
-        
+
         painter_put_pixel(painter, x_left, y, painter->fill_color);
     }
-    
+
     for(; x_right < graphics_width(painter->graphics); x_right ++){
         color = painter_get_pixel(painter, x_right, y);
         if(color == painter->pen_color || color == painter->fill_color) break;
-        
+
         painter_put_pixel(painter, x_right, y, painter->fill_color);
     }
-    
+
     if(y < graphics_height(painter->graphics)){
         for(x = x_left + 1; x < x_right;){
 
@@ -641,11 +740,11 @@ static graphics_pos_t painter_fill_all_impl(painter_t* painter, graphics_pos_t x
             }else{
                 x ++;
             }
-            
+
             if(x >= graphics_width(painter->graphics)) break;
         }
     }
-    
+
     if(y > 0){
         for(x = x_left + 1; x < x_right;){
 
@@ -656,13 +755,13 @@ static graphics_pos_t painter_fill_all_impl(painter_t* painter, graphics_pos_t x
             }else{
                 x ++;
             }
-            
+
             if(x >= graphics_width(painter->graphics)) break;
         }
     }
-    
+
     //printf("%d, ", x);
-    
+
     return x_right;
 }
 
@@ -670,34 +769,34 @@ static graphics_pos_t painter_fill_target_impl(painter_t* painter, graphics_pos_
 {
     //painter_fill_back_put_pixel
     //painter_put_pixel(painter, x, y, painter->fill_color)
-    
+
     if(x < 0 || y < 0) return x;
     if(x >= graphics_width(painter->graphics) || y >= graphics_height(painter->graphics)) return x;
-    
+
     graphics_color_t color = 0;
-    
+
     color = painter_get_pixel(painter, x, y);
     if(color != painter->fill_target_color) return x;
-    
+
     painter_put_pixel(painter, x, y, painter->fill_color);
-    
+
     graphics_pos_t x_left = x - 1;
     graphics_pos_t x_right = x + 1;
-    
+
     for(; x_left >= 0; x_left --){
         color = painter_get_pixel(painter, x_left, y);
         if(color != painter->fill_target_color) break;
-        
+
         painter_put_pixel(painter, x_left, y, painter->fill_color);
     }
-    
+
     for(; x_right < graphics_width(painter->graphics); x_right ++){
         color = painter_get_pixel(painter, x_right, y);
         if(color != painter->fill_target_color) break;
-        
+
         painter_put_pixel(painter, x_right, y, painter->fill_color);
     }
-    
+
     if(y < graphics_height(painter->graphics)){
         for(x = x_left + 1; x < x_right;){
 
@@ -708,11 +807,11 @@ static graphics_pos_t painter_fill_target_impl(painter_t* painter, graphics_pos_
             }else{
                 x ++;
             }
-            
+
             if(x >= graphics_width(painter->graphics)) break;
         }
     }
-    
+
     if(y > 0){
         for(x = x_left + 1; x < x_right;){
 
@@ -723,13 +822,13 @@ static graphics_pos_t painter_fill_target_impl(painter_t* painter, graphics_pos_
             }else{
                 x ++;
             }
-            
+
             if(x >= graphics_width(painter->graphics)) break;
         }
     }
-    
+
     //printf("%d, ", x);
-    
+
     return x_right;
 }
 
@@ -744,6 +843,60 @@ void painter_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y)
         case PAINTER_FILL_MODE_TARGET_COLOR:
             painter_fill_target_impl(painter, x, y);
             break;
+    }
+}
+
+void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c)
+{
+    const font_bitmap_t* font_bitmap = font_bitmap_by_char(painter->font, c);
+
+    if(font_bitmap == NULL) return;
+
+    graphics_pos_t cx, cy;
+
+    if(!font_bitmap_get_char_coords(painter->font, font_bitmap, c, &cx, &cy)) return;
+
+    painter_bitblt(painter, x, y, font_bitmap_graphics(font_bitmap), cx, cy, font_char_width(painter->font), font_char_height(painter->font));
+}
+
+void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s)
+{
+    if(x >= (graphics_pos_t)graphics_width(painter->graphics) ||
+       y >= (graphics_pos_t)graphics_height(painter->graphics)) return;
+
+    size_t tabs_count = 0;
+    graphics_pos_t orig_x = x;
+    font_char_t c = 0;
+    size_t c_size = 0;
+
+    while(*s){
+        switch(*s){
+            case '\r':
+                x = orig_x;
+                s ++;
+                break;
+            case '\n':
+                x = orig_x;
+                y += font_char_height(painter->font) + font_vspace(painter->font);
+                s ++;
+                break;
+            case '\t':
+                painter_draw_char(painter, x, y, 0x20);
+                x += font_char_width(painter->font) + font_hspace(painter->font);
+                if(++ tabs_count == FONT_TAB_SIZE){
+                    tabs_count = 0;
+                    s ++;
+                }
+                break;
+            default:
+                c = font_utf8_decode(s, &c_size);
+                //printf("%u: %u\n", c, c_size);
+                painter_draw_char(painter, x, y, c);
+                x += font_char_width(painter->font) + font_hspace(painter->font);
+                s += c_size;
+                break;
+        }
+        if(y >= (graphics_pos_t)graphics_width(painter->graphics)) break;
     }
 }
 

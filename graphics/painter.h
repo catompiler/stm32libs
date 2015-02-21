@@ -11,6 +11,7 @@
 #include "errors/errors.h"
 #include "defs/defs.h"
 #include "graphics.h"
+#include "font.h"
 #include "fixed/fixed32.h"
 
 //! Режимы рисования.
@@ -62,17 +63,33 @@ typedef enum _Painter_Fill_Mode {
     PAINTER_FILL_MODE_TARGET_COLOR //!< Заливает только область заданного цвета.
 } painter_fill_mode_t;
 
+//! Режим изображения-источника.
+typedef enum _Painter_Source_Image_Mode {
+    PAINTER_SOURCE_IMAGE_MODE_NORMAL = 0, //!< Нормальное изображение, пикселы копируются.
+    PAINTER_SOURCE_IMAGE_MODE_MASK, //!< Использование изображения как маски для текущего цвета пиксела изображения.
+    PAINTER_SOURCE_IMAGE_MODE_MAP, //!< Использование изображения как маски для текущего цвета рисования пикселов.
+    /**
+      * Использование пикселов изображения как флагов для рисования текущим цветом рисования пикселов.
+      * Чёрный цвет - не рисовать пиксел; Любой другой цвет - рисовать пиксел текущим цветом рисования пикселов (Pen или Brush).
+      */
+    PAINTER_SOURCE_IMAGE_MODE_BITMAP
+} painter_source_image_mode_t;
+
 //! Структура рисовальщика.
 typedef struct _Painter {
     graphics_t* graphics; //!< Холст.
     painter_mode_t mode; //!< Режим рисования.
     painter_pen_t pen; //!< Линия.
     painter_brush_t brush; //!< Кисть.
+    const font_t* font; //!< Шрифт.
     painter_fill_mode_t fill_mode; //!< Режим заливки.
+    painter_source_image_mode_t source_image_mode; //!< Режим изображения-источника.
     graphics_color_t pen_color; //!< Цвет линии.
     graphics_color_t brush_color; //!< Цвет кисти.
     graphics_color_t fill_color; //!< Цвет заливки примитивов.
     graphics_color_t fill_target_color; //!< Целевой цвет заливки примитивов.
+    graphics_color_t transparent_color; //!< Прозрачный цвет.
+    bool transparent_color_enabled; //!< Разрешённость прозрачного цвета.
     const graphics_t* custom_pen_graphics; //!< Изображение для пользовательской линии.
     const graphics_t* custom_brush_graphics; //!< Изображение для пользовательской кисти.
 } painter_t;
@@ -206,6 +223,26 @@ static ALWAYS_INLINE const graphics_t* painter_brush_graphics(painter_t* painter
 }
 
 /**
+ * Устанавливает шрифт.
+ * @param painter Рисовальщик.
+ * @param font Шрифт.
+ */
+static ALWAYS_INLINE void painter_set_font(painter_t* painter, const font_t* font)
+{
+    painter->font = font;
+}
+
+/**
+ * Получает шрифт.
+ * @param painter Рисовальщик.
+ * @return Шрифт.
+ */
+static ALWAYS_INLINE const font_t* painter_font(const painter_t* painter)
+{
+    return painter->font;
+}
+
+/**
  * Устанавливает режим заливки.
  * @param painter Рисовальщик.
  * @param fill_mode Режим заливки.
@@ -223,6 +260,26 @@ static ALWAYS_INLINE void painter_set_fill_mode(painter_t* painter, painter_fill
 static ALWAYS_INLINE painter_fill_mode_t painter_fill_mode(const painter_t* painter)
 {
     return painter->fill_mode;
+}
+
+/**
+ * Устанавливает режим изображения-источника.
+ * @param painter Рисовальщик.
+ * @param source_image_mode Режим изображения-источника.
+ */
+static ALWAYS_INLINE void painter_set_source_image_mode(painter_t* painter, painter_source_image_mode_t source_image_mode)
+{
+    painter->source_image_mode = source_image_mode;
+}
+
+/**
+ * Получает режим изображения-источника.
+ * @param painter Рисовальщик.
+ * @return Режим изображения-источника.
+ */
+static ALWAYS_INLINE painter_source_image_mode_t painter_source_image_mode(const painter_t* painter)
+{
+    return painter->source_image_mode;
 }
 
 /**
@@ -303,6 +360,46 @@ static ALWAYS_INLINE void painter_set_fill_target_color(painter_t* painter, grap
 static ALWAYS_INLINE graphics_color_t painter_fill_target_color(const painter_t* painter)
 {
     return painter->fill_target_color;
+}
+
+/**
+ * Устанавливает прозрачный цвет.
+ * @param painter Рисовальщик.
+ * @param transparent_color Прозрачный цвет.
+ */
+static ALWAYS_INLINE void painter_set_transparent_color(painter_t* painter, graphics_color_t transparent_color)
+{
+    painter->transparent_color = transparent_color;
+}
+
+/**
+ * Получает прозрачный цвет.
+ * @param painter Рисовальщик.
+ * @return Прозрачный цвет.
+ */
+static ALWAYS_INLINE graphics_color_t painter_transparent_color(const painter_t* painter)
+{
+    return painter->transparent_color;
+}
+
+/**
+ * Устанавливает разрешённость прозрачного цвета.
+ * @param painter Рисовальщик.
+ * @param transparent_color_enabled Разрешённость прозрачного цвета.
+ */
+static ALWAYS_INLINE void painter_set_transparent_color_enabled(painter_t* painter, graphics_color_t transparent_color_enabled)
+{
+    painter->transparent_color_enabled = transparent_color_enabled;
+}
+
+/**
+ * Получает разрешённость прозрачного цвета.
+ * @param painter Рисовальщик.
+ * @return Разрешённость прозрачного цвета.
+ */
+static ALWAYS_INLINE graphics_color_t painter_transparent_color_enabled(const painter_t* painter)
+{
+    return painter->transparent_color_enabled;
 }
 
 /**
@@ -446,5 +543,25 @@ extern void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphi
  * @param y Координата Y.
  */
 extern void painter_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y);
+
+/**
+ * Отрисовывает символ.
+ * @param painter Рисовальщик.
+ * @param font Шрифт.
+ * @param x Абсцисса.
+ * @param y Ордината.
+ * @param c Символ.
+ */
+extern void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c);
+
+/**
+ * Отрисовывает строку символов.
+ * @param painter Рисовальщик.
+ * @param font Шрифт.
+ * @param x Абсцисса.
+ * @param y Ордината.
+ * @param c Символ.
+ */
+extern void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s);
 
 #endif  //_PAINTER_H_

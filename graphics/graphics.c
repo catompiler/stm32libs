@@ -312,3 +312,33 @@ graphics_color_t graphics_convert_color(graphics_format_t to_format, graphics_fo
 
     return 0;
 }
+
+graphics_color_t graphics_apply_mask(graphics_format_t color_format, graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask)
+{
+    if(color == 0 || mask == 0) return 0;
+
+    switch(color_format){
+        case GRAPHICS_FORMAT_BW_1_V:
+        case GRAPHICS_FORMAT_BW_1_H:
+            return graphics_bw_1_apply_mask(color, mask_format, mask);
+
+        case GRAPHICS_FORMAT_GRAY_2_V:
+        case GRAPHICS_FORMAT_GRAY_2_H:
+            return graphics_gray_2_apply_mask(color, mask_format, mask);
+
+        case GRAPHICS_FORMAT_RGB_121_V:
+        case GRAPHICS_FORMAT_RGB_121_H:
+            return graphics_rgb_121_apply_mask(color, mask_format, mask);
+
+        case GRAPHICS_FORMAT_RGB_332:
+            return graphics_rgb_332_apply_mask(color, mask_format, mask);
+
+        case GRAPHICS_FORMAT_RGB_565:
+            return graphics_rgb_565_apply_mask(color, mask_format, mask);
+
+        case GRAPHICS_FORMAT_RGB_8:
+            return graphics_rgb_8_apply_mask(color, mask_format, mask);
+    }
+
+    return color;
+}

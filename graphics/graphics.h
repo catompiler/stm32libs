@@ -14,15 +14,33 @@
 
 //! Перечисление форматов изображения.
 typedef enum _Graphics_format {
-    GRAPHICS_FORMAT_BW_1_V = 0, // Чёрно-белый, 1 бит, байт вертикально.
+#ifdef USE_GRAPHICS_FORMAT_BW_1_V
+    GRAPHICS_FORMAT_BW_1_V, // Чёрно-белый, 1 бит, байт вертикально.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_BW_1_H
     GRAPHICS_FORMAT_BW_1_H, // Чёрно-белый, 1 бит, байт горизонтально.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_V
     GRAPHICS_FORMAT_GRAY_2_V, // Оттенки серого, 2 бита, байт вертикально.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_GRAY_2_H
     GRAPHICS_FORMAT_GRAY_2_H, // Оттенки серого, 2 бита, байт горизонтально.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_RGB_121_V
     GRAPHICS_FORMAT_RGB_121_V, // Цветной, 4 бита, байт вертикально.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_RGB_121_H
     GRAPHICS_FORMAT_RGB_121_H, // Цветной, 4 бита, байт горизонтально.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_RGB_332
     GRAPHICS_FORMAT_RGB_332, // Цветной, 8 бит.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_RGB_565
     GRAPHICS_FORMAT_RGB_565, // Цветной, 16 бит.
+#endif
+#ifdef USE_GRAPHICS_FORMAT_RGB_8
     GRAPHICS_FORMAT_RGB_8 // Цветной, 24 бита.
+#endif
 } graphics_format_t;
 
 // Макросы цветов.
@@ -175,13 +193,9 @@ typedef struct _Graphics {
 } graphics_t;
 
 /**
- * @param
- */
-
-/**
  * Заполняет структуру изображения по месту объявления.
  */
-#define make_graphics(arg_data, arg_width, arg_height, arg_format) { .data = arg_data, .width = arg_width, .height = arg_height, .format = arg_format }
+#define make_graphics(arg_data, arg_width, arg_height, arg_format) { .data = (uint8_t*)arg_data, .width = arg_width, .height = arg_height, .format = arg_format }
 
 /**
  * Инициализирует структуру изображения.

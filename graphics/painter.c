@@ -174,6 +174,15 @@ void painter_draw_hline(painter_t* painter, graphics_pos_t y, graphics_pos_t x0,
 
 void painter_draw_line(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1)
 {
+    if(x0 == x1){
+        painter_draw_vline(painter, x0, y0, y1);
+        return;
+    }
+    if(y0 == y1){
+        painter_draw_hline(painter, y0, x0, x1);
+        return;
+    }
+    
     size_t pixel_number = 0;
 
     graphics_pos_t dx = x1 - x0;

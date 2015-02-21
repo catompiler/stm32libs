@@ -94,6 +94,10 @@ typedef struct _Painter {
     const graphics_t* custom_brush_graphics; //!< Изображение для пользовательской кисти.
 } painter_t;
 
+/**
+ * Заполняет структуру изображения по месту объявления.
+ */
+#define make_painter(arg_graphics) {.graphics = arg_graphics}
 
 /**
  * Инициализирует рисовальщик.

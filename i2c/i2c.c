@@ -580,9 +580,13 @@ i2c_callback_t i2c_bus_callback(i2c_bus_t* i2c)
     return i2c->callback;
 }
 
-void i2c_bus_set_callback(i2c_bus_t* i2c, i2c_callback_t callback)
+bool i2c_bus_set_callback(i2c_bus_t* i2c, i2c_callback_t callback)
 {
+    if(i2c_bus_busy(i2c)) return false;
+    
     i2c->callback = callback;
+    
+    return true;
 }
 
 i2c_transfer_id_t i2c_bus_transfer_id(i2c_bus_t* i2c)
@@ -590,9 +594,13 @@ i2c_transfer_id_t i2c_bus_transfer_id(i2c_bus_t* i2c)
     return i2c->transfer_id;
 }
 
-void i2c_bus_set_transfer_id(i2c_bus_t* i2c, i2c_transfer_id_t id)
+bool i2c_bus_set_transfer_id(i2c_bus_t* i2c, i2c_transfer_id_t id)
 {
+    if(i2c_bus_busy(i2c)) return false;
+    
     i2c->transfer_id = id;
+    
+    return true;
 }
 
 i2c_status_t i2c_bus_status(i2c_bus_t* i2c)

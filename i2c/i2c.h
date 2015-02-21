@@ -8,6 +8,7 @@
 #include "stm32f10x.h"
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <errors/errors.h>
 #include "buffer/buffer.h"
 
@@ -155,8 +156,9 @@ extern i2c_callback_t i2c_bus_callback(i2c_bus_t* i2c);
 /**
  * Устанавливает функцию обратного вызова.
  * @param callback Функция обратного вызова.
+ * @return true, в случае успеха, иначе false (например, если шина занята).
  */
-extern void i2c_bus_set_callback(i2c_bus_t* i2c, i2c_callback_t callback);
+extern bool i2c_bus_set_callback(i2c_bus_t* i2c, i2c_callback_t callback);
 
 /**
  * Получает идентификатор передачи.
@@ -167,8 +169,9 @@ extern i2c_transfer_id_t i2c_bus_transfer_id(i2c_bus_t* i2c);
 /**
  * Устанавливает идентификатор передачи.
  * @param id Идентификатор передачи.
+ * @return true, в случае успеха, иначе false (например, если шина занята).
  */
-extern void i2c_bus_set_transfer_id(i2c_bus_t* i2c, i2c_transfer_id_t id);
+extern bool i2c_bus_set_transfer_id(i2c_bus_t* i2c, i2c_transfer_id_t id);
 
 /**
  * Получает состояние шины i2c.

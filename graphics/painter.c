@@ -386,6 +386,9 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
         graphics_pos_t tmp;
         SWAP(top, bottom, tmp);
     }
+    
+    if(left >= graphics_width(painter->graphics) || right < 0) return;
+    if(top >= graphics_height(painter->graphics) || bottom < 0) return;
 
     painter_draw_hline(painter, top, left, right - 1);
     painter_draw_vline(painter, left, top + 1, bottom);

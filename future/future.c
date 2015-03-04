@@ -9,7 +9,7 @@ void future_init(future_t* future)
     future->running = false;
 }
 
-void* future_result(future_t* future)
+void* future_result(const future_t* future)
 {
     return future->result;
 }
@@ -19,7 +19,7 @@ void future_set_result(future_t* future, void* result)
     future->result = result;
 }
 
-bool future_done(future_t* future)
+bool future_done(const future_t* future)
 {
     return future->done;
 }
@@ -29,7 +29,7 @@ void future_set_done(future_t* future, bool done)
     future->done = done;
 }
 
-bool future_running(future_t* future)
+bool future_running(const future_t* future)
 {
     return future->running;
 }
@@ -52,7 +52,7 @@ void future_finish(future_t* future, void* result)
     future->result = result;
 }
 
-void future_wait(future_t* future)
+void future_wait(const future_t* future)
 {
     WAIT_WHILE_TRUE(future_running(future));
 }

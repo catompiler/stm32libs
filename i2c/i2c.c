@@ -20,6 +20,16 @@
 //#define I2C_EVENT_MASTER_BYTE_RECEIVED  0x00030044
 
 
+static ALWAYS_INLINE void i2c_bus_enable_irq(i2c_bus_t* i2c)
+{
+    I2C_ITConfig(i2c->i2c_device, I2C_IT_EVT | I2C_IT_ERR, ENABLE);
+}
+
+static ALWAYS_INLINE void i2c_bus_disable_irq(i2c_bus_t* i2c)
+{
+    I2C_ITConfig(i2c->i2c_device, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);
+}
+
 err_t i2c_bus_init(i2c_bus_t* i2c, i2c_bus_init_t* init)
 {
     if(init == NULL) return E_NULL_POINTER;
@@ -41,9 +51,7 @@ err_t i2c_bus_init(i2c_bus_t* i2c, i2c_bus_init_t* init)
 
     I2C_NACKPositionConfig(i2c->i2c_device, I2C_NACKPosition_Current);
     
-    I2C_ITConfig(i2c->i2c_device, I2C_IT_EVT, ENABLE);
-    //I2C_ITConfig(i2c->i2c_device, I2C_IT_BUF, ENABLE);
-    I2C_ITConfig(i2c->i2c_device, I2C_IT_ERR, ENABLE);
+    //i2c_bus_enable_irq(i2c);
     
     return E_NO_ERROR;
 }
@@ -218,13 +226,22 @@ static bool i2c_bus_need_next_restart(i2c_bus_t* i2c)
 }
 #endif
 
-static inline bool i2c_bus_done(i2c_bus_t* i2c)
+static ALWAYS_INLINE bool i2c_bus_done(i2c_bus_t* i2c)
 {
 #ifdef I2C_BUS_DEBUG
     printf("[I2C] done\r\n");
 #endif
+    
+    i2c_bus_disable_irq(i2c);
+    
     if(i2c->callback) i2c->callback();
     return i2c->state == I2C_STATE_IDLE;
+}
+
+static ALWAYS_INLINE void i2c_bus_clear_btf(i2c_bus_t* i2c)
+{
+    I2C_ReadRegister(i2c->i2c_device, I2C_Register_SR1);
+    I2C_ReceiveData(i2c->i2c_device);
 }
 
 static void i2c_bus_mt_event_handler(i2c_bus_t* i2c, uint16_t SR1, uint16_t SR2)
@@ -259,6 +276,8 @@ static void i2c_bus_mt_event_handler(i2c_bus_t* i2c, uint16_t SR1, uint16_t SR2)
 
             i2c_bus_done(i2c);
         }
+            
+        //i2c_bus_clear_btf(i2c);
     }
 }
 
@@ -360,34 +379,32 @@ static void i2c_bus_master_error_handler(i2c_bus_t* i2c, uint16_t SR1/*, uint16_
     i2c->state = I2C_STATE_IDLE;
     
     i2c->status = I2C_STATUS_ERROR;
+        
+    I2C_GenerateSTOP(i2c->i2c_device, ENABLE);
     
     if(SR1 & I2C_SR1_AF){
         
         i2c->error = I2C_ERROR_NACK;
         
-        I2C_GenerateSTOP(i2c->i2c_device, ENABLE);
-        
+    }else if(SR1 & I2C_SR1_ARLO){
+
+        i2c->error = I2C_ERROR_ARB_LOST;
+
+    }else if(SR1 & I2C_SR1_BERR){
+
+        i2c->error = I2C_ERROR_BUS_FAIL;
+
+    }else if(SR1 & I2C_SR1_TIMEOUT){
+
+        i2c->error = I2C_ERROR_TIMEOUT;
+
+    }else if(SR1 & I2C_SR1_OVR){
+
+        i2c->error = I2C_ERROR_OVERRUN;
+
     }else{
-        if(SR1 & I2C_SR1_ARLO){
 
-            i2c->error = I2C_ERROR_ARB_LOST;
-
-        }else if(SR1 & I2C_SR1_BERR){
-
-            i2c->error = I2C_ERROR_BUS_FAIL;
-
-        }else if(SR1 & I2C_SR1_TIMEOUT){
-
-            i2c->error = I2C_ERROR_TIMEOUT;
-
-        }else if(SR1 & I2C_SR1_OVR){
-
-            i2c->error = I2C_ERROR_OVERRUN;
-
-        }else{
-            
-            i2c->error = I2C_ERROR_UNKNOWN;
-        }
+        i2c->error = I2C_ERROR_UNKNOWN;
     }
     
     i2c_bus_dma_stop_rx(i2c);
@@ -524,6 +541,13 @@ void i2c_bus_event_irq_handler(i2c_bus_t* i2c)
         }else if(i2c->state == I2C_STATE_READING){
             
             i2c_bus_mr_event_handler(i2c, SR1, SR2);
+        }else{
+#ifdef I2C_BUS_DEBUG
+            printf("[I2C](UEV) SR1: %d; SR2: %d; state: %d;\r\n", SR1, SR2, i2c->state);
+#endif
+            if(SR1 & I2C_SR1_BTF){
+                i2c_bus_clear_btf(i2c);
+            }
         }
     //}
     
@@ -539,14 +563,14 @@ void i2c_bus_error_irq_handler(i2c_bus_t* i2c)
     uint16_t SR2 = i2c->i2c_device->SR2;
 #endif
     
-    I2C_ClearFlag(i2c->i2c_device, 
-            I2C_FLAG_SMBALERT   |
-            I2C_FLAG_TIMEOUT    |
-            I2C_FLAG_PECERR     |
-            I2C_FLAG_OVR        |
-            I2C_FLAG_AF         |
-            I2C_FLAG_ARLO       |
-            I2C_FLAG_BERR
+    I2C_ClearITPendingBit(i2c->i2c_device, 
+            I2C_IT_SMBALERT   |
+            I2C_IT_TIMEOUT    |
+            I2C_IT_PECERR     |
+            I2C_IT_OVR        |
+            I2C_IT_AF         |
+            I2C_IT_ARLO       |
+            I2C_IT_BERR
         );
     
     //if(SR2 & I2C_SR2_MSL){
@@ -566,6 +590,11 @@ bool i2c_bus_busy(i2c_bus_t* i2c)
 void i2c_bus_wait(i2c_bus_t* i2c)
 {
     WAIT_WHILE_TRUE(i2c_bus_busy(i2c));
+}
+
+void i2c_bus_reset(i2c_bus_t* i2c)
+{
+    i2c_device_reset(i2c->i2c_device);
 }
 
 void i2c_device_reset(I2C_TypeDef* device)
@@ -664,6 +693,8 @@ err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_
     i2c_bus_setup_message(i2c);
     
     I2C_GenerateSTART(i2c->i2c_device, ENABLE);
+    
+    i2c_bus_enable_irq(i2c);
     
     return E_NO_ERROR;
 }

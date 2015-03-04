@@ -32,7 +32,7 @@ extern void future_init(future_t* future);
  * @param future Будущее.
  * @return Результат.
  */
-extern void* future_result(future_t* future);
+extern void* future_result(const future_t* future);
 
 /**
  * Устанавливает результат.
@@ -46,7 +46,7 @@ extern void future_set_result(future_t* future, void* result);
  * @param future Будущее.
  * @return Флаг завершения.
  */
-extern bool future_done(future_t* future);
+extern bool future_done(const future_t* future);
 
 /**
  * Устанавливает флаг завершения.
@@ -60,7 +60,7 @@ extern void future_set_done(future_t* future, bool done);
  * @param future Будущее.
  * @return Флаг выполнения.
  */
-extern bool future_running(future_t* future);
+extern bool future_running(const future_t* future);
 
 /**
  * Устанавливает флаг выполнения.
@@ -86,7 +86,7 @@ extern void future_finish(future_t* future, void* result);
  * Ждёт окончания выполнения будущего.
  * @param future Будущее.
  */
-extern void future_wait(future_t* future);
+extern void future_wait(const future_t* future);
 
 #endif	/* FUTURE_H */
 

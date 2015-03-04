@@ -105,9 +105,16 @@ static const char font_5x8_utf8_part0_data[480] = {
 };
 
 
-#define FONT_5X8_UTF8_PART1_WIDTH (410)
+#define FONT_5X8_UTF8_PART1_WIDTH (5)
 #define FONT_5X8_UTF8_PART1_HEIGHT (8)
-static const char font_5x8_utf8_part1_data[410] = {
+static const char font_5x8_utf8_part1_data[5] = {
+    0x06, 0x09, 0x09, 0x06, 0x00   // ° 0x00B0
+};
+
+
+#define FONT_5X8_UTF8_PART2_WIDTH (410)
+#define FONT_5X8_UTF8_PART2_HEIGHT (8)
+static const char font_5x8_utf8_part2_data[410] = {
     0x7C, 0x54, 0x55, 0x44, 0x44,   // Ѐ 0x400
     0x7C, 0x55, 0x54, 0x45, 0x44,   // Ё 0x401
     0x00, 0x00, 0x00, 0x00, 0x00,   // Ђ 0x402

@@ -122,6 +122,11 @@ bool ds1307_done(ds1307_t* rtc)
     return future_done(&rtc->future);
 }
 
+void ds1307_wait(ds1307_t* rtc)
+{
+    future_wait(&rtc->future);
+}
+
 ds1307_status_t ds1307_status(ds1307_t* rtc)
 {
     return rtc->status;

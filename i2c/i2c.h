@@ -142,6 +142,12 @@ extern bool i2c_bus_busy(i2c_bus_t* i2c);
 extern void i2c_bus_wait(i2c_bus_t* i2c);
 
 /**
+ * Сбрасывает шину i2c.
+ * @param i2c Шина i2c.
+ */
+extern void i2c_bus_reset(i2c_bus_t* i2c);
+
+/**
  * Сбрасывает интерфейс.
  * @param i2c Шина i2c.
  */

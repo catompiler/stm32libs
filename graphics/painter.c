@@ -632,6 +632,18 @@ graphics_pos_t painter_rotate_y(graphics_pos_t y, int32_t angle)
     return fixed32_get_int(res);
 }
 
+void painter_rotate(graphics_pos_t* x, graphics_pos_t* y, int32_t angle)
+{
+    graphics_pos_t vx = 0;
+    graphics_pos_t vy = 0;
+    
+    if(x) vx = *x;
+    if(y) vy = *y;
+    
+    if(x) *x = painter_rotate_x(vx, angle) + painter_rotate_y(vy, angle);
+    if(y) *y = painter_rotate_y(vx, angle) + painter_rotate_x(vy, angle);
+}
+
 void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
                       graphics_pos_t radius, int32_t from_angle, int32_t to_angle)
 {

@@ -511,6 +511,7 @@ extern fixed32_t painter_cos(int32_t angle);
 
 /**
  * Поворачивает координату X.
+ * result = x * cos(angle);
  * @param x Координата X.
  * @param angle Угол поворота.
  * @return Повёрнутая координата.
@@ -519,11 +520,20 @@ extern graphics_pos_t painter_rotate_x(graphics_pos_t x, int32_t angle);
 
 /**
  * Поворачивает координату Y.
+ * result = y * sin(angle);
  * @param x Координата Y.
  * @param angle Угол поворота.
  * @return Повёрнутая координата.
  */
 extern graphics_pos_t painter_rotate_y(graphics_pos_t y, int32_t angle);
+
+/**
+ * Выполняет вращение вектора (x, y) на угол angle.
+ * @param x Координата X вектора.
+ * @param y Координата Y вектора.
+ * @param angle Угол поворота.
+ */
+extern void painter_rotate(graphics_pos_t* x, graphics_pos_t* y, int32_t angle);
 
 /**
  * Рисует дугу окружности.

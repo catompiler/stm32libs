@@ -1,5 +1,6 @@
 #include "orientation.h"
 #include "cordic/cordic32.h"
+#include "utils/utils.h"
 #include <string.h>
 
 
@@ -49,6 +50,12 @@ static ALWAYS_INLINE void orientation_fix_border(fixed32_t* gyro_angle, fixed32_
         *gyro_angle += CORDIC32_ANGLE_360;
 }
 
+// Предельное значение проекции ускорения,
+// вплоть до которого акселерометр ещё способен
+// выдавать корректные углы вдоль этой оси,
+// после которого он не учитывается.
+#define ACCEL_MAX 0xfd70 //(0.99)
+
 void orientation_calculate(orientation_t* orientation)
 {
     // Время интегрирования.
@@ -63,11 +70,20 @@ void orientation_calculate(orientation_t* orientation)
     fixed32_t accel_y = gyro6050_accel_y(orientation->gyro);
     fixed32_t accel_z = gyro6050_accel_z(orientation->gyro);
     // X.
-    cordic32_atan2_hyp(accel_z, accel_y, &accel_angle_x, NULL);
+    //cordic32_atan2_hyp(accel_z, accel_y, &accel_angle_x, NULL);
     // Y.
-    cordic32_atan2_hyp(accel_z, accel_x, &accel_angle_y, NULL);
+    //cordic32_atan2_hyp(accel_z, accel_x, &accel_angle_y, NULL);
     // Z.
+    //cordic32_atan2_hyp(accel_x, accel_y, &accel_angle_z, NULL);
+    //XYZ.
+    cordic32_atan2_hyp(accel_z, accel_y, &accel_angle_x, NULL);
+    cordic32_atan2_hyp(accel_z, accel_x, &accel_angle_y, NULL); accel_angle_y = -accel_angle_y;
     cordic32_atan2_hyp(accel_x, accel_y, &accel_angle_z, NULL);
+    
+    accel_angle_x = orientation_clamp_angle(accel_angle_x);
+    accel_angle_y = orientation_clamp_angle(accel_angle_y);
+    accel_angle_z = orientation_clamp_angle(accel_angle_z);
+    
     
     // Углы по осям гироскопа.
     fixed32_t gyro_angle_x = 0; //X.
@@ -112,20 +128,26 @@ void orientation_calculate(orientation_t* orientation)
                             gyro_angle_x  * gyro_angle_weight)
                                     / ORIENTATION_ACCEL_ANGLE_WEIGHT_MAX;*/
     orientation->angle_x = orientation_clamp_angle(
-                orientation_alpha_beta_filter(orientation, accel_angle_x, gyro_angle_x)
+                orientation_alpha_beta_filter(orientation,
+                    ABS(accel_x) <= ACCEL_MAX ? accel_angle_x : orientation->angle_x,
+                    gyro_angle_x)
             );
     // Y.
     /*orientation->angle_y = (accel_angle_y * orientation->accel_angle_weight +
                             gyro_angle_y  * gyro_angle_weight)
                                     / ORIENTATION_ACCEL_ANGLE_WEIGHT_MAX;*/
     orientation->angle_y = orientation_clamp_angle(
-                orientation_alpha_beta_filter(orientation, accel_angle_y, gyro_angle_y)
+                orientation_alpha_beta_filter(orientation,
+                    ABS(accel_y) <= ACCEL_MAX ? accel_angle_y : orientation->angle_y,
+                    gyro_angle_y)
             );
     // Z.
     /*orientation->angle_z = (accel_angle_z * orientation->accel_angle_weight +
                             gyro_angle_z  * gyro_angle_weight)
                                     / ORIENTATION_ACCEL_ANGLE_WEIGHT_MAX;*/
     orientation->angle_z = orientation_clamp_angle(
-                orientation_alpha_beta_filter(orientation, accel_angle_z, gyro_angle_z)
+                orientation_alpha_beta_filter(orientation,
+                    ABS(accel_z) <= ACCEL_MAX ? accel_angle_z : orientation->angle_z,
+                    gyro_angle_z)
             );
 }

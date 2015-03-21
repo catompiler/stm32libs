@@ -725,10 +725,10 @@ void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_
         if(x == 0) dy = -dy;
         if(y == 0) dx = -dx;
 
-        if(pixel_number >= 360){
+        /*if(pixel_number >= 360){
             //printf("Overfill!");
             break;
-        }
+        }*/
     }
 }
 

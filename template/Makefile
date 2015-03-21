@@ -93,9 +93,9 @@ STD_PERIPH_SRC  = $(STD_PERIPH_PATH)/src
 STD_PERIPH_INC  = $(STD_PERIPH_PATH)/inc
 
 # Путь к собственным библиотекам в исходниках.
-SRC_LIBS_PATH     = ../lib
+SRC_LIBS_PATH     += ../lib
 # Пути ко всем собственным библиотекам в исходниках.
-SRC_LIBS_ALL_PATH = $(wildcard $(addsuffix /*, $(SRC_LIBS_PATH)))
+SRC_LIBS_ALL_PATH += $(wildcard $(addsuffix /*, $(SRC_LIBS_PATH)))
 
 # Пути библиотек.
 LIBS_PATH += /opt/cross/arm-none-eabi/arm-none-eabi/lib/armv7-m

@@ -421,8 +421,10 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
 
 void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t radius)
 {
-    if(center_x + radius < 0 || center_x - radius >= graphics_width(painter->graphics)) return;
-    if(center_y + radius < 0 || center_y - radius >= graphics_height(painter->graphics)) return;
+    if(center_x + radius < 0 || center_x - radius >= 
+(graphics_pos_t)graphics_width(painter->graphics)) return;
+    if(center_y + radius < 0 || center_y - radius >= 
+(graphics_pos_t)graphics_height(painter->graphics)) return;
     
     size_t pixel_number = 0;
 

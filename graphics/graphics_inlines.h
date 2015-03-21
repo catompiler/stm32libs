@@ -56,7 +56,7 @@ static ALWAYS_INLINE void graphics_gray_2_h_get_pixel_pos(const graphics_t* grap
 static ALWAYS_INLINE void graphics_gray_2_vfd_get_pixel_pos(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_size_t* byte, graphics_size_t* bit)
 {
     if(byte) *byte = (y >> 2) + x * (graphics->height >> 2);
-    if(bit)  *bit  = 7 - ((y & 0x3) << 1);
+    if(bit)  *bit  = 6 - ((y & 0x3) << 1);
 }
 #endif
 

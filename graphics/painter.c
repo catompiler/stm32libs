@@ -144,7 +144,7 @@ void painter_put_line_pixel(painter_t* painter, graphics_pos_t x, graphics_pos_t
 
 void painter_draw_vline(painter_t* painter, graphics_pos_t x, graphics_pos_t y0, graphics_pos_t y1)
 {
-    if(x < 0 || x >= graphics_width(painter->graphics)) return;
+    if(x < 0 || x >= (graphics_pos_t)graphics_width(painter->graphics)) return;
     
     size_t pixel_number = 0;
 
@@ -161,7 +161,7 @@ void painter_draw_vline(painter_t* painter, graphics_pos_t x, graphics_pos_t y0,
 
 void painter_draw_hline(painter_t* painter, graphics_pos_t y, graphics_pos_t x0, graphics_pos_t x1)
 {
-    if(y < 0 || y >= graphics_height(painter->graphics)) return;
+    if(y < 0 || y >= (graphics_pos_t)graphics_height(painter->graphics)) return;
     
     size_t pixel_number = 0;
 
@@ -387,8 +387,8 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
         SWAP(top, bottom, tmp);
     }
     
-    if(left >= graphics_width(painter->graphics) || right < 0) return;
-    if(top >= graphics_height(painter->graphics) || bottom < 0) return;
+    if(left >= (graphics_pos_t)graphics_width(painter->graphics) || right < 0) return;
+    if(top >= (graphics_pos_t)graphics_height(painter->graphics) || bottom < 0) return;
 
     painter_draw_hline(painter, top, left, right - 1);
     painter_draw_vline(painter, left, top + 1, bottom);
@@ -422,9 +422,9 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
 void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t radius)
 {
     if(center_x + radius < 0 || center_x - radius >= 
-(graphics_pos_t)graphics_width(painter->graphics)) return;
+        (graphics_pos_t)graphics_width(painter->graphics)) return;
     if(center_y + radius < 0 || center_y - radius >= 
-(graphics_pos_t)graphics_height(painter->graphics)) return;
+        (graphics_pos_t)graphics_height(painter->graphics)) return;
     
     size_t pixel_number = 0;
 
@@ -499,12 +499,12 @@ void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_pos_t dst
                     graphics_size_t src_width, graphics_size_t src_height)
 {
     if(src_graphics == NULL) return;
-    if(dst_x >= graphics_width(painter->graphics) ||
-       dst_y >= graphics_height(painter->graphics)) return;
-    if(src_x >= graphics_width(src_graphics) ||
-       src_y >= graphics_height(src_graphics)) return;
-    if((dst_x + graphics_width(src_graphics)) < 0 ||
-       (dst_y + graphics_height(src_graphics)) < 0) return;
+    if(dst_x >= (graphics_pos_t)graphics_width(painter->graphics) ||
+       dst_y >= (graphics_pos_t)graphics_height(painter->graphics)) return;
+    if(src_x >= (graphics_pos_t)graphics_width(src_graphics) ||
+       src_y >= (graphics_pos_t)graphics_height(src_graphics)) return;
+    if((dst_x + (graphics_pos_t)graphics_width(src_graphics)) < 0 ||
+       (dst_y + (graphics_pos_t)graphics_height(src_graphics)) < 0) return;
 
     graphics_pos_t cur_dst_x = 0;
     graphics_pos_t cur_dst_y = 0;
@@ -519,18 +519,20 @@ void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_pos_t dst
 
     for(cur_src_y = src_y, cur_dst_y = dst_y;; cur_src_y ++, cur_dst_y ++){
 
-        if(cur_src_y >= graphics_height(src_graphics) ||
+        if(cur_src_y >= (graphics_pos_t)graphics_height(src_graphics) ||
            cur_src_y >= src_bottom) break;
-        if(cur_dst_y >= graphics_height(painter->graphics)) break;
+        if(cur_dst_y >= (graphics_pos_t)graphics_height(painter->graphics)) 
+            break;
 
         cur_src_x = src_x;
         cur_dst_x = dst_x;
 
         for(;; cur_src_x ++, cur_dst_x ++){
 
-            if(cur_src_x >= graphics_width(src_graphics) ||
+            if(cur_src_x >= (graphics_pos_t)graphics_width(src_graphics) ||
                cur_src_x >= src_right) break;
-            if(cur_dst_x >= graphics_width(painter->graphics)) break;
+            if(cur_dst_x >= (graphics_pos_t)graphics_width(painter->graphics)) 
+                break;
 
             color = graphics_get_pixel(src_graphics, cur_src_x, cur_src_y);
 
@@ -649,8 +651,10 @@ void painter_rotate(graphics_pos_t* x, graphics_pos_t* y, int32_t angle)
 void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
                       graphics_pos_t radius, int32_t from_angle, int32_t to_angle)
 {
-    if(center_x + radius < 0 || center_x - radius >= graphics_width(painter->graphics)) return;
-    if(center_y + radius < 0 || center_y - radius >= graphics_height(painter->graphics)) return;
+    if(center_x + radius < 0 || center_x - radius >= 
+        (graphics_pos_t)graphics_width(painter->graphics)) return;
+    if(center_y + radius < 0 || center_y - radius >= 
+        (graphics_pos_t)graphics_height(painter->graphics)) return;
     
     //printf("\n\nArc!\n\n");
 
@@ -740,7 +744,8 @@ static graphics_pos_t painter_fill_all_impl(painter_t* painter, graphics_pos_t x
     //painter_put_pixel(painter, x, y, painter->fill_color)
 
     if(x < 0 || y < 0) return x;
-    if(x >= graphics_width(painter->graphics) || y >= graphics_height(painter->graphics)) return x;
+    if(x >= (graphics_pos_t)graphics_width(painter->graphics) ||
+       y >= (graphics_pos_t)graphics_height(painter->graphics)) return x;
 
     graphics_color_t color = 0;
 
@@ -759,14 +764,14 @@ static graphics_pos_t painter_fill_all_impl(painter_t* painter, graphics_pos_t x
         painter_put_pixel(painter, x_left, y, painter->fill_color);
     }
 
-    for(; x_right < graphics_width(painter->graphics); x_right ++){
+    for(; x_right < (graphics_pos_t)graphics_width(painter->graphics); x_right ++){
         color = painter_get_pixel(painter, x_right, y);
         if(color == painter->pen_color || color == painter->fill_color) break;
 
         painter_put_pixel(painter, x_right, y, painter->fill_color);
     }
 
-    if(y < graphics_height(painter->graphics)){
+    if(y < (graphics_pos_t)graphics_height(painter->graphics)){
         for(x = x_left + 1; x < x_right;){
 
             color = painter_get_pixel(painter, x, y + 1);
@@ -777,7 +782,7 @@ static graphics_pos_t painter_fill_all_impl(painter_t* painter, graphics_pos_t x
                 x ++;
             }
 
-            if(x >= graphics_width(painter->graphics)) break;
+            if(x >= (graphics_pos_t)graphics_width(painter->graphics)) break;
         }
     }
 
@@ -792,7 +797,7 @@ static graphics_pos_t painter_fill_all_impl(painter_t* painter, graphics_pos_t x
                 x ++;
             }
 
-            if(x >= graphics_width(painter->graphics)) break;
+            if(x >= (graphics_pos_t)graphics_width(painter->graphics)) break;
         }
     }
 
@@ -807,7 +812,8 @@ static graphics_pos_t painter_fill_target_impl(painter_t* painter, graphics_pos_
     //painter_put_pixel(painter, x, y, painter->fill_color)
 
     if(x < 0 || y < 0) return x;
-    if(x >= graphics_width(painter->graphics) || y >= graphics_height(painter->graphics)) return x;
+    if(x >= (graphics_pos_t)graphics_width(painter->graphics) ||
+       y >= (graphics_pos_t)graphics_height(painter->graphics)) return x;
 
     graphics_color_t color = 0;
 
@@ -826,14 +832,14 @@ static graphics_pos_t painter_fill_target_impl(painter_t* painter, graphics_pos_
         painter_put_pixel(painter, x_left, y, painter->fill_color);
     }
 
-    for(; x_right < graphics_width(painter->graphics); x_right ++){
+    for(; x_right < (graphics_pos_t)graphics_width(painter->graphics); x_right ++){
         color = painter_get_pixel(painter, x_right, y);
         if(color != painter->fill_target_color) break;
 
         painter_put_pixel(painter, x_right, y, painter->fill_color);
     }
 
-    if(y < graphics_height(painter->graphics)){
+    if(y < (graphics_pos_t)graphics_height(painter->graphics)){
         for(x = x_left + 1; x < x_right;){
 
             color = painter_get_pixel(painter, x, y + 1);
@@ -844,7 +850,7 @@ static graphics_pos_t painter_fill_target_impl(painter_t* painter, graphics_pos_
                 x ++;
             }
 
-            if(x >= graphics_width(painter->graphics)) break;
+            if(x >= (graphics_pos_t)graphics_width(painter->graphics)) break;
         }
     }
 
@@ -859,7 +865,7 @@ static graphics_pos_t painter_fill_target_impl(painter_t* painter, graphics_pos_
                 x ++;
             }
 
-            if(x >= graphics_width(painter->graphics)) break;
+            if(x >= (graphics_pos_t)graphics_width(painter->graphics)) break;
         }
     }
 

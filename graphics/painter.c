@@ -218,7 +218,7 @@ void painter_draw_line(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0,
 
     graphics_pos_t y_step = (y0 > y1) ? -1 : 1;
 
-    for(; x0 < x1; x0 ++){
+    for(; x0 <= x1; x0 ++){
 
         if(x_as_y){
             painter_put_line_pixel(painter, y0, x0, pixel_number);

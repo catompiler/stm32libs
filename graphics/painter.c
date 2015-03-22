@@ -886,8 +886,10 @@ void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, f
 {
     if(painter->font == NULL) return;
     
-    if(x + font_char_width(painter->font) < 0 || x >= graphics_width(painter->graphics)) return;
-    if(y + font_char_height(painter->font) < 0 || y >= graphics_height(painter->graphics)) return;
+    if(x + (graphics_pos_t)font_char_width(painter->font) < 0 ||
+       x >= (graphics_pos_t)graphics_width(painter->graphics)) return;
+    if(y + (graphics_pos_t)font_char_height(painter->font) < 0 ||
+       y >= (graphics_pos_t)graphics_height(painter->graphics)) return;
     
     const font_bitmap_t* font_bitmap = font_bitmap_by_char(painter->font, c);
 

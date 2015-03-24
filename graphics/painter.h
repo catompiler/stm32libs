@@ -474,6 +474,16 @@ extern void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_
 extern void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t radius);
 
 /**
+ * Рисует окружность.
+ * @param painter Рисовальщик.
+ * @param center_x Координата центра X.
+ * @param center_y Координата центра Y.
+ * @param a Большая полуось.
+ * @param b Малая полуось.
+ */
+extern void painter_draw_ellipse(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t a, graphics_pos_t b);
+
+/**
  * Копирует часть одного изображения в другое.
  * @param painter Рисовальщик.
  * @param dst_x Координата X цели.
@@ -546,6 +556,19 @@ extern void painter_rotate(graphics_pos_t* x, graphics_pos_t* y, int32_t angle);
  */
 extern void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
                              graphics_pos_t radius, int32_t from_angle, int32_t to_angle);
+
+/**
+ * Рисует дугу эллипса.
+ * @param painter Рисовальщик.
+ * @param center_x Координата X центра дуги.
+ * @param center_y Координата Y центра дуги.
+ * @param a Большая полуось.
+ * @param b Малая полуось.
+ * @param from_angle Начальный угол дуги.
+ * @param to_angle Конечный угол дуги.
+ */
+extern void painter_draw_ellipse_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
+                             graphics_pos_t a, graphics_pos_t b, int32_t from_angle, int32_t to_angle);
 
 /**
  * Осуществляет заливку области,

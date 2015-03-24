@@ -494,6 +494,85 @@ void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_p
     }
 }
 
+void painter_draw_ellipse(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t a, graphics_pos_t b)
+{
+    if(center_x + a < 0 || center_x - a >= 
+        (graphics_pos_t)graphics_width(painter->graphics)) return;
+    if(center_y + b < 0 || center_y - b >= 
+        (graphics_pos_t)graphics_height(painter->graphics)) return;
+    
+    size_t pixel_number = 0;
+
+    graphics_pos_t x = -a;
+    graphics_pos_t y = 0;
+
+    graphics_pos_t a2 = a * a;
+    graphics_pos_t b2 = b * b;
+    graphics_pos_t a2b2 = a2 * b2;
+
+    graphics_pos_t err_x = 0;
+    graphics_pos_t err_y = 0;
+
+    graphics_pos_t x1 = x;
+    graphics_pos_t y1 = y;
+
+    graphics_pos_t x_first = center_x - a + 1;
+    graphics_pos_t y_first = center_y - b + 1;
+    graphics_pos_t x_fill_from = 0;
+    graphics_pos_t x_fill_to = 0;
+    graphics_pos_t old_x = 0;
+    graphics_pos_t old_y = 0;
+
+    //printf("ellipse\n");
+
+    for(; x <= 0;){
+
+        old_y = y;
+        old_x = x;
+
+        painter_put_line_pixel(painter, center_x + x, center_y + y, pixel_number);
+        if(x != 0) painter_put_line_pixel(painter, center_x - x, center_y + y, pixel_number);
+        if(y != 0){
+            painter_put_line_pixel(painter, center_x + x, center_y - y, pixel_number);
+            if(x != 0) painter_put_line_pixel(painter, center_x - x, center_y - y, pixel_number);
+        }
+
+        //printf("(%d, %d) -> ", x, y);
+
+        pixel_number ++;
+
+        x1 = x + 1;
+        y1 = y + 1;
+
+        err_x = x1 * x1 * b2 + y * y * a2 - a2b2;
+        err_x = ABS(err_x);
+
+        err_y = x * x * b2 + y1 * y1 * a2 - a2b2;
+        err_y = ABS(err_y);
+
+        if(err_x < err_y){
+            x ++;
+        }else if(err_y < err_x){
+            y ++;
+        }else{
+            x ++;
+            y ++;
+        }
+        //printf("(%d, %d)\n", x, y);
+
+        if(painter->brush != PAINTER_BRUSH_NONE){
+
+            if(y != old_y){
+                x_fill_from = center_x + old_x + 1;
+                x_fill_to = center_x - old_x - 1;
+
+                painter_fill_back(painter, x_first, y_first, center_y + old_y, x_fill_from, x_fill_to);
+                if(old_y != 0) painter_fill_back(painter, x_first, y_first, center_y - old_y, x_fill_from, x_fill_to);
+            }
+        }
+    }
+}
+
 void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_pos_t dst_y,
                     const graphics_t* src_graphics, graphics_pos_t src_x, graphics_pos_t src_y,
                     graphics_size_t src_width, graphics_size_t src_height)
@@ -717,6 +796,98 @@ void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_
         err_x = ABS(err_x);
 
         err_y = x * x + y1 * y1 - r2;
+        err_y = ABS(err_y);
+
+        if(err_x < err_y){
+            x += dx;
+        }else if(err_y < err_x){
+            y += dy;
+        }else{
+            x += dx;
+            y += dy;
+        }
+
+        if(x == 0) dy = -dy;
+        if(y == 0) dx = -dx;
+
+        /*if(pixel_number >= 360){
+            //printf("Overfill!");
+            break;
+        }*/
+    }
+}
+
+void painter_draw_ellipse_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
+                             graphics_pos_t a, graphics_pos_t b, int32_t from_angle, int32_t to_angle)
+{
+    if(center_x + a < 0 || center_x - a >= 
+        (graphics_pos_t)graphics_width(painter->graphics)) return;
+    if(center_y + b < 0 || center_y - b >= 
+        (graphics_pos_t)graphics_height(painter->graphics)) return;
+    
+    //printf("\n\nElliplse Arc!\n\n");
+
+    if(to_angle - from_angle >= 360){
+        painter_draw_ellipse(painter, center_x, center_y, a, b);
+        return;
+    }
+
+    size_t pixel_number = 0;
+
+    from_angle = painter_normalize_angle(from_angle);
+    to_angle = painter_normalize_angle(to_angle);
+
+    graphics_pos_t x = painter_rotate_x(a, from_angle);
+    graphics_pos_t y = painter_rotate_y(b, from_angle);
+
+    graphics_pos_t x_to = painter_rotate_x(a, to_angle);
+    graphics_pos_t y_to = painter_rotate_y(b, to_angle);
+
+    graphics_pos_t dx = 0;
+    graphics_pos_t dy = 0;
+
+    if(from_angle < 90){
+        dx = -1;
+        dy = 1;
+    }else if(from_angle < 180){
+        dx = -1;
+        dy = -1;
+    }else if(from_angle < 270){
+        dx = 1;
+        dy = -1;
+    }else{
+        dx = 1;
+        dy = 1;
+    }
+
+    graphics_pos_t a2 = a * a;
+    graphics_pos_t b2 = b * b;
+    graphics_pos_t a2b2 = a2 * b2;
+
+    graphics_pos_t err_x = 0;
+    graphics_pos_t err_y = 0;
+
+    graphics_pos_t x1 = 0;
+    graphics_pos_t y1 = 0;
+
+    //printf("from (%d, %d) to (%d, %d)\n", x, y, x_to, y_to);
+
+    for(;;){
+        //printf("(%d, %d) : (%d, %d)\n", x, y, dx, dy);
+
+        painter_put_line_pixel(painter, center_x + x, center_y - y, pixel_number);
+
+        if(x == x_to && y == y_to) break;
+
+        pixel_number ++;
+
+        x1 = x + dx;
+        y1 = y + dy;
+
+        err_x = x1 * x1 * b2 + y * y * a2 - a2b2;
+        err_x = ABS(err_x);
+
+        err_y = x * x * b2 + y1 * y1 * a2 - a2b2;
         err_y = ABS(err_y);
 
         if(err_x < err_y){

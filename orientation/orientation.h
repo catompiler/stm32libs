@@ -11,6 +11,7 @@
 #include "fixed/fixed32.h"
 #include "counter/counter.h"
 #include "gyro6050/gyro6050.h"
+#include "hmc5883l.h"
 
 /**
  * Структура ориентации.
@@ -18,6 +19,8 @@
 typedef struct _Orientation {
     //! Гироскоп.
     const gyro6050_t* gyro;
+    //! Компас.
+    const hmc5883l_t* compass;
     //! Предыдущее значение угловой скорости по оси X.
     fixed32_t gyro_w_x_prev;
     //! Предыдущее значение угловой скорости по оси Y.
@@ -37,6 +40,9 @@ typedef struct _Orientation {
     fixed32_t angle_y;
     //! Угол по оси Z.
     fixed32_t angle_z;
+    
+    //! Угол на север.
+    fixed32_t north_azimuth;
 } orientation_t;
 
 #define ORIENTATION_ACCEL_ANGLE_WEIGHT_MAX 100
@@ -46,7 +52,7 @@ typedef struct _Orientation {
  * Инициализирует ориентацию.
  * @param orientation Ориентация.
  */
-extern void orientation_init(orientation_t* orientation, const gyro6050_t* gyro);
+extern void orientation_init(orientation_t* orientation, const gyro6050_t* gyro, const hmc5883l_t* compass);
 
 /**
  * Получает вес угла по данным акселерометра.
@@ -96,6 +102,11 @@ static ALWAYS_INLINE fixed32_t orientation_angle_y(orientation_t* orientation)
 static ALWAYS_INLINE fixed32_t orientation_angle_z(orientation_t* orientation)
 {
     return orientation->angle_z;
+}
+
+static ALWAYS_INLINE fixed32_t orientation_north_azimuth(orientation_t* orientation)
+{
+    return orientation->north_azimuth;
 }
 
 #endif	/* ORIENTATION_H */

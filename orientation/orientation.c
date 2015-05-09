@@ -5,10 +5,11 @@
 
 
 
-void orientation_init(orientation_t* orientation, const gyro6050_t* gyro)
+void orientation_init(orientation_t* orientation, const gyro6050_t* gyro, const hmc5883l_t* compass)
 {
     memset(orientation, 0x0, sizeof(orientation_t));
     orientation->gyro = gyro;
+    orientation->compass = compass;
     orientation->accel_angle_weight = ORIENTATION_ACCEL_ANGLE_WEIGHT_DEFAULT;
     orientation->counter = system_counter_ticks();
 }
@@ -70,19 +71,22 @@ void orientation_calculate(orientation_t* orientation)
     fixed32_t accel_y = gyro6050_accel_y(orientation->gyro);
     fixed32_t accel_z = gyro6050_accel_z(orientation->gyro);
     // X.
-    //cordic32_atan2_hyp(accel_z, accel_y, &accel_angle_x, NULL);
-    // Y.
-    //cordic32_atan2_hyp(accel_z, accel_x, &accel_angle_y, NULL);
-    // Z.
-    //cordic32_atan2_hyp(accel_x, accel_y, &accel_angle_z, NULL);
-    //XYZ.
     cordic32_atan2_hyp(accel_z, accel_y, &accel_angle_x, NULL);
-    cordic32_atan2_hyp(accel_z, accel_x, &accel_angle_y, NULL); accel_angle_y = -accel_angle_y;
+    // Y.
+    cordic32_atan2_hyp(accel_z, accel_x, &accel_angle_y, NULL);
+    // Z.
     cordic32_atan2_hyp(accel_x, accel_y, &accel_angle_z, NULL);
     
     accel_angle_x = orientation_clamp_angle(accel_angle_x);
     accel_angle_y = orientation_clamp_angle(accel_angle_y);
     accel_angle_z = orientation_clamp_angle(accel_angle_z);
+    
+    // Азимут на север.
+    if(orientation->compass){
+        cordic32_atan2_hyp(hmc5883l_compass_x(orientation->compass),
+                           hmc5883l_compass_y(orientation->compass),
+                           &orientation->north_azimuth, NULL);
+    }
     
     
     // Углы по осям гироскопа.

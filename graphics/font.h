@@ -58,7 +58,7 @@ typedef struct _Font {
 /**
  * Заполняет структуру битовой маски шрифта по месту объявления.
  */
-#define make_font_bitmap(arg_first_char, arg_last_char, arg_data, arg_width, arg_height, arg_format) {.first_char = arg_first_char, .last_char = arg_last_char, .graphics = { .data = (uint8_t*)arg_data, .width = arg_width, .height = arg_height, .format = arg_format }}
+#define make_font_bitmap(arg_first_char, arg_last_char, arg_data, arg_width, arg_height, arg_format) {.first_char = arg_first_char, .last_char = arg_last_char, .graphics = make_graphics(arg_data, arg_width, arg_height, arg_format )}
 
 /**
  * Инициализирует битовую карту шрифта.

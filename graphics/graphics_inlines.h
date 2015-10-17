@@ -822,7 +822,10 @@ static ALWAYS_INLINE graphics_color_t graphics_gray_2_color_from(graphics_format
 #if defined(USE_GRAPHICS_FORMAT_RGB_121_V) || defined(USE_GRAPHICS_FORMAT_RGB_121_H)
 static ALWAYS_INLINE graphics_color_t graphics_rgb_121_color_from(graphics_format_t from_format, graphics_color_t color)
 {
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H) || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)\
+ || defined(USE_GRAPHICS_FORMAT_RGB_332) || defined(USE_GRAPHICS_FORMAT_RGB_565) || defined(USE_GRAPHICS_FORMAT_RGB_8)
     uint32_t color_r, color_g, color_b;
+#endif
     switch(from_format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
         case GRAPHICS_FORMAT_BW_1_V:
@@ -893,7 +896,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_121_color_from(graphics_forma
 #ifdef USE_GRAPHICS_FORMAT_RGB_332
 static ALWAYS_INLINE graphics_color_t graphics_rgb_332_color_from(graphics_format_t from_format, graphics_color_t color)
 {
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H) || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)\
+ || defined(USE_GRAPHICS_FORMAT_RGB_121_V) || defined(USE_GRAPHICS_FORMAT_RGB_121_H)\
+ || defined(USE_GRAPHICS_FORMAT_RGB_565) || defined(USE_GRAPHICS_FORMAT_RGB_8)
     uint32_t color_r, color_g, color_b;
+#endif
     switch(from_format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
         case GRAPHICS_FORMAT_BW_1_V:
@@ -964,7 +971,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_332_color_from(graphics_forma
 #ifdef USE_GRAPHICS_FORMAT_RGB_565
 static ALWAYS_INLINE graphics_color_t graphics_rgb_565_color_from(graphics_format_t from_format, graphics_color_t color)
 {
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H) || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)\
+ || defined(USE_GRAPHICS_FORMAT_RGB_121_V) || defined(USE_GRAPHICS_FORMAT_RGB_121_H)\
+ || defined(USE_GRAPHICS_FORMAT_RGB_332) || defined(USE_GRAPHICS_FORMAT_RGB_8)
     uint32_t color_r, color_g, color_b;
+#endif
     switch(from_format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
         case GRAPHICS_FORMAT_BW_1_V:
@@ -1035,7 +1046,11 @@ static ALWAYS_INLINE graphics_color_t graphics_rgb_565_color_from(graphics_forma
 #ifdef USE_GRAPHICS_FORMAT_RGB_8
 static ALWAYS_INLINE graphics_color_t graphics_rgb_8_color_from(graphics_format_t from_format, graphics_color_t color)
 {
+#if defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H) || defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD)\
+ || defined(USE_GRAPHICS_FORMAT_RGB_121_V) || defined(USE_GRAPHICS_FORMAT_RGB_121_H)\
+ || defined(USE_GRAPHICS_FORMAT_RGB_332) || defined(USE_GRAPHICS_FORMAT_RGB_565)
     uint32_t color_r, color_g, color_b;
+#endif
     switch(from_format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
         case GRAPHICS_FORMAT_BW_1_V:

@@ -23,7 +23,7 @@ typedef uint32_t font_char_t;
 typedef struct _FontBitmap {
     //! Код первого символа в битовой карте.
     font_char_t first_char;
-    //! Кол последнего символа в битовой карте.
+    //! Код последнего символа в битовой карте.
     font_char_t last_char;
     //! Битовая карта.
     const graphics_t graphics;
@@ -58,7 +58,7 @@ typedef struct _Font {
 /**
  * Заполняет структуру битовой маски шрифта по месту объявления.
  */
-#define make_font_bitmap(arg_first_char, arg_last_char, arg_data, arg_width, arg_height, arg_format) {.first_char = arg_first_char, .last_char = arg_last_char, .graphics = make_graphics(arg_data, arg_width, arg_height, arg_format )}
+#define make_font_bitmap(arg_first_char, arg_last_char, arg_data, arg_width, arg_height, arg_format) {.first_char = arg_first_char, .last_char = arg_last_char, .graphics = make_graphics(arg_data, arg_width, arg_height, arg_format)}
 
 /**
  * Инициализирует битовую карту шрифта.

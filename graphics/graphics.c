@@ -13,9 +13,45 @@ err_t graphics_init(graphics_t* graphics, uint8_t* data, graphics_size_t width, 
     graphics->width = width;
     graphics->height = height;
     graphics->format = format;
+    
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    graphics->type = GRAPHICS_TYPE_NORMAL;
+    graphics->vbuf = NULL;
+#endif
 
     return E_NO_ERROR;
 }
+
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+
+err_t graphics_init_vbuf(graphics_vbuf_t* vbuf, graphics_get_pixel_proc_t virtual_get_pixel,
+                         graphics_set_pixel_proc_t virtual_set_pixel, graphics_or_pixel_proc_t virtual_or_pixel,
+                         graphics_xor_pixel_proc_t virtual_xor_pixel, graphics_and_pixel_proc_t virtual_and_pixel)
+{
+    vbuf->virtual_get_pixel = virtual_get_pixel;
+    vbuf->virtual_set_pixel = virtual_set_pixel;
+    vbuf->virtual_or_pixel = virtual_or_pixel;
+    vbuf->virtual_xor_pixel = virtual_xor_pixel;
+    vbuf->virtual_and_pixel = virtual_and_pixel;
+    
+    return E_NO_ERROR;
+}
+
+err_t graphics_init_virtual(graphics_t* graphics, void* data, graphics_size_t width, graphics_size_t height, graphics_format_t format, graphics_vbuf_t* vbuf)
+{
+    if(vbuf == NULL) return E_NULL_POINTER;
+    
+    graphics->data = data;
+    graphics->width = width;
+    graphics->height = height;
+    graphics->format = format;
+    
+    graphics->type = GRAPHICS_TYPE_VIRTUAL;
+    graphics->vbuf = vbuf;
+
+    return E_NO_ERROR;
+}
+#endif
 
 size_t graphics_data_size(const graphics_t* graphics)
 {
@@ -82,23 +118,28 @@ size_t graphics_data_size(const graphics_t* graphics)
 
 void graphics_clear(graphics_t* graphics)
 {
-    if(graphics->data == NULL) return;
-
-    memset(graphics->data, 0x0, graphics_data_size(graphics));
+    if(graphics->data != NULL){
+        memset(graphics->data, 0x0, graphics_data_size(graphics));
+    }else{
+        graphics_fill(graphics, 0x0);
+    }
 }
 
-void graphics_fill(graphics_t* graphics, uint8_t mask)
+void graphics_fill(graphics_t* graphics, graphics_color_t color)
 {
-    if(graphics->data == NULL) return;
-
-    memset(graphics->data, mask, graphics_data_size(graphics));
+    graphics_pos_t y, x;
+    for(y = 0; y < graphics_height(graphics); y ++){
+        for(x = 0; x < graphics_width(graphics); x ++){
+            graphics_set_pixel(graphics, x, y, color);
+        }
+    }
 }
 
 bool graphics_get_pixel_pos(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_size_t* byte, graphics_size_t* bit)
 {
     if(x < 0 || y < 0) return false;
     if(x >= graphics->width || y >= graphics->height) return false;
-
+    
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
         case GRAPHICS_FORMAT_BW_1_V:
@@ -158,6 +199,16 @@ graphics_color_t graphics_get_pixel(const graphics_t* graphics, graphics_pos_t x
 {
     if(x < 0 || y < 0) return 0;
     if(x >= graphics->width || y >= graphics->height) return 0;
+
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        if(graphics->vbuf->virtual_get_pixel)
+            { return graphics->vbuf->virtual_get_pixel(graphics, x, y); }
+        else { return 0; }
+    }
+#else
+    if(graphics->data == NULL) return 0;
+#endif
 
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
@@ -219,6 +270,16 @@ bool graphics_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
     if(x < 0 || y < 0) return false;
     if(x >= graphics->width || y >= graphics->height) return false;
 
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        if(graphics->vbuf->virtual_get_pixel)
+            { return graphics->vbuf->virtual_set_pixel(graphics, x, y, color); }
+        else { return false; }
+    }
+#else
+    if(graphics->data == NULL) return false;
+#endif
+
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
         case GRAPHICS_FORMAT_BW_1_V:
@@ -278,6 +339,16 @@ bool graphics_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y,
 {
     if(x < 0 || y < 0) return false;
     if(x >= graphics->width || y >= graphics->height) return false;
+
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        if(graphics->vbuf->virtual_get_pixel)
+            { return graphics->vbuf->virtual_or_pixel(graphics, x, y, color); }
+        else { return false; }
+    }
+#else
+    if(graphics->data == NULL) return false;
+#endif
 
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
@@ -339,6 +410,16 @@ bool graphics_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
     if(x < 0 || y < 0) return false;
     if(x >= graphics->width || y >= graphics->height) return false;
 
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        if(graphics->vbuf->virtual_get_pixel)
+            { return graphics->vbuf->virtual_xor_pixel(graphics, x, y, color); }
+        else { return false; }
+    }
+#else
+    if(graphics->data == NULL) return false;
+#endif
+
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
         case GRAPHICS_FORMAT_BW_1_V:
@@ -398,6 +479,16 @@ bool graphics_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
 {
     if(x < 0 || y < 0) return false;
     if(x >= graphics->width || y >= graphics->height) return false;
+
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        if(graphics->vbuf->virtual_get_pixel)
+            { return graphics->vbuf->virtual_and_pixel(graphics, x, y, color); }
+        else { return false; }
+    }
+#else
+    if(graphics->data == NULL) return false;
+#endif
 
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V

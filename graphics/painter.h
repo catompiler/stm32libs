@@ -22,6 +22,17 @@ typedef enum _Painter_Mode {
     PAINTER_MODE_AND //!< AND значения пиксела.
 } painter_mode_t;
 
+//! Режим линии.
+typedef enum _Painter_Pen {
+    PAINTER_PEN_NONE = 0, //!< Нет линии.
+    PAINTER_PEN_SOLID, //!< Цельная линия.
+    PAINTER_PEN_DOT, //!< Линия из точек.
+    PAINTER_PEN_DASH, //!< Линия из линий.
+    PAINTER_PEN_DASH2, //!< Линия из более длинных линий.
+    PAINTER_PEN_DASH_DOT, //!< Линия из точек и линий.
+    PAINTER_PEN_CUSTOM //!< Пользовательский тип линии.
+} painter_pen_t;
+
 //! Кисть.
 typedef enum _Painter_Brush {
     PAINTER_BRUSH_NONE = 0, //!< Нет заливки.
@@ -45,17 +56,6 @@ typedef enum _Painter_Brush {
     PAINTER_BRUSH_DASH2_DIAG_CROSS, //!< Заливка из более редких диагональных линий по горизонтали.
     PAINTER_BRUSH_CUSTOM //!< Пользовательский тип заливки.
 } painter_brush_t;
-
-//! Режим линии.
-typedef enum _Painter_Pen {
-    PAINTER_PEN_NONE = 0, //!< Нет линии.
-    PAINTER_PEN_SOLID, //!< Цельная линия.
-    PAINTER_PEN_DOT, //!< Линия из точек.
-    PAINTER_PEN_DASH, //!< Линия из линий.
-    PAINTER_PEN_DASH2, //!< Линия из более длинных линий.
-    PAINTER_PEN_DASH_DOT, //!< Линия из точек и линий.
-    PAINTER_PEN_CUSTOM //!< Пользовательский тип линии.
-} painter_pen_t;
 
 //! Режимы заливки.
 typedef enum _Painter_Fill_Mode {
@@ -97,7 +97,11 @@ typedef struct _Painter {
 /**
  * Заполняет структуру изображения по месту объявления.
  */
-#define make_painter(arg_graphics) {.graphics = arg_graphics}
+#define make_painter(arg_graphics) {.graphics = arg_graphics, .mode = PAINTER_MODE_SET, .pen = PAINTER_PEN_SOLID, .brush = PAINTER_BRUSH_NONE,\
+                                    .font = NULL, .fill_mode = PAINTER_FILL_MODE_ALL, .source_image_mode = PAINTER_SOURCE_IMAGE_MODE_NORMAL,\
+                                    .pen_color = GRAPHICS_COLOR_BLACK, .brush_color = GRAPHICS_COLOR_BLACK, .fill_color = GRAPHICS_COLOR_BLACK,\
+                                    .fill_target_color = GRAPHICS_COLOR_BLACK, .transparent_color = GRAPHICS_COLOR_BLACK,\
+                                    .transparent_color_enabled = false, .custom_pen_graphics = NULL, .custom_brush_graphics = NULL}
 
 /**
  * Инициализирует рисовальщик.

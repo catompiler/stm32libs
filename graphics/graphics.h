@@ -187,18 +187,115 @@ typedef uint32_t graphics_size_t;
 //! Тип позиции пиксела.
 typedef int32_t graphics_pos_t;
 
-//! Структура графических данные изображения.
+/*
+ * Виртуальный буфер - концепция, служащая для
+ * работы без видеобуфера, при которой доступ
+ * к пекселам осуществляется непосредственно
+ * обращением к уствойству, используя каллбэки.
+ * Библиотека считает буфер виртуальным, если
+ * указатель на данные data имеет нулевой адрес.
+ */
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+
+/**
+ * Тип буфера изображения.
+ */
+typedef enum _Graphics_Type {
+    //! Нормальный - буфер в памяти.
+    GRAPHICS_TYPE_NORMAL = 0,
+    //! Виртуальный - буфер где угодно, например  в экране.
+    GRAPHICS_TYPE_VIRTUAL = 1
+} graphics_type_t;
+
+/*
+ * Структура определена ниже.
+ */
+struct _Graphics;
+
+/*
+ * Прототипы функций для виртуального буфера.
+ */
+/**
+ * Получение пиксела.
+ */
+typedef graphics_color_t (*graphics_get_pixel_proc_t)(const struct _Graphics* graphics, graphics_pos_t x, graphics_pos_t y);
+/**
+ * Установка пиксела.
+ */
+typedef bool (*graphics_set_pixel_proc_t)(struct _Graphics* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+/**
+ * OR над пикселом.
+ */
+typedef bool (*graphics_or_pixel_proc_t)(struct _Graphics* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+/**
+ * XOR над пикселом.
+ */
+typedef bool (*graphics_xor_pixel_proc_t)(struct _Graphics* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+/**
+ * AND над пикселом.
+ */
+typedef bool (*graphics_and_pixel_proc_t)(struct _Graphics* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+
+/**
+ * Структура виртуального буфера.
+ */
+typedef struct Graphics_Vbuf {
+    graphics_get_pixel_proc_t virtual_get_pixel; //!< Получение пиксела.
+    graphics_set_pixel_proc_t virtual_set_pixel; //!< Установка пиксела.
+    graphics_or_pixel_proc_t virtual_or_pixel; //!< OR над пикселом.
+    graphics_xor_pixel_proc_t virtual_xor_pixel; //!< XOR над пикселом.
+    graphics_and_pixel_proc_t virtual_and_pixel; //!< AND над пикселом.
+} graphics_vbuf_t;
+
+#endif
+
+//! Структура графических данныех изображения.
 typedef struct _Graphics {
     uint8_t* data; //!< Графические данные.
     graphics_size_t width; //!< Ширина изображение.
     graphics_size_t height; //!< Высота изображения.
     graphics_format_t format; //!< Формат изображения.
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    graphics_type_t type; //!< Тип буфера изображения.
+    graphics_vbuf_t* vbuf; //!< Виртуальный буфер.
+#endif
 } graphics_t;
 
 /**
  * Заполняет структуру изображения по месту объявления.
  */
+#ifndef USE_GRAPHICS_VIRTUAL_BUFFER
 #define make_graphics(arg_data, arg_width, arg_height, arg_format) { .data = (uint8_t*)arg_data, .width = arg_width, .height = arg_height, .format = arg_format }
+#else
+#define make_graphics(arg_data, arg_width, arg_height, arg_format)\
+{\
+ .data = (uint8_t*)arg_data, .width = arg_width, .height = arg_height, .format = arg_format,\
+ .type = GRAPHICS_TYPE_NORMAL, .vbuf = NULL\
+}
+#endif
+
+
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+/**
+ * Заполняет структуру виртуального буфера по месту объявления.
+ */
+#define make_graphics_vbuf(arg_virtual_get_pixel, arg_virtual_set_pixel,\
+                           arg_virtual_or_pixel, arg_virtual_xor_pixel,\
+                           arg_virtual_and_pixel)\
+{\
+ .virtual_get_pixel = arg_virtual_get_pixel, .virtual_set_pixel = arg_virtual_set_pixel,\
+ .virtual_or_pixel  = arg_virtual_or_pixel,  .virtual_xor_pixel = arg_virtual_xor_pixel,\
+ .virtual_and_pixel = arg_virtual_and_pixel\
+}
+/**
+ * Заполняет структуру изображения с виртуальным буфером по месту объявления.
+ */
+#define make_graphics_virtual(arg_data, arg_width, arg_height, arg_format, arg_vbuf)\
+{\
+ .data = (uint8_t*)arg_data, .width = arg_width, .height = arg_height, .format = arg_format,\
+ .type = GRAPHICS_TYPE_VIRTUAL, .vbuf = arg_vbuf\
+}
+#endif
 
 /**
  * Инициализирует структуру изображения.
@@ -210,6 +307,32 @@ typedef struct _Graphics {
  * @return Код ошибки.
  */
 extern err_t graphics_init(graphics_t* graphics, uint8_t* data, graphics_size_t width, graphics_size_t height, graphics_format_t format);
+
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+/**
+ * Инициализирует структуру виртуального буфера.
+ * @param vbuf Виртуальный буфер.
+ * @param virtual_get_pixel Функция получения пиксела.
+ * @param virtual_set_pixel Функция установки пиксела.
+ * @param virtual_or_pixel Функция операции OR над пикселом.
+ * @param virtual_xor_pixel Функция операции XOR над пикселом.
+ * @param virtual_and_pixel Функция операции AND над пикселом.
+ * @return Код ошибки.
+ */
+extern err_t graphics_init_vbuf(graphics_vbuf_t* vbuf, graphics_get_pixel_proc_t virtual_get_pixel,
+                                graphics_set_pixel_proc_t virtual_set_pixel, graphics_or_pixel_proc_t virtual_or_pixel,
+                                graphics_xor_pixel_proc_t virtual_xor_pixel, graphics_and_pixel_proc_t virtual_and_pixel);
+/**
+ * Инициализирует структуру изображения с виртуальным буфером.
+ * @param graphics Изображение.
+ * @param width Ширина изображения.
+ * @param height Высота изображения.
+ * @param format Формат изображения.
+ * @param vbuf Виртуальный буфер.
+ * @return Код ошибки.
+ */
+extern err_t graphics_init_virtual(graphics_t* graphics, void* data, graphics_size_t width, graphics_size_t height, graphics_format_t format, graphics_vbuf_t* vbuf);
+#endif
 
 /**
  * Получает адрес буфера изображения.
@@ -261,6 +384,28 @@ static ALWAYS_INLINE graphics_format_t graphics_format(const graphics_t* graphic
     return graphics->format;
 }
 
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+/**
+ * Получает тип буфера.
+ * @param graphics Изображение.
+ * @return Тип буфера.
+ */
+static ALWAYS_INLINE graphics_type_t graphics_type(const graphics_t* graphics)
+{
+    return graphics->type;
+}
+
+/**
+ * Получает виртуальный буфер.
+ * @param graphics Изображение.
+ * @return Виртуальный буфер.
+ */
+static ALWAYS_INLINE graphics_vbuf_t* graphics_virtual_buffer(graphics_t* graphics)
+{
+    return graphics->vbuf;
+}
+#endif
+
 /**
  * Получает размер буфера изображения.
  * @param graphics Изображение.
@@ -275,11 +420,11 @@ extern size_t graphics_data_size(const graphics_t* graphics);
 extern void graphics_clear(graphics_t* graphics);
 
 /**
- * Заполняет буфер изображения переданной маской байта.
+ * Заполняет буфер изображения заданным цветом.
  * @param graphics Изображение.
- * @param mask Маска байта буфера изображения.
+ * @param color Цвет.
  */
-extern void graphics_fill(graphics_t* graphics, uint8_t mask);
+extern void graphics_fill(graphics_t* graphics, graphics_color_t color);
 
 /**
  * Получает позицию пиксела в массиве байт.

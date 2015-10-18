@@ -660,6 +660,9 @@ err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direct
     message->data = data;
     message->data_size = data_size;
     
+    message->callback = NULL;
+    message->sender_data = NULL;
+    
     return E_NO_ERROR;
 }
 

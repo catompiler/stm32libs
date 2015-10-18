@@ -24,14 +24,21 @@
  */
 typedef bool (*spi_callback_t)(void);
 
-//! Идентификатор передачи по умолчанию.
-#define SPI_BUS_DEFAULT_TRANSFER_ID 0
+//! Декларация структуры сообщения ниже.
+struct _SPI_Message;
+/**
+ * Тип функции обратного вызова для сообщения.
+ * Вызывается при успешном окончании передачи сообщения.
+ */
+typedef void (*spi_message_callback_t)(struct _SPI_Message*);
 
 /**
  * Тип идентификатора передачи.
  */
 typedef uint8_t spi_transfer_id_t;
 
+//! Идентификатор передачи по умолчанию.
+#define SPI_BUS_DEFAULT_TRANSFER_ID 0
 
 //! Тип статуса шины spi.
 typedef enum _spi_status {
@@ -63,6 +70,8 @@ typedef struct _SPI_Message {
     const void* tx_data;//!< Данные для передачи.
     void* rx_data;//!< Данные для приёма.
     size_t data_size;//!< Размер данных.
+    spi_message_callback_t callback;//!< Функция обратного вызова.
+    void* sender_data;//!< Данные отправителя сообщения.
 } spi_message_t;
 
 //! Структуры шины spi.
@@ -178,7 +187,33 @@ extern spi_error_t spi_bus_error(spi_bus_t* spi);
  * @param data_size Размер буфера для приёма данных.
  * @return Код ошибки.
  */
-err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const void* tx_data, void* rx_data, size_t data_size);
+extern err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const void* tx_data, void* rx_data, size_t data_size);
+
+/**
+ * Получает функцию обратного вызова сообщения.
+ * @param message Сообщение.
+ */
+extern spi_message_callback_t spi_message_callback(spi_message_t* message);
+
+/**
+ * Устанавливает функцию обратного вызова сообщения.
+ * @param message Сообщение.
+ * @param callback Функция обратного вызова.
+ */
+extern void spi_message_set_callback(spi_message_t* message, spi_message_callback_t callback);
+
+/**
+ * Получает данные отправителя.
+ * @param message Сообщение.
+ */
+extern void* spi_message_sender_data(spi_message_t* message);
+
+/**
+ * Устанавливает данные отправителя.
+ * @param message Сообщение.
+ * @param sender_data Данные отправителя.
+ */
+extern void spi_message_set_sender_data(spi_message_t* message, void* sender_data);
 
 /**
  * Обменивается сообщениями по шине SPI.
@@ -187,7 +222,7 @@ err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const 
  * @param messages_count Число сообщений.
  * @return Код ошибки.
  */
-err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_count);
+extern err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_count);
 
 #endif	/* SPI_H */
 

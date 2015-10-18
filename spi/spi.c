@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include "utils/utils.h"
 #include "dma/dma.h"
+#include "defs/defs.h"
 
 
 //#define SPI_BUS_DEBUG
@@ -205,14 +206,22 @@ static void spi_bus_setup_message(spi_bus_t* spi)
     }
 }
 
+static ALWAYS_INLINE void spi_bus_on_message_sent(spi_bus_t* spi)
+{
+    if(spi->messages[spi->message_index].callback != NULL){
+        spi->messages[spi->message_index].callback(&spi->messages[spi->message_index]);
+    }
+}
+
 static bool spi_bus_setup_next_message(spi_bus_t* spi)
 {
+    spi_bus_on_message_sent(spi);
     if(++ spi->message_index >= spi->messages_count) return false;
     spi_bus_setup_message(spi);
     return true;
 }
 
-static inline bool spi_bus_done(spi_bus_t* spi)
+static ALWAYS_INLINE bool spi_bus_done(spi_bus_t* spi)
 {
     if(spi->callback) spi->callback();
     return spi->state == SPI_STATE_IDLE;
@@ -278,7 +287,7 @@ bool spi_bus_dma_rx_channel_irq_handler(spi_bus_t* spi)
     if(DMA_GetITStatus(dma_tc_flag)){
 
         DMA_ClearITPendingBit(dma_tc_flag);
-
+        
         if(spi_bus_setup_next_message(spi)){
             spi_bus_dma_start(spi);
         }else{
@@ -329,7 +338,7 @@ bool spi_bus_dma_tx_channel_irq_handler(spi_bus_t* spi)
 
         DMA_ClearITPendingBit(dma_tc_flag);
 
-        if(!can_rx){
+        if(!can_rx){            
             if(spi_bus_setup_next_message(spi)){
                 spi_bus_dma_start(spi);
             }else{
@@ -424,8 +433,30 @@ err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const 
     message->tx_data = tx_data;
     message->rx_data = rx_data;
     message->data_size = data_size;
+    message->callback = NULL;
+    message->sender_data = NULL;
     
     return E_NO_ERROR;
+}
+
+spi_message_callback_t spi_message_callback(spi_message_t* message)
+{
+    return message->callback;
+}
+
+void spi_message_set_callback(spi_message_t* message, spi_message_callback_t callback)
+{
+    message->callback = callback;
+}
+
+void* spi_message_sender_data(spi_message_t* message)
+{
+    return message->sender_data;
+}
+
+void spi_message_set_sender_data(spi_message_t* message, void* sender_data)
+{
+    message->sender_data = sender_data;
 }
 
 err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_count)

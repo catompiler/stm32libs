@@ -28,14 +28,21 @@ typedef uint8_t i2c_address_t;
  */
 typedef bool (*i2c_callback_t)(void);
 
-//! Идентификатор передачи по умолчанию.
-#define I2C_BUS_DEFAULT_TRANSFER_ID 0
+//! Декларация структуры сообщения ниже.
+struct _I2C_Message;
+/**
+ * Тип функции обратного вызова для сообщения.
+ * Вызывается при успешном окончании передачи сообщения.
+ */
+typedef void (*i2c_message_callback_t)(struct _I2C_Message*);
 
 /**
  * Тип идентификатора передачи.
  */
 typedef uint8_t i2c_transfer_id_t;
 
+//! Идентификатор передачи по умолчанию.
+#define I2C_BUS_DEFAULT_TRANSFER_ID 0
 
 //! Тип статуса шины i2c.
 typedef enum _i2c_status {
@@ -69,6 +76,8 @@ typedef struct _I2C_Message {
     i2c_direction_t direction;//!< Режим передачи.
     void* data;//!< Данные для приёма/передачи.
     size_t data_size;//!< Размер данных.
+    i2c_message_callback_t callback;//!< Функция обратного вызова.
+    void* sender_data;//!< Данные отправителя сообщения.
 } i2c_message_t;
 
 //! Структуры шины i2c.
@@ -202,7 +211,33 @@ extern i2c_error_t i2c_bus_error(i2c_bus_t* i2c);
  * @param data_size Размер буфера для приёма данных.
  * @return Код ошибки.
  */
-err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direction_t direction, void* data, size_t data_size);
+extern err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direction_t direction, void* data, size_t data_size);
+
+/**
+ * Получает функцию обратного вызова сообщения.
+ * @param message Сообщение.
+ */
+extern i2c_message_callback_t i2c_message_callback(i2c_message_t* message);
+
+/**
+ * Устанавливает функцию обратного вызова сообщения.
+ * @param message Сообщение.
+ * @param callback Функция обратного вызова.
+ */
+extern void i2c_message_set_callback(i2c_message_t* message, i2c_message_callback_t callback);
+
+/**
+ * Получает данные отправителя.
+ * @param message Сообщение.
+ */
+extern void* i2c_message_sender_data(i2c_message_t* message);
+
+/**
+ * Устанавливает данные отправителя.
+ * @param message Сообщение.
+ * @param sender_data Данные отправителя.
+ */
+extern void i2c_message_set_sender_data(i2c_message_t* message, void* sender_data);
 
 /**
  * Обменивается сообщениями по шине I2C.
@@ -211,6 +246,6 @@ err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direct
  * @param messages_count Число сообщений.
  * @return Код ошибки.
  */
-err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_count);
+extern err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_count);
 
 #endif	/* I2C_H */

@@ -23,6 +23,8 @@ typedef uint8_t err_t;
 #define E_BUSY 4
 //! Ошибка ввода-вывода.
 #define E_IO_ERROR 5
+//! Нехватка памяти.
+#define E_OUT_OF_MEMORY 6
 
 //! Начальный код для пользовательских ошибок.
 #define E_USER 100

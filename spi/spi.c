@@ -439,26 +439,6 @@ err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const 
     return E_NO_ERROR;
 }
 
-spi_message_callback_t spi_message_callback(spi_message_t* message)
-{
-    return message->callback;
-}
-
-void spi_message_set_callback(spi_message_t* message, spi_message_callback_t callback)
-{
-    message->callback = callback;
-}
-
-void* spi_message_sender_data(spi_message_t* message)
-{
-    return message->sender_data;
-}
-
-void spi_message_set_sender_data(spi_message_t* message, void* sender_data)
-{
-    message->sender_data = sender_data;
-}
-
 err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_count)
 {
     if(spi_bus_busy(spi)) return E_BUSY;

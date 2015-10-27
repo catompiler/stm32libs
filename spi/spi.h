@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "errors/errors.h"
+#include "defs/defs.h"
 
 //! Ошибки SPI.
 #define E_SPI (E_USER + 10)
@@ -190,30 +191,62 @@ extern spi_error_t spi_bus_error(spi_bus_t* spi);
 extern err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const void* tx_data, void* rx_data, size_t data_size);
 
 /**
+ * Инициализирует сообщение.
+ * Не проверяет ничего.
+ * Для критичных к времени мест.
+ * @param message Сообщение.
+ * @param direction Направление передачи.
+ * @param tx_data Данные для передачи.
+ * @param rx_data Буфер для приёма данных.
+ * @param data_size Размер буфера для приёма данных.
+ */
+ALWAYS_INLINE static void spi_message_setup(spi_message_t* message, spi_direction_t direction, const void* tx_data, void* rx_data, size_t data_size)
+{
+    message->direction = direction;
+    message->tx_data = tx_data;
+    message->rx_data = rx_data;
+    message->data_size = data_size;
+    message->sender_data = NULL;
+    message->callback = NULL;
+}
+
+/**
  * Получает функцию обратного вызова сообщения.
  * @param message Сообщение.
  */
-extern spi_message_callback_t spi_message_callback(spi_message_t* message);
+ALWAYS_INLINE static spi_message_callback_t spi_message_callback(spi_message_t* message)
+{
+    return message->callback;
+}
 
 /**
  * Устанавливает функцию обратного вызова сообщения.
  * @param message Сообщение.
  * @param callback Функция обратного вызова.
  */
-extern void spi_message_set_callback(spi_message_t* message, spi_message_callback_t callback);
+ALWAYS_INLINE static void spi_message_set_callback(spi_message_t* message, spi_message_callback_t callback)
+{
+    message->callback = callback;
+}
 
 /**
  * Получает данные отправителя.
  * @param message Сообщение.
  */
-extern void* spi_message_sender_data(spi_message_t* message);
+ALWAYS_INLINE static void* spi_message_sender_data(spi_message_t* message)
+{
+    return message->sender_data;
+}
 
 /**
  * Устанавливает данные отправителя.
  * @param message Сообщение.
  * @param sender_data Данные отправителя.
  */
-extern void spi_message_set_sender_data(spi_message_t* message, void* sender_data);
+ALWAYS_INLINE static void spi_message_set_sender_data(spi_message_t* message, void* sender_data)
+{
+    message->sender_data = sender_data;
+}
 
 /**
  * Обменивается сообщениями по шине SPI.

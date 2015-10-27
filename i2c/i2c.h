@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <errors/errors.h>
-#include "buffer/buffer.h"
+#include "errors/errors.h"
+#include "defs/defs.h"
 
 //! Ошибки I2C.
 #define E_I2C (E_USER + 10)
@@ -214,30 +214,62 @@ extern i2c_error_t i2c_bus_error(i2c_bus_t* i2c);
 extern err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direction_t direction, void* data, size_t data_size);
 
 /**
+ * Инициализирует сообщение.
+ * Не проверяет ничего.
+ * Для критичных к времени мест.
+ * @param message Сообщение.
+ * @param direction Направление передачи.
+ * @param tx_data Данные для передачи.
+ * @param rx_data Буфер для приёма данных.
+ * @param data_size Размер буфера для приёма данных.
+ */
+ALWAYS_INLINE static void i2c_message_setup(i2c_message_t* message, i2c_address_t address, i2c_direction_t direction, void* data, size_t data_size)
+{
+    message->address = address;
+    message->direction = direction;
+    message->data = data;
+    message->data_size = data_size;
+    message->callback = NULL;
+    message->sender_data = NULL;
+}
+
+/**
  * Получает функцию обратного вызова сообщения.
  * @param message Сообщение.
  */
-extern i2c_message_callback_t i2c_message_callback(i2c_message_t* message);
+ALWAYS_INLINE static i2c_message_callback_t i2c_message_callback(i2c_message_t* message)
+{
+    return message->callback;
+}
 
 /**
  * Устанавливает функцию обратного вызова сообщения.
  * @param message Сообщение.
  * @param callback Функция обратного вызова.
  */
-extern void i2c_message_set_callback(i2c_message_t* message, i2c_message_callback_t callback);
+ALWAYS_INLINE static void i2c_message_set_callback(i2c_message_t* message, i2c_message_callback_t callback)
+{
+    message->callback = callback;
+}
 
 /**
  * Получает данные отправителя.
  * @param message Сообщение.
  */
-extern void* i2c_message_sender_data(i2c_message_t* message);
+ALWAYS_INLINE static void* i2c_message_sender_data(i2c_message_t* message)
+{
+    return message->sender_data;
+}
 
 /**
  * Устанавливает данные отправителя.
  * @param message Сообщение.
  * @param sender_data Данные отправителя.
  */
-extern void i2c_message_set_sender_data(i2c_message_t* message, void* sender_data);
+ALWAYS_INLINE static void i2c_message_set_sender_data(i2c_message_t* message, void* sender_data)
+{
+    message->sender_data = sender_data;
+}
 
 /**
  * Обменивается сообщениями по шине I2C.

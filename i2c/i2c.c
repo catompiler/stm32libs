@@ -666,26 +666,6 @@ err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direct
     return E_NO_ERROR;
 }
 
-i2c_message_callback_t i2c_message_callback(i2c_message_t* message)
-{
-    return message->callback;
-}
-
-void i2c_message_set_callback(i2c_message_t* message, i2c_message_callback_t callback)
-{
-    message->callback = callback;
-}
-
-void* i2c_message_sender_data(i2c_message_t* message)
-{
-    return message->sender_data;
-}
-
-void i2c_message_set_sender_data(i2c_message_t* message, void* sender_data)
-{
-    message->sender_data = sender_data;
-}
-
 err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_count)
 {
     if(i2c_bus_busy(i2c)) return E_BUSY;
@@ -698,7 +678,7 @@ err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_
     size_t i = 0;
     
     i2c_message_t* msg = NULL;
-    // РџСЂРѕРІРµСЂРёРј РІСЃРµ СЃРѕРѕР±С‰РµРЅРёСЏ.
+    // Проверим все сообщения.
     for(; i < messages_count; i ++){
         msg = &messages[i];
         if(msg->data_size == 0) return E_INVALID_VALUE;

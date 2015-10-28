@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "errors/errors.h"
+#include "defs/defs.h"
 
 /**
  * Получает номер канала DMA, 1-7 для DMA1 и 8-12 для DMA2.
@@ -45,6 +46,19 @@ extern bool dma_channel_trylock(DMA_Channel_TypeDef* dma_channel);
  * @return Код ошибки.
  */
 extern err_t dma_channel_unlock(DMA_Channel_TypeDef* dma_channel);
+
+/**
+ * Деинициализирует канал DMA.
+ * @param dma_channel Канал DMA.
+ */
+ALWAYS_INLINE static void dma_channel_deinit(DMA_Channel_TypeDef* dma_channel)
+{
+    dma_channel->CCR &= ~DMA_CCR1_EN;
+    dma_channel->CCR = 0;
+    dma_channel->CNDTR = 0;
+    dma_channel->CPAR = 0;
+    dma_channel->CMAR = 0;
+}
 
 #endif	/* DMA_H */
 

@@ -56,51 +56,22 @@ err_t i2c_bus_init(i2c_bus_t* i2c, i2c_bus_init_t* init)
     return E_NO_ERROR;
 }
 
-static void i2c_bus_dma_config(DMA_InitTypeDef* dma_is, i2c_bus_t* i2c, void* address, size_t size)
-{
-    dma_is->DMA_Priority = DMA_Priority_Medium;
-    dma_is->DMA_M2M = DMA_M2M_Disable;
-    dma_is->DMA_Mode = DMA_Mode_Normal;
-    
-    dma_is->DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    dma_is->DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    dma_is->DMA_PeripheralBaseAddr = (uint32_t)&i2c->i2c_device->DR;
-    
-    dma_is->DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-    dma_is->DMA_MemoryInc = DMA_MemoryInc_Enable;
-    dma_is->DMA_MemoryBaseAddr = (uint32_t)address;
-    
-    dma_is->DMA_BufferSize = size;
-}
-
 static void i2c_bus_dma_tx_config(i2c_bus_t* i2c, void* address, size_t size)
 {
-    DMA_InitTypeDef dma_is;
-    
-    i2c_bus_dma_config(&dma_is, i2c, address, size);
-    
-    dma_is.DMA_DIR = DMA_DIR_PeripheralDST;
-    
-    DMA_DeInit(i2c->dma_tx_channel);
-    
-    DMA_Init(i2c->dma_tx_channel, &dma_is);
-    DMA_ITConfig(i2c->dma_tx_channel, DMA_IT_TC, ENABLE);
-    DMA_ITConfig(i2c->dma_tx_channel, DMA_IT_TE, ENABLE);
+    i2c->dma_tx_channel->CCR &= ~DMA_CCR1_EN;
+    i2c->dma_tx_channel->CNDTR = size;
+    i2c->dma_tx_channel->CPAR = (uint32_t)&i2c->i2c_device->DR;
+    i2c->dma_tx_channel->CMAR = (uint32_t)address;
+    i2c->dma_tx_channel->CCR = DMA_CCR1_PL_0 | DMA_CCR1_TEIE | DMA_CCR1_TCIE | DMA_CCR1_DIR | DMA_CCR1_MINC;
 }
 
 static void i2c_bus_dma_rx_config(i2c_bus_t* i2c, void* address, size_t size)
 {
-    DMA_InitTypeDef dma_is;
-    
-    i2c_bus_dma_config(&dma_is, i2c, address, size);
-    
-    dma_is.DMA_DIR = DMA_DIR_PeripheralSRC;
-    
-    DMA_DeInit(i2c->dma_rx_channel);
-    
-    DMA_Init(i2c->dma_rx_channel, &dma_is);
-    DMA_ITConfig(i2c->dma_rx_channel, DMA_IT_TC, ENABLE);
-    DMA_ITConfig(i2c->dma_rx_channel, DMA_IT_TE, ENABLE);
+    i2c->dma_rx_channel->CCR &= ~DMA_CCR1_EN;
+    i2c->dma_rx_channel->CNDTR = size;
+    i2c->dma_rx_channel->CPAR = (uint32_t)&i2c->i2c_device->DR;
+    i2c->dma_rx_channel->CMAR = (uint32_t)address;
+    i2c->dma_rx_channel->CCR = DMA_CCR1_PL_0 | DMA_CCR1_TEIE | DMA_CCR1_TCIE | DMA_CCR1_MINC;
 }
 
 static bool i2c_bus_dma_lock_channels(i2c_bus_t* i2c, bool lock_rx, bool lock_tx)
@@ -125,12 +96,12 @@ static bool i2c_bus_dma_lock_channels(i2c_bus_t* i2c, bool lock_rx, bool lock_tx
 static void i2c_bus_dma_unlock_channels(i2c_bus_t* i2c)
 {
     if(i2c->dma_rx_locked){
-        DMA_DeInit(i2c->dma_rx_channel);
+        dma_channel_deinit(i2c->dma_rx_channel);
         dma_channel_unlock(i2c->dma_rx_channel);
         i2c->dma_rx_locked = false;
     }
     if(i2c->dma_tx_locked){
-        DMA_DeInit(i2c->dma_tx_channel);
+        dma_channel_deinit(i2c->dma_tx_channel);
         dma_channel_unlock(i2c->dma_tx_channel);
         i2c->dma_tx_locked = false;
     }
@@ -139,24 +110,24 @@ static void i2c_bus_dma_unlock_channels(i2c_bus_t* i2c)
 static void i2c_bus_dma_start_rx(i2c_bus_t* i2c)
 {
     if(i2c->dma_rx_locked){
-        I2C_DMACmd(i2c->i2c_device, ENABLE);
-        DMA_Cmd(i2c->dma_rx_channel, ENABLE);
+        i2c->i2c_device->CR2 |= I2C_CR2_DMAEN;
+        i2c->dma_rx_channel->CCR |= DMA_CCR1_EN;
     }
 }
 
 static void i2c_bus_dma_start_tx(i2c_bus_t* i2c)
 {
     if(i2c->dma_tx_locked){
-        I2C_DMACmd(i2c->i2c_device, ENABLE);
-        DMA_Cmd(i2c->dma_tx_channel, ENABLE);
+        i2c->i2c_device->CR2 |= I2C_CR2_DMAEN;
+        i2c->dma_tx_channel->CCR |= DMA_CCR1_EN;
     }
 }
 
 static void i2c_bus_dma_stop_rx(i2c_bus_t* i2c)
 {
     if(i2c->dma_rx_locked){
-        I2C_DMACmd(i2c->i2c_device, DISABLE);
-        DMA_Cmd(i2c->dma_rx_channel, DISABLE);
+        i2c->dma_rx_channel->CCR &= ~DMA_CCR1_EN;
+        i2c->i2c_device->CR2 &= ~I2C_CR2_DMAEN;
         I2C_AcknowledgeConfig(i2c->i2c_device, DISABLE);
         I2C_DMALastTransferCmd(i2c->i2c_device, DISABLE);
     }
@@ -165,9 +136,9 @@ static void i2c_bus_dma_stop_rx(i2c_bus_t* i2c)
 static void i2c_bus_dma_stop_tx(i2c_bus_t* i2c)
 {
     if(i2c->dma_tx_locked){
-        I2C_DMACmd(i2c->i2c_device, DISABLE);
+        i2c->dma_tx_channel->CCR &= ~DMA_CCR1_EN;
+        i2c->i2c_device->CR2 &= ~I2C_CR2_DMAEN;
         I2C_DMALastTransferCmd(i2c->i2c_device, DISABLE);
-        DMA_Cmd(i2c->dma_tx_channel, DISABLE);
     }
 }
 
@@ -678,7 +649,7 @@ err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_
     size_t i = 0;
     
     i2c_message_t* msg = NULL;
-    // Проверим все сообщения.
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     for(; i < messages_count; i ++){
         msg = &messages[i];
         if(msg->data_size == 0) return E_INVALID_VALUE;

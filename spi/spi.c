@@ -61,94 +61,78 @@ err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init)
     return E_NO_ERROR;
 }
 
-ALWAYS_INLINE static void spi_bus_dma_config_shared(DMA_InitTypeDef* dma_is, spi_bus_t* spi, size_t size)
-{
-    dma_is->DMA_Priority = DMA_Priority_Medium;
-    dma_is->DMA_M2M = DMA_M2M_Disable;
-    dma_is->DMA_Mode = DMA_Mode_Normal;
-    
-    dma_is->DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    dma_is->DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    dma_is->DMA_PeripheralBaseAddr = (uint32_t)&spi->spi_device->DR;
-    
-    dma_is->DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-    
-    dma_is->DMA_BufferSize = size;
-}
-
 static void spi_bus_dma_rxtx_config(spi_bus_t* spi, void* rx_address, const void* tx_address, size_t size)
 {
-    DMA_InitTypeDef dma_is;
-    
-    // Общие значения.
-    spi_bus_dma_config_shared(&dma_is, spi, size);
+    const uint32_t ccr = DMA_CCR1_PL_0 | DMA_CCR1_TEIE | DMA_CCR1_TCIE;
     
     // RX.
     if(spi->dma_rx_locked){
-        dma_is.DMA_DIR = DMA_DIR_PeripheralSRC;
+        
+        spi->dma_rx_channel->CCR &= ~DMA_CCR1_EN;
+        
+        spi->dma_rx_channel->CNDTR = size;
+        
+        spi->dma_rx_channel->CPAR = (uint32_t)&spi->spi_device->DR;
+        
         if(rx_address){
-            dma_is.DMA_MemoryInc = DMA_MemoryInc_Enable;
-            dma_is.DMA_MemoryBaseAddr = (uint32_t)rx_address;
+            spi->dma_rx_channel->CMAR = (uint32_t)rx_address;
+            spi->dma_rx_channel->CCR = ccr | DMA_CCR1_MINC;
         }else{
-            dma_is.DMA_MemoryInc = DMA_MemoryInc_Disable;
-            dma_is.DMA_MemoryBaseAddr = (uint32_t)&spi_dummy_data;
+            spi->dma_rx_channel->CMAR = (uint32_t)&spi_dummy_data;
+            spi->dma_rx_channel->CCR = ccr;
         }
-
-        DMA_DeInit(spi->dma_rx_channel);
-        DMA_Init(spi->dma_rx_channel, &dma_is);
-        DMA_ITConfig(spi->dma_rx_channel, DMA_IT_TC, ENABLE);
-        DMA_ITConfig(spi->dma_rx_channel, DMA_IT_TE, ENABLE);
     }
     
     // TX.
     if(spi->dma_tx_locked){
-        dma_is.DMA_DIR = DMA_DIR_PeripheralDST;
+        
+        spi->dma_tx_channel->CCR &= ~DMA_CCR1_EN;
+        
+        spi->dma_tx_channel->CNDTR = size;
+        
+        spi->dma_tx_channel->CPAR = (uint32_t)&spi->spi_device->DR;
+        
         if(tx_address){
-            dma_is.DMA_MemoryInc = DMA_MemoryInc_Enable;
-            dma_is.DMA_MemoryBaseAddr = (uint32_t)tx_address;
+            spi->dma_tx_channel->CMAR = (uint32_t)tx_address;
+            spi->dma_tx_channel->CCR = ccr | DMA_CCR1_DIR | DMA_CCR1_MINC;
         }else{
             spi_dummy_data = 0;
-            dma_is.DMA_MemoryInc = DMA_MemoryInc_Disable;
-            dma_is.DMA_MemoryBaseAddr = (uint32_t)&spi_dummy_data;
+            spi->dma_tx_channel->CMAR = (uint32_t)&spi_dummy_data;
+            spi->dma_tx_channel->CCR = ccr | DMA_CCR1_DIR;
         }
-
-        DMA_DeInit(spi->dma_tx_channel);
-        DMA_Init(spi->dma_tx_channel, &dma_is);
-        DMA_ITConfig(spi->dma_tx_channel, DMA_IT_TC, ENABLE);
-        DMA_ITConfig(spi->dma_tx_channel, DMA_IT_TE, ENABLE);
     }
 }
 
-static void spi_bus_dma_start(spi_bus_t* spi)
+ALWAYS_INLINE static void spi_bus_dma_start(spi_bus_t* spi)
 {
     if(spi->dma_rx_locked){
-        SPI_I2S_DMACmd(spi->spi_device, SPI_I2S_DMAReq_Rx, ENABLE);
-        DMA_Cmd(spi->dma_rx_channel, ENABLE);
+        spi->spi_device->CR2 |= SPI_I2S_DMAReq_Rx;
+        spi->dma_rx_channel->CCR |= DMA_CCR1_EN;
     }
     if(spi->dma_tx_locked){
-        SPI_I2S_DMACmd(spi->spi_device, SPI_I2S_DMAReq_Tx, ENABLE);
-        DMA_Cmd(spi->dma_tx_channel, ENABLE);
+        spi->spi_device->CR2 |= SPI_I2S_DMAReq_Tx;
+        spi->dma_tx_channel->CCR |= DMA_CCR1_EN;
     }
 }
 
 
-static void spi_bus_dma_stop_rx(spi_bus_t* spi)
+ALWAYS_INLINE static void spi_bus_dma_stop_rx(spi_bus_t* spi)
 {
     if(spi->dma_rx_locked){
-        SPI_I2S_DMACmd(spi->spi_device, SPI_I2S_DMAReq_Rx, DISABLE);
-        DMA_Cmd(spi->dma_rx_channel, DISABLE);
+        spi->dma_rx_channel->CCR &= ~DMA_CCR1_EN;
+        spi->spi_device->CR2 &= ~SPI_I2S_DMAReq_Rx;
     }
 }
 
-static void spi_bus_dma_stop_tx(spi_bus_t* spi)
+ALWAYS_INLINE static void spi_bus_dma_stop_tx(spi_bus_t* spi)
 {
     if(spi->dma_tx_locked){
-        SPI_I2S_DMACmd(spi->spi_device, SPI_I2S_DMAReq_Tx, DISABLE);
-        DMA_Cmd(spi->dma_tx_channel, DISABLE);
+        spi->dma_tx_channel->CCR &= ~DMA_CCR1_EN;
+        spi->spi_device->CR2 &= ~SPI_I2S_DMAReq_Tx;
     }
 }
 
-static void spi_bus_dma_stop(spi_bus_t* spi)
+ALWAYS_INLINE static void spi_bus_dma_stop(spi_bus_t* spi)
 {
     spi_bus_dma_stop_rx(spi);
     spi_bus_dma_stop_tx(spi);
@@ -176,12 +160,12 @@ static bool spi_bus_dma_lock_channels(spi_bus_t* spi, bool lock_rx, bool lock_tx
 static void spi_bus_dma_unlock_channels(spi_bus_t* spi)
 {
     if(spi->dma_rx_locked){
-        DMA_DeInit(spi->dma_rx_channel);
+        dma_channel_deinit(spi->dma_rx_channel);
         dma_channel_unlock(spi->dma_rx_channel);
         spi->dma_rx_locked = false;
     }
     if(spi->dma_tx_locked){
-        DMA_DeInit(spi->dma_tx_channel);
+        dma_channel_deinit(spi->dma_tx_channel);
         dma_channel_unlock(spi->dma_tx_channel);
         spi->dma_tx_locked = false;
     }

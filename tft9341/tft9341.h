@@ -96,7 +96,7 @@ typedef enum _Tft9341_Col_Address_Order {
 typedef enum _Tft9341_Row_Col_Exchange {
     TFT9341_ROW_COL_NORMAL_MODE = 0, //!< Нормальный режим.
     TFT9341_ROW_COL_REVERSE_MODE = 1 //!< Реверсный режим.
-} tft9341_row_col_exchange;
+} tft9341_row_col_exchange_t;
 
 //! Вертикальное обновление.
 typedef enum _Tft9341_Vertical_Refresh {
@@ -206,7 +206,7 @@ typedef struct _Tft9341_Status {
     tft9341_booster_status_t booster_status; //!< Состояние бустера.
     tft9341_row_address_order_t row_address_order; //!< Порядок строк.
     tft9341_col_address_order_t col_address_order; //!< Порядок столбцов.
-    tft9341_row_col_exchange row_col_exchange; //!< Подмена строк и столбцов.
+    tft9341_row_col_exchange_t row_col_exchange; //!< Подмена строк и столбцов.
     tft9341_vertical_refresh_t vertical_refresh; //!< Вертикальное обновление.
     tft9341_color_order_t color_order; //!< Порядок цвета.
     tft9341_horizontal_refresh_t horizontal_order; //!< Горизонтальное обновление.
@@ -239,7 +239,7 @@ typedef struct _Tft9341_Power_mode {
 typedef struct _Tft9341_Mad_Ctl {
     tft9341_row_address_order_t row_address_order; //!< Порядок строк.
     tft9341_col_address_order_t col_address_order; //!< Порядок столбцов.
-    tft9341_row_col_exchange row_col_exchange; //!< Реверсное отображение.
+    tft9341_row_col_exchange_t row_col_exchange; //!< Реверсное отображение.
     tft9341_vertical_refresh_t vertical_refresh; //!< Вертикальное обновление.
     tft9341_color_order_t color_order; //!< Порядок цвета.
     tft9341_horizontal_refresh_t horizontal_refresh; //!< Горизонтальное обновление.

@@ -272,7 +272,7 @@ bool graphics_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
 
 #ifdef USE_GRAPHICS_VIRTUAL_BUFFER
     if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
-        if(graphics->vbuf->virtual_get_pixel)
+        if(graphics->vbuf->virtual_set_pixel)
             { return graphics->vbuf->virtual_set_pixel(graphics, x, y, color); }
         else { return false; }
     }
@@ -342,7 +342,7 @@ bool graphics_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y,
 
 #ifdef USE_GRAPHICS_VIRTUAL_BUFFER
     if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
-        if(graphics->vbuf->virtual_get_pixel)
+        if(graphics->vbuf->virtual_or_pixel)
             { return graphics->vbuf->virtual_or_pixel(graphics, x, y, color); }
         else { return false; }
     }
@@ -412,7 +412,7 @@ bool graphics_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
 
 #ifdef USE_GRAPHICS_VIRTUAL_BUFFER
     if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
-        if(graphics->vbuf->virtual_get_pixel)
+        if(graphics->vbuf->virtual_xor_pixel)
             { return graphics->vbuf->virtual_xor_pixel(graphics, x, y, color); }
         else { return false; }
     }
@@ -482,7 +482,7 @@ bool graphics_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
 
 #ifdef USE_GRAPHICS_VIRTUAL_BUFFER
     if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
-        if(graphics->vbuf->virtual_get_pixel)
+        if(graphics->vbuf->virtual_and_pixel)
             { return graphics->vbuf->virtual_and_pixel(graphics, x, y, color); }
         else { return false; }
     }

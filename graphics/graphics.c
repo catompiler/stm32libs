@@ -205,10 +205,9 @@ graphics_color_t graphics_get_pixel(const graphics_t* graphics, graphics_pos_t x
         if(graphics->vbuf->virtual_get_pixel)
             { return graphics->vbuf->virtual_get_pixel(graphics, x, y); }
         else { return 0; }
-    }
-#else
-    if(graphics->data == NULL) return 0;
+    }else
 #endif
+    if(graphics->data == NULL) return 0;
 
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
@@ -275,10 +274,9 @@ bool graphics_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
         if(graphics->vbuf->virtual_set_pixel)
             { return graphics->vbuf->virtual_set_pixel(graphics, x, y, color); }
         else { return false; }
-    }
-#else
-    if(graphics->data == NULL) return false;
+    }else
 #endif
+    if(graphics->data == NULL) return false;
 
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
@@ -345,10 +343,9 @@ bool graphics_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y,
         if(graphics->vbuf->virtual_or_pixel)
             { return graphics->vbuf->virtual_or_pixel(graphics, x, y, color); }
         else { return false; }
-    }
-#else
-    if(graphics->data == NULL) return false;
+    }else
 #endif
+    if(graphics->data == NULL) return false;
 
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
@@ -415,10 +412,9 @@ bool graphics_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
         if(graphics->vbuf->virtual_xor_pixel)
             { return graphics->vbuf->virtual_xor_pixel(graphics, x, y, color); }
         else { return false; }
-    }
-#else
-    if(graphics->data == NULL) return false;
+    }else
 #endif
+    if(graphics->data == NULL) return false;
 
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
@@ -485,10 +481,9 @@ bool graphics_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y
         if(graphics->vbuf->virtual_and_pixel)
             { return graphics->vbuf->virtual_and_pixel(graphics, x, y, color); }
         else { return false; }
-    }
-#else
-    if(graphics->data == NULL) return false;
+    }else
 #endif
+    if(graphics->data == NULL) return false;
 
     switch(graphics->format){
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V

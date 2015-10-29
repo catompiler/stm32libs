@@ -18,8 +18,6 @@
 #define TFT9341_BUFFER_SIZE 14 
 #define TFT9341_MESSAGES_COUNT 6
 
-
-
 /**
  * Тип структуры дисплея.
  */
@@ -64,6 +62,14 @@ typedef struct _Lcd8544_init {
 
 //! Идентификатор передачи по-умолчанию.
 #define TFT9341_DEFAULT_TRANSFER_ID 93
+
+
+//! Минимум байт на пиксел.
+#define TFT9341_PIXEL_SIZE_MIN         2
+
+//! Максимум байт на пиксел.
+#define TFT9341_PIXEL_SIZE_MAX         3
+
 
 /**
  * Тип идентификатора экрана.

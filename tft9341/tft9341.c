@@ -9,9 +9,6 @@
 //extern void led_on(uint16_t led_pin);
 //#define TFT9341_GET_MEM_DEBUG
 
-//! Максимум байт на пиксел.
-#define TFT9341_BYTES_PER_PIXEL_MAX         3
-
 //! Продолжительность ресета.
 #define TFT9341_RESET_TIME_US  15
 #define TFT9341_RESET_WAIT_TIME_MS  150
@@ -2395,7 +2392,7 @@ err_t tft9341_data(tft9341_t* tft, const void* data, size_t size)
 err_t tft9341_set_pixel(tft9341_t* tft, uint16_t x, uint16_t y, const void* pixel, size_t size)
 {
     if(pixel == NULL) return E_NULL_POINTER;
-    if(size == 0 || size > TFT9341_BYTES_PER_PIXEL_MAX) return E_INVALID_VALUE;
+    if(size < TFT9341_PIXEL_SIZE_MIN || size > TFT9341_PIXEL_SIZE_MAX) return E_INVALID_VALUE;
     
     if(!tft9341_wait_current_op(tft)) return E_BUSY;
     
@@ -2482,7 +2479,11 @@ err_t tft9341_set_pixel(tft9341_t* tft, uint16_t x, uint16_t y, const void* pixe
     data_page_buf[1] = __REV16(y);
     
     *cmd_pixel_buf = TFT9341_CMD_WRITE_MEMORY;
-    memcpy(data_pixel_buf, pixel, size);
+    data_pixel_buf[0] = ((uint8_t*)pixel)[0];
+    data_pixel_buf[1] = ((uint8_t*)pixel)[1];
+    if(size == TFT9341_PIXEL_SIZE_MAX){
+        data_pixel_buf[2] = ((uint8_t*)pixel)[2];
+    }
     
     spi_message_setup(cmd_col_msg, SPI_WRITE, cmd_col_buf, NULL, TFT9341_CMD_SIZE);
     spi_message_set_sender_data(cmd_col_msg, tft);

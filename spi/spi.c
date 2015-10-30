@@ -355,7 +355,7 @@ bool spi_bus_dma_tx_channel_irq_handler(spi_bus_t* spi)
 
 bool spi_bus_busy(spi_bus_t* spi)
 {
-    return (SPI_I2S_GetFlagStatus(spi->spi_device, SPI_I2S_FLAG_BSY) != RESET) && spi->state != SPI_STATE_IDLE;
+    return (SPI_I2S_GetFlagStatus(spi->spi_device, SPI_I2S_FLAG_BSY) != RESET);// && spi->state != SPI_STATE_IDLE;
 }
 
 void spi_bus_wait(spi_bus_t* spi)

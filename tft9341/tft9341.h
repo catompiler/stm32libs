@@ -649,6 +649,8 @@ extern err_t tft9341_data(tft9341_t* tft, const void* data, size_t size);
 /**
  * Устанавливает пиксел на экране.
  * Асинхронная операция.
+ * Память пиксела может быть освобождена или
+ * использована сразу после возврата из функции.
  * @param tft TFT.
  * @param x Координата X.
  * @param y Координата Y.
@@ -657,6 +659,20 @@ extern err_t tft9341_data(tft9341_t* tft, const void* data, size_t size);
  * @return Код ошибки.
  */
 extern err_t tft9341_set_pixel(tft9341_t* tft, uint16_t x, uint16_t y, const void* pixel, size_t size);
+
+/**
+ * Записывает данные в регион на экране.
+ * Асинхронная операция.
+ * @param tft TFT.
+ * @param x0 Координата X верхнего левого угла региона.
+ * @param y0 Координата Y верхнего левого угла региона.
+ * @param x1 Координата X правого нижнего угла региона.
+ * @param y1 Координата Y правого нижнего угла региона.
+ * @param data Данные.
+ * @param size Размер данных в байтах.
+ * @return Код ошибки.
+ */
+extern err_t tft9341_write_region(tft9341_t* tft, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const void* data, size_t size);
 
 //147
 //209

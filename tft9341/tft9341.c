@@ -2510,3 +2510,113 @@ err_t tft9341_set_pixel(tft9341_t* tft, uint16_t x, uint16_t y, const void* pixe
     return tft9341_transfer(tft, false, 6);
 }
 
+err_t tft9341_write_region(tft9341_t* tft, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const void* data, size_t size)
+{
+    if(data == NULL) return E_NULL_POINTER;
+    if(size < TFT9341_PIXEL_SIZE_MIN) return E_INVALID_VALUE;
+    
+    if(!tft9341_wait_current_op(tft)) return E_BUSY;
+    
+    //err_t err = E_NO_ERROR;
+    
+    size_t buffer_index = 0;
+    size_t message_index = 0;
+    
+    //
+    // Начальный и конечный столбец.
+    //
+    uint8_t* cmd_col_buf = tft9341_get_buffer(tft, TFT9341_CMD_SIZE, &buffer_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(cmd_col_buf == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    spi_message_t* cmd_col_msg = tft9341_get_message(tft, &message_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(cmd_col_msg == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    uint16_t* data_col_buf = (uint16_t*)tft9341_get_buffer(tft, TFT9341_WR_CA_DATA_SIZE, &buffer_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(data_col_buf == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    spi_message_t* data_col_msg = tft9341_get_message(tft, &message_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(data_col_msg == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    //
+    // Начальная и конечная страница.
+    //
+    uint8_t* cmd_page_buf = tft9341_get_buffer(tft, TFT9341_CMD_SIZE, &buffer_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(cmd_page_buf == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    spi_message_t* cmd_page_msg = tft9341_get_message(tft, &message_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(cmd_page_msg == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    uint16_t* data_page_buf = (uint16_t*)tft9341_get_buffer(tft, TFT9341_WR_PGA_DATA_SIZE, &buffer_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(data_page_buf == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    spi_message_t* data_page_msg = tft9341_get_message(tft, &message_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(data_page_msg == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    //
+    // Данные.
+    //
+    uint8_t* cmd_pixel_buf = tft9341_get_buffer(tft, TFT9341_CMD_SIZE, &buffer_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(cmd_pixel_buf == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    spi_message_t* cmd_pixel_msg = tft9341_get_message(tft, &message_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(cmd_pixel_msg == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    spi_message_t* data_pixel_msg = tft9341_get_message(tft, &message_index);
+#ifdef TFT9341_GET_MEM_DEBUG
+    if(data_pixel_msg == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    *cmd_col_buf = TFT9341_CMD_WRITE_COL_ADDRESS;
+    data_col_buf[0] = __REV16(x0);
+    data_col_buf[1] = __REV16(x1);
+    
+    *cmd_page_buf = TFT9341_CMD_WRITE_PAGE_ADDRESS;
+    data_page_buf[0] = __REV16(y0);
+    data_page_buf[1] = __REV16(y1);
+    
+    *cmd_pixel_buf = TFT9341_CMD_WRITE_MEMORY;
+    
+    spi_message_setup(cmd_col_msg, SPI_WRITE, cmd_col_buf, NULL, TFT9341_CMD_SIZE);
+    spi_message_set_sender_data(cmd_col_msg, tft);
+    spi_message_set_callback(cmd_col_msg, tft9341_cmd_message_end);
+    
+    spi_message_setup(data_col_msg, SPI_WRITE, data_col_buf, NULL, TFT9341_WR_CA_DATA_SIZE);
+    spi_message_set_sender_data(data_col_msg, tft);
+    spi_message_set_callback(data_col_msg, tft9341_cmd_message_start);
+    
+    spi_message_setup(cmd_page_msg, SPI_WRITE, cmd_page_buf, NULL, TFT9341_CMD_SIZE);
+    spi_message_set_sender_data(cmd_page_msg, tft);
+    spi_message_set_callback(cmd_page_msg, tft9341_cmd_message_end);
+    
+    spi_message_setup(data_page_msg, SPI_WRITE, data_page_buf, NULL, TFT9341_WR_PGA_DATA_SIZE);
+    spi_message_set_sender_data(data_page_msg, tft);
+    spi_message_set_callback(data_page_msg, tft9341_cmd_message_start);
+    
+    spi_message_setup(cmd_pixel_msg, SPI_WRITE, cmd_pixel_buf, NULL, TFT9341_CMD_SIZE);
+    spi_message_set_sender_data(cmd_pixel_msg, tft);
+    spi_message_set_callback(cmd_pixel_msg, tft9341_cmd_message_end);
+    
+    spi_message_setup(data_pixel_msg, SPI_WRITE, data, NULL, size);
+    
+    return tft9341_transfer(tft, false, 6);
+}

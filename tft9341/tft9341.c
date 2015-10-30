@@ -296,6 +296,7 @@ static bool tft9341_wait_current_op(tft9341_t* tft)
     if(spi_bus_busy(tft->spi) && spi_bus_transfer_id(tft->spi) != tft->transfer_id) return false;
     
     future_wait(&tft->future);
+    spi_bus_wait(tft->spi);
     
     return true;
 }

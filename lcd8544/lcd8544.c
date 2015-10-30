@@ -75,6 +75,7 @@ static bool lcd8544_wait_current_op(lcd8544_t* lcd)
     if(spi_bus_busy(lcd->spi) && spi_bus_transfer_id(lcd->spi) != lcd->transfer_id) return false;
     
     future_wait(&lcd->future);
+    spi_bus_wait(lcd->spi);
     
     return true;
 }

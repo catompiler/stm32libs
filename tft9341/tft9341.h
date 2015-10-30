@@ -64,12 +64,20 @@ typedef struct _Lcd8544_init {
 #define TFT9341_DEFAULT_TRANSFER_ID 93
 
 
+//! Размер пиксела.
+//! 16 Бит, 2 байта.
+#define TFT9341_PIXEL_SIZE_16BIT       2
+//! 18 Бит, 3 байта.
+#define TFT9341_PIXEL_SIZE_18BIT       3
+
 //! Минимум байт на пиксел.
-#define TFT9341_PIXEL_SIZE_MIN         2
+#define TFT9341_PIXEL_SIZE_MIN         TFT9341_PIXEL_SIZE_16BIT
 
 //! Максимум байт на пиксел.
-#define TFT9341_PIXEL_SIZE_MAX         3
+#define TFT9341_PIXEL_SIZE_MAX         TFT9341_PIXEL_SIZE_18BIT
 
+//! Число пикселов.
+#define TFT9341_PIXELS_COUNT           (320 * 240)
 
 /**
  * Тип идентификатора экрана.

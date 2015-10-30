@@ -8,8 +8,10 @@ void mutex_init(mutex_t* mutex)
 
 bool mutex_trylock(mutex_t* mutex)
 {
-    if(__LDREXB(mutex) == MUTEX_LOCKED) return false;
-    if(__STREXB(MUTEX_LOCKED, mutex) == 1) return false;
+    for(;;){
+        if(__LDREXB(mutex) == MUTEX_LOCKED) return false;
+        if(__STREXB(MUTEX_LOCKED, mutex) == 0) break;
+    }
     __DMB();
     return true;
 }

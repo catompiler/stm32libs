@@ -1,5 +1,6 @@
 #include "tft9341_cache.h"
 #include <stdbool.h>
+#include "utils/utils.h"
 
 
 
@@ -341,13 +342,18 @@ static tft9341_cache_buffer_t* tft9341_cache_get_largest_buffer(tft9341_cache_t*
 }
 
 /**
- * Заливает TFT заданным цветом.
+ * Заливает регион TFT заданным цветом.
  * Без использования буфера.
  * @param cache Кэш.
+ * @param x0 Координата X верхнего левого угла региона.
+ * @param y0 Координата Y верхнего левого угла региона.
+ * @param x1 Координата X правого нижнего угла региона.
+ * @param y1 Координата Y правого нижнего угла региона.
+ * @param total_bytes Размер данных для записи.
  * @param color Цвет.
  * @return Код ошибки.
  */
-static err_t tft9341_cache_fill_tft(tft9341_cache_t* cache, graphics_color_t color)
+static err_t tft9341_cache_fill_region_tft_impl(tft9341_cache_t* cache, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1, size_t total_bytes, graphics_color_t color)
 {
     uint8_t put_buffer[TFT9341_PIXEL_SIZE_MAX];
     
@@ -355,59 +361,91 @@ static err_t tft9341_cache_fill_tft(tft9341_cache_t* cache, graphics_color_t col
     
     err_t err = E_NO_ERROR;
     
-    err = tft9341_set_column_address(cache->tft, 0, 0x1ff);
+    err = tft9341_set_column_address(cache->tft, x0, x1);
     if(err != E_NO_ERROR) return err;
     
-    err = tft9341_set_page_address(cache->tft, 0, 0x1ff);
+    err = tft9341_set_page_address(cache->tft, y0, y1);
     if(err != E_NO_ERROR) return err;
     
     err = tft9341_begin_write(cache->tft);
     if(err != E_NO_ERROR) return err;
     
+    //size_t total_bytes = ((x1 - x0) * (y1 - y0)) * cache->pixel_size;
     size_t i = 0;
     
-    for(; i < TFT9341_PIXELS_COUNT; i ++){
+    for(; i < total_bytes; i += cache->pixel_size){
         err = tft9341_data(cache->tft, put_buffer, cache->pixel_size);
         if(err != E_NO_ERROR) break;
     }
     return err;
 }
 
-err_t tft9341_cache_fill(tft9341_cache_t* cache, graphics_color_t color)
+/**
+ * Заливает регион TFT заданным цветом.
+ * Без использования буфера.
+ * @param cache Кэш.
+ * @param x0 Координата X верхнего левого угла региона.
+ * @param y0 Координата Y верхнего левого угла региона.
+ * @param x1 Координата X правого нижнего угла региона.
+ * @param y1 Координата Y правого нижнего угла региона.
+ * @param total_bytes Размер данных для записи.
+ * @param color Цвет.
+ * @return Код ошибки.
+ */
+err_t tft9341_cache_fill_region_impl(tft9341_cache_t* cache, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1, size_t total_bytes, graphics_color_t color)
 {
     tft9341_cache_flush(cache);
     
     tft9341_cache_buffer_t* buffer = tft9341_cache_get_largest_buffer(cache);
     
-    if(!tft9341_cache_buffer_valid(buffer)) return tft9341_cache_fill_tft(cache, color);
+    if(!tft9341_cache_buffer_valid(buffer)) return tft9341_cache_fill_region_tft_impl(cache, x0, y0, x1, y1, total_bytes, color);
     
+    //size_t total_bytes = ((x1 - x0) * (y1 - y0)) * cache->pixel_size;
+    size_t bytes_count = buffer->size;
+    size_t data_size = MIN(total_bytes, bytes_count);
     size_t i = 0;
     
-    for(; i < buffer->size; i += cache->pixel_size){
+    for(; i < data_size; i += cache->pixel_size){
         tft9341_cache_store_pixel(cache, &buffer->data[i], color);
     }
     
     err_t err = E_NO_ERROR;
     
-    err = tft9341_set_column_address(cache->tft, 0, 0x1ff);
+    err = tft9341_set_column_address(cache->tft, x0, x1);
     if(err != E_NO_ERROR) return err;
     
-    err = tft9341_set_page_address(cache->tft, 0, 0x1ff);
+    err = tft9341_set_page_address(cache->tft, y0, y1);
     if(err != E_NO_ERROR) return err;
     
     err = tft9341_begin_write(cache->tft);
     if(err != E_NO_ERROR) return err;
     
-    size_t total_bytes = TFT9341_PIXELS_COUNT * cache->pixel_size;
-    size_t bytes_count = buffer->size;
-    
     for(i = total_bytes; i != 0; i -= bytes_count){
         
-        bytes_count = (i > buffer->size) ? buffer->size : i;
+        bytes_count = (i > data_size) ? data_size : i;
         
         err = tft9341_data(cache->tft, buffer->data, bytes_count);
         if(err != E_NO_ERROR) break;
     }
     
     return err;
+}
+
+err_t tft9341_cache_fill(tft9341_cache_t* cache, graphics_color_t color)
+{
+    return tft9341_cache_fill_region_impl(cache, 0, 0, 0x1ff, 0x1ff, TFT9341_PIXELS_COUNT * cache->pixel_size, color);
+}
+
+err_t tft9341_cache_fill_region(tft9341_cache_t* cache, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1, graphics_color_t color)
+{
+    if(x0 < 0) x0 = 0;
+    if(x1 < 0) x1 = 0;
+    if(y0 < 0) y0 = 0;
+    if(y1 < 0) y1 = 0;
+    
+    graphics_pos_t swap_var;
+    if(x0 > x1) SWAP(x0, x1, swap_var);
+    if(y0 > y1) SWAP(y0, y1, swap_var);
+    
+    return tft9341_cache_fill_region_impl(cache, x0, y0, x1, y1, ((x1 - x0) * (y1 - y0)) * cache->pixel_size, color);
 }

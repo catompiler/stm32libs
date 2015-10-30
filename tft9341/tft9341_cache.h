@@ -91,4 +91,16 @@ extern void tft9341_cache_flush(tft9341_cache_t* cache);
  */
 extern err_t tft9341_cache_fill(tft9341_cache_t* cache, graphics_color_t color);
 
+/**
+ * Заливает регион TFT заданным цветом.
+ * @param cache Кэш.
+ * @param x0 Координата X верхнего левого угла региона.
+ * @param y0 Координата Y верхнего левого угла региона.
+ * @param x1 Координата X правого нижнего угла региона.
+ * @param y1 Координата Y правого нижнего угла региона.
+ * @param color Цвет.
+ * @return Код ошибки.
+ */
+extern err_t tft9341_cache_fill_region(tft9341_cache_t* cache, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1, graphics_color_t color);
+
 #endif	//TFT9341_CACHE_H

@@ -192,47 +192,32 @@ void painter_draw_line(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0,
     graphics_pos_t dx = x1 - x0;
     graphics_pos_t dy = y1 - y0;
 
+    graphics_pos_t x_step = (dx > 0) ? 1 : -1;
+    graphics_pos_t y_step = (dy > 0) ? 1 : -1;
+    
     dx = ABS(dx);
     dy = ABS(dy);
-
-    bool x_as_y = dy > dx;
-
-    if(x_as_y){
-        graphics_pos_t tmp;
-        SWAP(x0, y0, tmp);
-        SWAP(x1, y1, tmp);
-    }
-
-    if(x0 > x1){
-        graphics_pos_t tmp;
-        SWAP(x0, x1, tmp);
-        SWAP(y0, y1, tmp);
-    }
-
-    dx = x1 - x0;
-    dy = y1 - y0;
-
-    dy = ABS(dy);
-
-    graphics_pos_t err = dx >> 1;
-
-    graphics_pos_t y_step = (y0 > y1) ? -1 : 1;
-
-    for(; x0 <= x1; x0 ++){
-
-        if(x_as_y){
-            painter_put_line_pixel(painter, y0, x0, pixel_number);
-        }else{
-            painter_put_line_pixel(painter, x0, y0, pixel_number);
+    
+    graphics_pos_t err = dx - dy;
+    graphics_pos_t err2 = 0;
+    
+    while(x0 != x1 || y0 != y1){
+        painter_put_line_pixel(painter, x0, y0, pixel_number ++);
+        
+        err2 = err << 1;
+        
+        if(err2 > -dy){
+            err -= dy;
+            x0 += x_step;
         }
-        pixel_number ++;
-
-        err -= dy;
-        if(err < 0){
-            y0 += y_step;
+        
+        if(err2 < dx){
             err += dx;
+            y0 += y_step;
         }
     }
+    
+    painter_put_line_pixel(painter, x1, y1, pixel_number);
 }
 
 void painter_fill_back_put_pixel(painter_t* painter, graphics_pos_t x_first, graphics_pos_t y_first, graphics_pos_t x, graphics_pos_t y)

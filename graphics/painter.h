@@ -488,6 +488,20 @@ extern void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, gra
 extern void painter_draw_ellipse(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t a, graphics_pos_t b);
 
 /**
+ * Рисует треугольник.
+ * @param painter Рисовальщик.
+ * @param x0 Координата X первой точки треугольника.
+ * @param y0 Координата Y первой точки треугольника.
+ * @param x1 Координата X второй точки треугольника.
+ * @param y1 Координата Y второй точки треугольника.
+ * @param x2 Координата X третьей точки треугольника.
+ * @param y2 Координата Y третьей точки треугольника.
+ */
+extern void painter_draw_triangle(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0,
+                                                      graphics_pos_t x1, graphics_pos_t y1,
+                                                      graphics_pos_t x2, graphics_pos_t y2);
+
+/**
  * Копирует часть одного изображения в другое.
  * @param painter Рисовальщик.
  * @param dst_x Координата X цели.

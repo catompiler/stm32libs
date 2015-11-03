@@ -558,6 +558,220 @@ void painter_draw_ellipse(painter_t* painter, graphics_pos_t center_x, graphics_
     }
 }
 
+void painter_draw_triangle(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0,
+                                               graphics_pos_t x1, graphics_pos_t y1,
+                                               graphics_pos_t x2, graphics_pos_t y2)
+{
+    /*printf("draw triangle (%d, %d),(%d, %d),(%d, %d)...\n",
+           x0, y0, x1, y1, x2, y2);*/
+    
+    if(x0 == x1 && x1 == x2){
+        painter_draw_vline(painter, x0, y0, y2);
+        return;
+    }
+    
+    if(y0 == y1 && y1 == y2){
+        painter_draw_hline(painter, y0, x0, x2);
+        return;
+    }
+    
+    graphics_pos_t tmp;
+    
+    if(y1 < y0){
+        SWAP(y0, y1, tmp);
+        SWAP(x0, x1, tmp);
+    }
+    if(y2 < y0){
+        SWAP(y0, y2, tmp);
+        SWAP(x0, x2, tmp);
+    }
+    if(y2 < y1){
+        SWAP(y1, y2, tmp);
+        SWAP(x1, x2, tmp);
+    }
+    
+    if(y0 == y1){
+        if(x1 < x0){
+            SWAP(x0, x1, tmp);
+        }
+    }
+    if(y1 == y2){
+        if(x2 < x1){
+            SWAP(x1, x2, tmp);
+        }
+    }
+    if(y0 == y2){
+        if(x2 < x0){
+            SWAP(x0, x2, tmp);
+        }
+    }
+    
+    if(x0 >= graphics_width(painter_graphics(painter)) || x2 < 0) return;
+    if(y0 >= graphics_height(painter_graphics(painter)) || y2 < 0) return;
+    
+    //printf("%d %d %d\n", y0, y1, y2);
+    
+    size_t i_pixels_count = 0;
+    size_t j_pixels_count = 0;
+    
+    graphics_pos_t x_first = x0, y_first = y0;
+    
+    if(painter_brush(painter) != PAINTER_BRUSH_NONE){
+        if(x1 < x_first) x_first = x1;
+        if(x2 < x_first) x_first = x2;
+    }
+    
+    const graphics_pos_t y_step = 1;
+    graphics_pos_t i_step, j_step;
+    graphics_pos_t i_step_old, j_step_old;
+    
+    graphics_pos_t i_err, j_err, err2;
+    
+    graphics_pos_t i, j, i_y, j_y;
+    
+    graphics_pos_t i_dx, i_dy, j_dx, j_dy;
+    
+    graphics_pos_t i_old, j_old, i_y_old, j_y_old;
+    
+    graphics_pos_t fill_from, fill_to;
+    
+    i = x0;
+    j = x0;
+    
+    i_y = y0;
+    j_y = y0;
+    
+    i_dx = x1 - x0;
+    i_step = (i_dx >= 0) ? 1 : -1;
+    i_dx = ABS(i_dx);
+    
+    i_dy = y1 - y0;
+    i_dy = ABS(i_dy);
+    
+    j_dx = x2 - x0;
+    j_step = (j_dx >= 0) ? 1 : -1;
+    j_dx = ABS(j_dx);
+    
+    j_dy = y2 - y0;
+    j_dy = ABS(j_dy);
+    
+    i_err = (i_dx - i_dy);
+    j_err = (j_dx - j_dy);
+    
+    i_old = i; j_old = j; i_y_old = i_y; j_y_old = j_y;
+    
+    while((i_y != y2 || i != x2) || (j_y != y2 || j != x2)){
+        
+        if(i_y != i_y_old){
+            i_old = i;
+        }
+        if(j_y != j_y_old){
+            j_old = j;
+        }
+        i_y_old = i_y; j_y_old = j_y;
+        
+        i_step_old = i_step;
+        j_step_old = j_step;
+        
+        while(i_y <= j_y){
+            if(i_y == y2 && i == x2) break;
+            painter_put_line_pixel(painter, i, i_y, i_pixels_count);
+
+            i_pixels_count ++;
+
+            err2 = i_err * 2;
+
+            if(err2 > -i_dy){
+                i_err -= i_dy;
+                i += i_step;
+            }
+
+            if(err2 < i_dx){
+                i_err += i_dx;
+                i_y += y_step;
+            }
+        
+            if(i_y == y1 && i == x1){
+                i_dx = x2 - x1;
+                i_step = (i_dx >= 0) ? 1 : -1;
+                i_dx = ABS(i_dx);
+                i_dy = y2 - y1;
+                i_dy = ABS(i_dy);
+                i_err = (i_dx - i_dy);
+            }
+        }
+        
+        while(j_y < i_y || i_y == y2){
+            if(j_y == y2 && j == x2) break;
+            painter_put_line_pixel(painter, j, j_y, j_pixels_count);
+            
+            j_pixels_count ++;
+            
+            err2 = j_err * 2;
+
+            if(err2 > -j_dy){
+                j_err -= j_dy;
+                j += j_step;
+            }
+
+            if(err2 < j_dx){
+                j_err += j_dx;
+                j_y += y_step;
+            }
+        }
+        
+        //fill.
+        if(painter_brush(painter) != PAINTER_BRUSH_NONE){
+            if(i < j){
+                if(i_step_old < 0){
+                    fill_from = i_old - i_step_old;
+                }else{
+                    fill_from = i;
+                }
+                if(j_step_old < 0){
+                    fill_to = j;
+                }else{
+                    fill_to = j_old - j_step_old;
+                }
+            }else{
+                if(i_step_old < 0){
+                    fill_to = i;
+                }else{
+                    fill_to = i_old - i_step_old;
+                }
+                if(j_step_old < 0){
+                    fill_from = j_old - j_step_old;
+                }else{
+                    fill_from = j;
+                }
+            }
+            
+            if(i_y_old == y1){
+                if(i < j){
+                    if(fill_from < i){
+                        fill_from = i;
+                    }
+                }else{
+                    if(fill_to > i){
+                        fill_to = i;
+                    }
+                }
+            }
+            
+            //printf("%d -> %d [%d];  ", fill_from, fill_to, i_y_old);
+            if(fill_to >= fill_from && i_y != i_y_old){
+                //printf("~ ");
+                painter_fill_back(painter, x_first, y_first, i_y_old, fill_from, fill_to);
+            }
+        }
+        //printf("i (%d, %d) - j (%d, %d)\n", (int)i, (int)i_y, (int)j, (int)j_y);
+    }
+    
+    painter_put_line_pixel(painter, x2, y2, i_pixels_count ++);
+    
+    //printf("done.\n");
+}
+
 void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_pos_t dst_y,
                     const graphics_t* src_graphics, graphics_pos_t src_x, graphics_pos_t src_y,
                     graphics_size_t src_width, graphics_size_t src_height)

@@ -15,6 +15,12 @@
 #include "future/future.h"
 
 
+//! Вспомогательный макрос для создания 16 битного цвета.
+#define TFT9341_MAKE_RGB565_IMPL(r, g0, g1, b) ( (g0) | ((r) << 3) | ((b) << 8) | ((g1) << 13) )
+//! Создаёт цвет RGB (16 бит) по заданным компонентам (0..255 на каждый канал).
+#define TFT9341_MAKE_RGB565(r, g, b) TFT9341_MAKE_RGB565_IMPL(((r) >> 3), (((g) >> 2) & 0x7), ((g) >> 5), ((b) >> 3))
+
+
 #define TFT9341_BUFFER_SIZE 14 
 #define TFT9341_MESSAGES_COUNT 6
 

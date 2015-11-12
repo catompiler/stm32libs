@@ -846,6 +846,10 @@ void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_pos_t dst
                 case PAINTER_SOURCE_IMAGE_MODE_BITMAP:
                     if(color) painter_put_pixel(painter, cur_dst_x, cur_dst_y, painter->pen_color);
                     break;
+                case PAINTER_SOURCE_IMAGE_MODE_BITMASK:
+                    color = (color) ? painter->pen_color : painter->brush_color;
+                    painter_put_pixel(painter, cur_dst_x, cur_dst_y, color);
+                    break;
             }
 
         }

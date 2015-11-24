@@ -693,4 +693,41 @@ extern err_t menu_value_enum_set_values(menu_value_t* value, menu_value_t* value
  */
 extern menu_value_t* menu_value_enum_current_value(menu_value_t* value);
 
+
+/*
+ * Пример.
+ *
+ * Создание такого меню:
+ * 
+ * |-item1
+ * |-item2
+ * |-item3
+ *     |-item4
+ *     |-item5
+ * 
+
+// Объявление элементов меню.
+DECLARE_MENU_ITEMS(item1, item2, item3, item4, item5);
+
+// Создание меню.
+MENU(menu0, &item1);
+
+// Создание списка значений для значения элемента 5.
+MENU_VALUES(menu_values_en_dis, MAKE_MENU_VALUE_STRING("Enabled"), MAKE_MENU_VALUE_STRING("Disabled"));
+
+// Создание самого меню.
+
+//        Имя  ID  Предок  Предыдущий Следующий Текст      Флаги Значения
+MENUITEM(item1, 0, NULL,   NULL,      &item2,   "Menu0_0", 0,    MAKE_MENU_VALUE_STRING("Text"));
+MENUITEM(item2, 0, NULL,   &item1,    &item3,   "Menu0_1", 0,    MAKE_MENU_VALUE_INT(123));
+
+//         Имя  ID  Предок  Потомок Предыдущий Следующий    Текст      Флаги
+SUBMENU (item3, 0,  NULL,   &item4, &item2,    NULL,        "Menu0_2", 0);
+
+//         Имя  ID Предок  Предыдущий Следующий Текст      Флаги Значения
+MENUITEM(item4, 0, &item3, NULL,      &item5,   "Menu1_0", 0,    MAKE_MENU_VALUE_BOOL(true));
+MENUITEM(item5, 0, &item3, &item4,    NULL,     "Menu1_1", 0,    MAKE_MENU_VALUE_ENUM(0, 2, menu_values_en_dis));
+
+*/
+
 #endif	/* MENU_H */

@@ -1,3 +1,7 @@
+/**
+ * @file menu.h Библиотека работы с меню.
+ */
+
 #ifndef MENU_H
 #define	MENU_H
 

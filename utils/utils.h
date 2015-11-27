@@ -70,4 +70,13 @@
  */
 #define WAIT_WHILE_FALSE(C) do{}while(!(C))
 
+/**
+ * Если функция F возвратила ошибку, отличную от E_NO_ERROR - возвращает эту ошибку.
+ */
+#define RETURN_ERR_IF_FAIL(F) do{\
+        err_t CONCAT(err, __LINE__) = F;\
+        if(CONCAT(err, __LINE__) != E_NO_ERROR)\
+        { return CONCAT(err, __LINE__); }\
+        }while(0)
+
 #endif	/* UTILS_H */

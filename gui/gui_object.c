@@ -73,3 +73,38 @@ void gui_object_remove_child(gui_object_t* object, gui_object_t* child)
     }
 }
 
+gui_object_t* gui_object_first_child(gui_object_t* object)
+{
+    list_item_t* child_item = list_first(&object->childs);
+    
+    if(child_item == NULL) return NULL;
+    
+    return (gui_object_t*)child_item->data;
+}
+
+gui_object_t* gui_object_next_child(gui_object_t* cur_child)
+{
+    list_item_t* child_item = list_next(&cur_child->child);
+    
+    if(child_item == NULL) return NULL;
+    
+    return (gui_object_t*)child_item->data;
+}
+
+gui_object_t* gui_object_last_child(gui_object_t* object)
+{
+    list_item_t* child_item = list_last(&object->childs);
+    
+    if(child_item == NULL) return NULL;
+    
+    return (gui_object_t*)child_item->data;
+}
+
+gui_object_t* gui_object_prev_child(gui_object_t* cur_child)
+{
+    list_item_t* child_item = list_prev(&cur_child->child);
+    
+    if(child_item == NULL) return NULL;
+    
+    return (gui_object_t*)child_item->data;
+}

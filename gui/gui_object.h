@@ -19,6 +19,9 @@ struct _Gui_Object {
     gui_t* gui; //!< Графический интерфейс.
 };
 
+//! Приводит указатель object к типу объекта.
+#define GUI_OBJECT(object) ((gui_object_t*)(object))
+
 /**
  * Инициализирует объект графического интерфейса.
  * @param object Объект графического интерфейса.
@@ -48,6 +51,16 @@ ALWAYS_INLINE static gui_object_t* gui_object_parent(gui_object_t* object)
 }
 
 /**
+ * Получает графический интерфейс объекта графического интерфейса.
+ * @param object Объект графического интерфейса.
+ * @return  Графический интерфейс.
+ */
+ALWAYS_INLINE static gui_t* gui_object_gui(gui_object_t* object)
+{
+    return object->gui;
+}
+
+/**
  * Устанавливает родителя объекта графического интерфейса.
  * @param object Объект графического интрефейса.
  * @param parent Родитель объекта графического интерфейса.
@@ -67,6 +80,36 @@ extern void gui_object_add_child(gui_object_t* object, gui_object_t* child);
  * @param child Дочерний объект графического интерфейса.
  */
 extern void gui_object_remove_child(gui_object_t* object, gui_object_t* child);
+
+/**
+ * Получает первого потомка объекта графического интерфейса.
+ * @param object Объект графического интерфейса.
+ * @return Первый потомок объекта графического интерфейса.
+ */
+extern gui_object_t* gui_object_first_child(gui_object_t* object);
+
+/**
+ * Получает следующего потомка объекта графического интерфейса.
+ * @param cur_child Текущий потомок объекта графического интерфейса.
+ * @return Следующий потомок объекта графического интерфейса.
+ */
+extern gui_object_t* gui_object_next_child(gui_object_t* cur_child);
+
+/**
+ * Получает последнего потомка объекта графического интерфейса.
+ * @param object Объект графического интерфейса.
+ * @return Последний потомок объекта графического интерфейса.
+ */
+extern gui_object_t* gui_object_last_child(gui_object_t* object);
+
+/**
+ * Получает предыдущего потомка объекта графического интерфейса.
+ * @param cur_child Текущий потомок объекта графического интерфейса.
+ * @return Предыдущий потомок объекта графического интерфейса.
+ */
+extern gui_object_t* gui_object_prev_child(gui_object_t* cur_child);
+
+
 
 #endif	/* GUI_OBJECT_H */
 

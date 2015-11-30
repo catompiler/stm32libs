@@ -1,6 +1,7 @@
 #include "list.h"
 #include <stddef.h>
 #include <malloc.h>
+#include "utils/utils.h"
 
 
 
@@ -109,8 +110,10 @@ list_item_t* list_prepend_new(list_t* list, void* data)
 
 err_t list_delete(list_t* list, list_item_t* item)
 {
-    list_remove(list, item);
+    RETURN_ERR_IF_FAIL(list_remove(list, item));
     list_free_item(item);
+    
+    return E_NO_ERROR;
 }
 
 list_item_t* list_find(list_t* list, void* data)

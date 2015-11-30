@@ -58,7 +58,7 @@ ALWAYS_INLINE static void point_set_position(point_t* point, graphics_pos_t x, g
  * @param point Точка.
  * @return Координата X.
  */
-ALWAYS_INLINE static graphics_pos_t point_x(point_t* point)
+ALWAYS_INLINE static graphics_pos_t point_x(const point_t* point)
 {
     return point->x;
 }
@@ -78,7 +78,7 @@ ALWAYS_INLINE static void point_set_x(point_t* point, graphics_pos_t x)
  * @param point Точка.
  * @return Координата Y.
  */
-ALWAYS_INLINE static graphics_pos_t point_y(point_t* point)
+ALWAYS_INLINE static graphics_pos_t point_y(const point_t* point)
 {
     return point->y;
 }

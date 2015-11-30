@@ -14,6 +14,7 @@
 #include "font.h"
 #include "fixed/fixed32.h"
 #include "rect.h"
+#include "point.h"
 
 //! Режимы рисования.
 typedef enum _Painter_Mode {
@@ -100,6 +101,8 @@ typedef struct _Painter {
     const graphics_t* custom_brush_graphics; //!< Изображение для пользовательской кисти.
     rect_t scissor_rect; //!< Прямоугольная область отсечения.
     bool scissor_enabled; //!< Разрешённость проверки пикселов на вхождение в область отсечения.
+    point_t offset_point; //!< Смещение рисуемых пикселов.
+    bool offset_enabled; //!< Разрешённость смещения рисуемых пикселов.
 } painter_t;
 
 /**
@@ -110,7 +113,8 @@ typedef struct _Painter {
                                     .pen_color = GRAPHICS_COLOR_BLACK, .brush_color = GRAPHICS_COLOR_BLACK, .fill_color = GRAPHICS_COLOR_BLACK,\
                                     .fill_target_color = GRAPHICS_COLOR_BLACK, .transparent_color = GRAPHICS_COLOR_BLACK,\
                                     .transparent_color_enabled = false, .custom_pen_graphics = NULL, .custom_brush_graphics = NULL,\
-                                    .scissor_rect = MAKE_RECT(0, 0, 0, 0), .scissor_enabled = false}
+                                    .scissor_rect = MAKE_RECT(0, 0, 0, 0), .scissor_enabled = false,\
+                                    .offset_point = MAKE_POINT(0, 0), .offset_enabled = false}
 
 /**
  * Инициализирует рисовальщик.
@@ -476,6 +480,59 @@ static ALWAYS_INLINE bool painter_scissor_enabled(const painter_t* painter)
 static ALWAYS_INLINE void painter_set_scissor_enabled(painter_t* painter, bool enabled)
 {
     painter->scissor_enabled = enabled;
+}
+
+/**
+ * Получает указатель на точку смещения.
+ * @param painter Рисовальщик.
+ * @return Указатель на точку смещения.
+ */
+static ALWAYS_INLINE const point_t* painter_offset_point(const painter_t* painter)
+{
+    return &painter->offset_point;
+}
+
+/**
+ * Устанавливает точку смещения.
+ * @param painter Рисовальщик.
+ * @param point Указатель на точку смещения.
+ */
+static ALWAYS_INLINE void painter_set_offset_point(painter_t* painter, const point_t* point)
+{
+    point_set_x(&painter->offset_point, point_x(point));
+    point_set_y(&painter->offset_point, point_y(point));
+}
+
+/**
+ * Устанавливает точку смещения.
+ * @param painter Рисовальщик.
+ * @param x Координата X.
+ * @param y Координата Y.
+ */
+static ALWAYS_INLINE void painter_set_offset(painter_t* painter, graphics_pos_t x, graphics_pos_t y)
+{
+    point_set_x(&painter->offset_point, x);
+    point_set_y(&painter->offset_point, y);
+}
+
+/**
+ * Получает разрешённость смещения рисуемых пикселов.
+ * @param painter Рисовальщик.
+ * @return Разрешённость смещения рисуемых пикселов.
+ */
+static ALWAYS_INLINE bool painter_offset_enabled(const painter_t* painter)
+{
+    return painter->offset_enabled;
+}
+
+/**
+ * Устанавливает разрешённость смещения рисуемых пикселов.
+ * @param painter Рисовальщик.
+ * @param enabled Разрешённость смещения рисуемых пикселов.
+ */
+static ALWAYS_INLINE void painter_set_offset_enabled(painter_t* painter, bool enabled)
+{
+    painter->offset_enabled = enabled;
 }
 
 /**

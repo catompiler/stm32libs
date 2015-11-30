@@ -40,6 +40,8 @@ err_t painter_init(painter_t* painter, graphics_t* graphics)
     painter->custom_brush_graphics = NULL;
     rect_init(&painter->scissor_rect);
     painter->scissor_enabled = false;
+    point_init(&painter->offset_point);
+    painter->offset_enabled = false;
 
     return E_NO_ERROR;
 }
@@ -56,6 +58,8 @@ bool painter_set_graphics(painter_t* painter, graphics_t* graphics)
 static ALWAYS_INLINE void painter_put_pixel(painter_t* painter, graphics_pos_t x, graphics_pos_t y, graphics_color_t color)
 {
     if(painter->transparent_color_enabled && color == painter->transparent_color) return;
+    if(painter->offset_enabled)
+        { x += point_x(&painter->offset_point); y += point_y(&painter->offset_point); }
     if(painter->scissor_enabled && !rect_contains(&painter->scissor_rect, x, y)) return;
     switch(painter->mode){
         default:

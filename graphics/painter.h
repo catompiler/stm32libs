@@ -13,6 +13,7 @@
 #include "graphics.h"
 #include "font.h"
 #include "fixed/fixed32.h"
+#include "rect.h"
 
 //! Режимы рисования.
 typedef enum _Painter_Mode {
@@ -97,6 +98,8 @@ typedef struct _Painter {
     bool transparent_color_enabled; //!< Разрешённость прозрачного цвета.
     const graphics_t* custom_pen_graphics; //!< Изображение для пользовательской линии.
     const graphics_t* custom_brush_graphics; //!< Изображение для пользовательской кисти.
+    rect_t scissor_rect; //!< Прямоугольная область отсечения.
+    bool scissor_enabled; //!< Разрешённость проверки пикселов на вхождение в область отсечения.
 } painter_t;
 
 /**
@@ -106,7 +109,8 @@ typedef struct _Painter {
                                     .font = NULL, .fill_mode = PAINTER_FILL_MODE_ALL, .source_image_mode = PAINTER_SOURCE_IMAGE_MODE_NORMAL,\
                                     .pen_color = GRAPHICS_COLOR_BLACK, .brush_color = GRAPHICS_COLOR_BLACK, .fill_color = GRAPHICS_COLOR_BLACK,\
                                     .fill_target_color = GRAPHICS_COLOR_BLACK, .transparent_color = GRAPHICS_COLOR_BLACK,\
-                                    .transparent_color_enabled = false, .custom_pen_graphics = NULL, .custom_brush_graphics = NULL}
+                                    .transparent_color_enabled = false, .custom_pen_graphics = NULL, .custom_brush_graphics = NULL,\
+                                    .scissor_rect = MAKE_RECT(0, 0, 0, 0), .scissor_enabled = false}
 
 /**
  * Инициализирует рисовальщик.
@@ -413,6 +417,65 @@ static ALWAYS_INLINE void painter_set_transparent_color_enabled(painter_t* paint
 static ALWAYS_INLINE graphics_color_t painter_transparent_color_enabled(const painter_t* painter)
 {
     return painter->transparent_color_enabled;
+}
+
+/**
+ * Получает указатель на прямоугольную область отсечения.
+ * @param painter Рисовальщик.
+ * @return Указатель на прямоугольную область отсечения.
+ */
+static ALWAYS_INLINE const rect_t* painter_scissor_rect(const painter_t* painter)
+{
+    return &painter->scissor_rect;
+}
+
+/**
+ * Устанавливает прямоугольную область отсечения.
+ * @param painter Рисовальщик.
+ * @param rect Указатель на прямоугольную область отсечения.
+ */
+static ALWAYS_INLINE void painter_set_scissor_rect(painter_t* painter, const rect_t* rect)
+{
+    rect_set_left  (&painter->scissor_rect, rect_left  (rect));
+    rect_set_right (&painter->scissor_rect, rect_right (rect));
+    rect_set_top   (&painter->scissor_rect, rect_top   (rect));
+    rect_set_bottom(&painter->scissor_rect, rect_bottom(rect));
+}
+
+/**
+ * Устанавливает прямоугольную область отсечения.
+ * @param painter Рисовальщик.
+ * @param left Лево.
+ * @param top Верх.
+ * @param right Право.
+ * @param bottom Низ.
+ */
+static ALWAYS_INLINE void painter_set_scissor(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom)
+{
+    rect_set_left  (&painter->scissor_rect, left);
+    rect_set_right (&painter->scissor_rect, right);
+    rect_set_top   (&painter->scissor_rect, top);
+    rect_set_bottom(&painter->scissor_rect, bottom);
+}
+
+/**
+ * Получает разрешённость проверки пиксела на вхождение в область отсечения.
+ * @param painter Рисовальщик.
+ * @return Разрешённость проверки пиксела на вхождение в область отсечения.
+ */
+static ALWAYS_INLINE bool painter_scissor_enabled(const painter_t* painter)
+{
+    return painter->scissor_enabled;
+}
+
+/**
+ * Устанавливает разрешённость проверки пиксела на вхождение в область отсечения.
+ * @param painter Рисовальщик.
+ * @param enabled Разрешённость проверки пиксела на вхождение в область отсечения.
+ */
+static ALWAYS_INLINE void painter_set_scissor_enabled(painter_t* painter, bool enabled)
+{
+    painter->scissor_enabled = enabled;
 }
 
 /**

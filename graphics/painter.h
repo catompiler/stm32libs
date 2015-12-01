@@ -594,6 +594,16 @@ extern void painter_draw_line(painter_t* painter, graphics_pos_t x0, graphics_po
 extern void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom);
 
 /**
+ * Рисует прямоугольник без границ.
+ * @param painter Рисовальщик.
+ * @param left Лево.
+ * @param top Верх.
+ * @param right Право.
+ * @param bottom Низ.
+ */
+extern void painter_draw_fillrect(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom);
+
+/**
  * Рисует окружность.
  * @param painter Рисовальщик.
  * @param center_x Координата центра X.

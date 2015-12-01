@@ -147,6 +147,86 @@ ALWAYS_INLINE static void rect_set_bottom(rect_t* rect, graphics_pos_t bottom)
 }
 
 /**
+ * Получает координату X прямоугольной области.
+ * @param rect Прямоугольная область.
+ * @return Координата X прямоугольной области.
+ */
+ALWAYS_INLINE static graphics_pos_t rect_x(const rect_t* rect)
+{
+    return rect->left;
+}
+
+/**
+ * Устанавливает координату X прямоугольной области.
+ * @param rect Прямоугольная область.
+ * @param x Координата X прямоугольной области.
+ */
+ALWAYS_INLINE static void rect_set_x(rect_t* rect, graphics_pos_t x)
+{
+    rect->left = x;
+}
+
+/**
+ * Получает координату Y прямоугольной области.
+ * @param rect Прямоугольная область.
+ * @return Координата Y прямоугольной области.
+ */
+ALWAYS_INLINE static graphics_pos_t rect_y(const rect_t* rect)
+{
+    return rect->top;
+}
+
+/**
+ * Устанавливает координату Y прямоугольной области.
+ * @param rect Прямоугольная область.
+ * @param y Координата Y прямоугольной области.
+ */
+ALWAYS_INLINE static void rect_set_y(rect_t* rect, graphics_pos_t y)
+{
+    rect->top = y;
+}
+
+/**
+ * Получает ширину прямоугольной области.
+ * @param rect Прямоугольная область.
+ * @return Ширина прямоугольной области.
+ */
+ALWAYS_INLINE static graphics_pos_t rect_width(const rect_t* rect)
+{
+    return rect->right - rect->left;
+}
+
+/**
+ * Устанавливает ширину прямоугольной области.
+ * @param rect Прямоугольная область.
+ * @param width Ширина прямоугольной области.
+ */
+ALWAYS_INLINE static void rect_set_width(rect_t* rect, graphics_pos_t width)
+{
+    rect->right = rect->left + width;
+}
+
+/**
+ * Получает высоту прямоугольной области.
+ * @param rect Прямоугольная область.
+ * @return Высота прямоугольной области.
+ */
+ALWAYS_INLINE static graphics_pos_t rect_height(const rect_t* rect)
+{
+    return rect->bottom - rect->top;
+}
+
+/**
+ * Устанавливает высоту прямоугольной области.
+ * @param rect Прямоугольная область.
+ * @param height Высота прямоугольной области.
+ */
+ALWAYS_INLINE static void rect_set_height(rect_t* rect, graphics_pos_t height)
+{
+    rect->bottom = rect->top + height;
+}
+
+/**
  * Перемещает прямоугольную область.
  * @param rect Прямоугольная область.
  * @param x Новая координата X.
@@ -170,26 +250,6 @@ ALWAYS_INLINE static void rect_resize(rect_t* rect, graphics_pos_t width, graphi
 {
     rect->right = rect->left + width;
     rect->bottom = rect->top + height;
-}
-
-/**
- * Получает ширину прямоугольной области.
- * @param rect Прямоугольная область.
- * @return Ширина прямоугольной области.
- */
-ALWAYS_INLINE static graphics_pos_t rect_width(const rect_t* rect)
-{
-    return rect->right - rect->left;
-}
-
-/**
- * Получает высоту прямоугольной области.
- * @param rect Прямоугольная область.
- * @return Высота прямоугольной области.
- */
-ALWAYS_INLINE static graphics_pos_t rect_height(const rect_t* rect)
-{
-    return rect->bottom - rect->top;
 }
 
 /**

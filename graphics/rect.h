@@ -277,5 +277,18 @@ ALWAYS_INLINE static bool rect_contains_point(rect_t* rect, point_t* point)
            (point->y >= rect->top) && (point->y <= rect->bottom);
 }
 
+/**
+ * Отсекает прямоугольную область по заданной границе.
+ * @param rect Прямоугольная область.
+ * @param border_rect Граница.
+ */
+ALWAYS_INLINE static void rect_clip(rect_t* rect, const rect_t* border_rect)
+{
+    if(rect->left   < border_rect->left)   rect->left = border_rect->left;
+    if(rect->top    < border_rect->top)    rect->top = border_rect->top;
+    if(rect->right  > border_rect->right)  rect->right = border_rect->right;
+    if(rect->bottom > border_rect->bottom) rect->bottom = border_rect->bottom;
+}
+
 #endif	/* RECT_H */
 

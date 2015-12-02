@@ -67,6 +67,19 @@ ALWAYS_INLINE static void rect_set_position(rect_t* rect, graphics_pos_t left, g
 }
 
 /**
+ * Копирует одну прямоугольную область в другую.
+ * @param dst Прямоугольная область - назначение.
+ * @param src Прямоугольная область - источник.
+ */
+ALWAYS_INLINE static void rect_copy(rect_t* dst, const rect_t* src)
+{
+    dst->left = src->left;
+    dst->top = src->top;
+    dst->right = src->right;
+    dst->bottom = src->bottom;
+}
+
+/**
  * Получает положение левого края прямоугольной области.
  * @param rect Прямоугольная область.
  * @return Положение левого края прямоугольной области.
@@ -163,6 +176,7 @@ ALWAYS_INLINE static graphics_pos_t rect_x(const rect_t* rect)
  */
 ALWAYS_INLINE static void rect_set_x(rect_t* rect, graphics_pos_t x)
 {
+    rect->right = rect->right - rect->left + x;
     rect->left = x;
 }
 
@@ -183,6 +197,7 @@ ALWAYS_INLINE static graphics_pos_t rect_y(const rect_t* rect)
  */
 ALWAYS_INLINE static void rect_set_y(rect_t* rect, graphics_pos_t y)
 {
+    rect->bottom = rect->bottom - rect->top + y;
     rect->top = y;
 }
 
@@ -193,7 +208,7 @@ ALWAYS_INLINE static void rect_set_y(rect_t* rect, graphics_pos_t y)
  */
 ALWAYS_INLINE static graphics_pos_t rect_width(const rect_t* rect)
 {
-    return rect->right - rect->left;
+    return rect->right - rect->left + 1;
 }
 
 /**
@@ -203,7 +218,7 @@ ALWAYS_INLINE static graphics_pos_t rect_width(const rect_t* rect)
  */
 ALWAYS_INLINE static void rect_set_width(rect_t* rect, graphics_pos_t width)
 {
-    rect->right = rect->left + width;
+    rect->right = rect->left + width - 1;
 }
 
 /**
@@ -213,7 +228,7 @@ ALWAYS_INLINE static void rect_set_width(rect_t* rect, graphics_pos_t width)
  */
 ALWAYS_INLINE static graphics_pos_t rect_height(const rect_t* rect)
 {
-    return rect->bottom - rect->top;
+    return rect->bottom - rect->top + 1;
 }
 
 /**
@@ -223,7 +238,7 @@ ALWAYS_INLINE static graphics_pos_t rect_height(const rect_t* rect)
  */
 ALWAYS_INLINE static void rect_set_height(rect_t* rect, graphics_pos_t height)
 {
-    rect->bottom = rect->top + height;
+    rect->bottom = rect->top + height - 1;
 }
 
 /**
@@ -248,8 +263,8 @@ ALWAYS_INLINE static void rect_move(rect_t* rect, graphics_pos_t x, graphics_pos
  */
 ALWAYS_INLINE static void rect_resize(rect_t* rect, graphics_pos_t width, graphics_pos_t height)
 {
-    rect->right = rect->left + width;
-    rect->bottom = rect->top + height;
+    rect_set_width(rect, width);
+    rect_set_height(rect, height);
 }
 
 /**
@@ -284,9 +299,9 @@ ALWAYS_INLINE static bool rect_contains_point(rect_t* rect, point_t* point)
  */
 ALWAYS_INLINE static void rect_clip(rect_t* rect, const rect_t* border_rect)
 {
-    if(rect->left   < border_rect->left)   rect->left = border_rect->left;
-    if(rect->top    < border_rect->top)    rect->top = border_rect->top;
-    if(rect->right  > border_rect->right)  rect->right = border_rect->right;
+    if(rect->left   < border_rect->left)   rect->left   = border_rect->left;
+    if(rect->top    < border_rect->top)    rect->top    = border_rect->top;
+    if(rect->right  > border_rect->right)  rect->right  = border_rect->right;
     if(rect->bottom > border_rect->bottom) rect->bottom = border_rect->bottom;
 }
 

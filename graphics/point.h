@@ -42,6 +42,17 @@ ALWAYS_INLINE static void point_init_position(point_t* point, graphics_pos_t x, 
 }
 
 /**
+ * Копирует одну точку в другую.
+ * @param dst Точка - назначение.
+ * @param src Точка - источник.
+ */
+ALWAYS_INLINE static void point_copy(point_t* dst, const point_t* src)
+{
+    dst->x = src->x;
+    dst->y = src->y;
+}
+
+/**
  * Устанавливает позицию точки.
  * @param point Точка.
  * @param x Координата X.

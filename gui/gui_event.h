@@ -8,6 +8,7 @@
 #include "gui.h"
 #include <stddef.h>
 #include <stdbool.h>
+#include "graphics/rect.h"
 
 typedef enum _Gui_Event_Type {
     GUI_EVENT_TYPE_NONE = 0, //!< Отсутствующее событие.
@@ -31,10 +32,7 @@ typedef struct _Gui_Resize_Event {
 //! Структура события перерисовки.
 typedef struct _Gui_Repaint_Event {
     gui_event_t super; //!< Суперкласс.
-    graphics_pos_t x; //!< Координата X области перерисовки.
-    graphics_pos_t y; //!< Координата Y области перерисовки.
-    graphics_size_t width; //!< Ширина области перерисовки.
-    graphics_size_t height; //!< Высота области перерисовки.
+    rect_t rect; //!< Область перерисовки.
 } gui_repaint_event_t;
 
 //! Приводит указатель event к типу события.
@@ -84,6 +82,8 @@ ALWAYS_INLINE static void gui_event_ignore(gui_event_t* event)
 /**
  * Инициализирует событие изменения размера.
  * @param event Событие изменения размера.
+ * @param width Новая ширина.
+ * @param height Новая высота.
  */
 ALWAYS_INLINE static void gui_resize_event_init(gui_resize_event_t* event, graphics_size_t width, graphics_size_t height)
 {
@@ -98,15 +98,32 @@ ALWAYS_INLINE static void gui_resize_event_init(gui_resize_event_t* event, graph
 /**
  * Инициализирует событие перерисовки.
  * @param event Событие перерисовки.
+ * @param x Координата X области перерисовки.
+ * @param y Координата Y области перерисовки.
+ * @param width Ширина области перерисовки.
+ * @param height Высота области перерисовки.
  */
 ALWAYS_INLINE static void gui_repaint_event_init(gui_repaint_event_t* event, graphics_pos_t x, graphics_pos_t y, graphics_size_t width, graphics_size_t height)
 {
     gui_event_init(GUI_EVENT(event), GUI_EVENT_TYPE_REPAINT);
-    event->x = x;
-    event->y = y;
-    event->width = width;
-    event->height = height;
+    rect_set_x(&event->rect, x);
+    rect_set_y(&event->rect, y);
+    rect_set_width(&event->rect, width);
+    rect_set_height(&event->rect, height);
+}
+
+/**
+ * Инициализирует событие перерисовки.
+ * @param event Событие перерисовки.
+ * @param rect Прямоугольная область перерисовки.
+ */
+ALWAYS_INLINE static void gui_repaint_event_init_rect(gui_repaint_event_t* event, const rect_t* rect)
+{
+    gui_event_init(GUI_EVENT(event), GUI_EVENT_TYPE_REPAINT);
+    rect_set_left(&event->rect, rect_left(rect));
+    rect_set_top(&event->rect, rect_top(rect));
+    rect_set_right(&event->rect, rect_right(rect));
+    rect_set_bottom(&event->rect, rect_bottom(rect));
 }
 
 #endif	/* GUI_EVENT_H */
-

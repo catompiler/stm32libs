@@ -41,16 +41,6 @@ extern err_t gui_object_init(gui_object_t* object, gui_t* gui);
 extern err_t gui_object_init_parent(gui_object_t* object, gui_t* gui, gui_object_t* parent);
 
 /**
- * Получает родителя объекта графического интерфейса.
- * @param object Объект графического интрефейса.
- * @return Родитель объекта графического интерфейса.
- */
-ALWAYS_INLINE static gui_object_t* gui_object_parent(gui_object_t* object)
-{
-    return object->parent;
-}
-
-/**
  * Получает графический интерфейс объекта графического интерфейса.
  * @param object Объект графического интерфейса.
  * @return  Графический интерфейс.
@@ -58,6 +48,16 @@ ALWAYS_INLINE static gui_object_t* gui_object_parent(gui_object_t* object)
 ALWAYS_INLINE static gui_t* gui_object_gui(gui_object_t* object)
 {
     return object->gui;
+}
+
+/**
+ * Получает родителя объекта графического интерфейса.
+ * @param object Объект графического интрефейса.
+ * @return Родитель объекта графического интерфейса.
+ */
+ALWAYS_INLINE static gui_object_t* gui_object_parent(gui_object_t* object)
+{
+    return object->parent;
 }
 
 /**

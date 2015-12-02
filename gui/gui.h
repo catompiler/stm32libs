@@ -9,18 +9,26 @@
 #include "graphics.h"
 #include "font.h"
 
+//! Тип границы виджета.
+typedef enum _Gui_Border {
+    GUI_BORDER_NONE = 0, //!< Нет границы.
+    GUI_BORDER_SOLID //!< Сплошная граница.
+} gui_border_t;
+
 //! Структура темы оформления GUI.
 typedef struct _Gui_Theme {
-    graphics_color_t back_color; //! Цвет фона.
-    graphics_color_t front_color; //! Цвет отрисовки.
-    graphics_color_t font_color; //! Цвет шрифта.
-    font_t* widget_font; //! Шрифт виджета.
-    font_t* menu_font; //! Шрифт меню.
+    graphics_color_t back_color; //!< Цвет фона.
+    graphics_color_t front_color; //!< Цвет отрисовки.
+    graphics_color_t border_color; //!< Цвет границы.
+    graphics_color_t font_color; //!< Цвет шрифта.
+    const font_t* widget_font; //!< Шрифт виджета.
+    const font_t* menu_font; //!< Шрифт меню.
 } gui_theme_t;
 
-#define MAKE_GUI_THEME(arg_back_color, arg_front_color, arg_font_color,\
+#define MAKE_GUI_THEME(arg_back_color, arg_front_color, arg_border_color, arg_font_color,\
                        arg_widget_font, arg_menu_font)\
-        { .back_color = arg_back_color, .front_color = arg_front_color, .font_color = arg_font_color,\
+        { .back_color = arg_back_color, .front_color = arg_front_color,\
+          .border_color = arg_border_color, .font_color = arg_font_color,\
           .widget_font = arg_widget_font, .menu_font = arg_menu_font }
 
 #ifndef GUI_WIDGET_TYPE_DEFINED

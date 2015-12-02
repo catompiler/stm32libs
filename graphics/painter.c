@@ -1316,7 +1316,7 @@ void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, f
 
 void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s)
 {
-    if(painter->font == NULL) return;
+    if(painter->font == NULL || s == NULL) return;
     
     if(x >= (graphics_pos_t)graphics_width(painter->graphics) ||
        y >= (graphics_pos_t)graphics_height(painter->graphics)) return;
@@ -1357,3 +1357,43 @@ void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y,
     }
 }
 
+void painter_string_size(painter_t* painter, const char* s, graphics_size_t* width, graphics_size_t* height)
+{
+    if(painter->font == NULL || s == NULL) return;
+    if(width == NULL && height == NULL) return;
+    
+    graphics_size_t cur_x = 0;
+    graphics_size_t x = 0;
+    graphics_size_t y = 0;
+
+    graphics_size_t orig_x = cur_x;
+    size_t c_size = 0;
+
+    while(*s){
+        switch(*s){
+            case '\r':
+                cur_x = orig_x;
+                s ++;
+                break;
+            case '\n':
+                cur_x = orig_x;
+                y += font_char_height(painter->font) + font_vspace(painter->font);
+                s ++;
+                break;
+            case '\t':
+                cur_x += (font_char_width(painter->font) + font_hspace(painter->font)) * FONT_TAB_SIZE;
+                s ++;
+                break;
+            default:
+                font_utf8_decode(s, &c_size);
+                cur_x += font_char_width(painter->font) + font_hspace(painter->font);
+                s += c_size;
+                break;
+        }
+        if(cur_x > x) x = cur_x;
+    }
+    if(cur_x != 0) y += font_char_height(painter->font);
+    
+    if(width) *width = x;
+    if(height) *height = y;
+}

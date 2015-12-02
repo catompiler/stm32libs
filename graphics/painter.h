@@ -750,8 +750,17 @@ extern void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos
  * @param font Шрифт.
  * @param x Абсцисса.
  * @param y Ордината.
- * @param c Символ.
+ * @param s Строка символов.
  */
 extern void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s);
+
+/**
+ * Вычисляет размер отрисованной строки символов.
+ * @param painter Рисовальщик.
+ * @param s Строка символов.
+ * @param width Ширина отрисованной строки символов.
+ * @param height Высота отрисованной строки символов.
+ */
+extern void painter_string_size(painter_t* painter, const char* s, graphics_size_t* width, graphics_size_t* height);
 
 #endif  //_PAINTER_H_

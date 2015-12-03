@@ -143,6 +143,10 @@ void painter_put_line_pixel(painter_t* painter, graphics_pos_t x, graphics_pos_t
                 case PAINTER_SOURCE_IMAGE_MODE_BITMAP:
                     if(color) painter_put_pixel(painter, x, y, painter->pen_color);
                     break;
+                case PAINTER_SOURCE_IMAGE_MODE_BITMASK:
+                    color = (color) ? painter->pen_color : painter->brush_color;
+                    painter_put_pixel(painter, x, y, color);
+                    break;
             }
 
             }break;
@@ -336,6 +340,10 @@ void painter_fill_back_put_pixel(painter_t* painter, graphics_pos_t x_first, gra
                     break;
                 case PAINTER_SOURCE_IMAGE_MODE_BITMAP:
                     if(color) painter_put_pixel(painter, x, y, painter->brush_color);
+                    break;
+                case PAINTER_SOURCE_IMAGE_MODE_BITMASK:
+                    color = (color) ? painter->pen_color : painter->brush_color;
+                    painter_put_pixel(painter, x, y, color);
                     break;
             }
 

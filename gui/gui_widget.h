@@ -32,6 +32,7 @@ struct _Gui_Widget {
     gui_object_t super; //!< Суперкласс.
     widget_id_t id; //!< Идентификатор виджета.
     bool visible; //!< Флаг видимости.
+    bool focusable; //!< Флаг фокусируемости.
     rect_t rect; //!< Прямоугольная область окна.
     gui_border_t border; //!< Тип границы виджета.
     graphics_color_t back_color; //!< Цвет фона виджета.
@@ -167,6 +168,42 @@ extern bool gui_widget_visible_parents(gui_widget_t* widget);
  * @param Флаг видимости виджета.
  */
 extern void gui_widget_set_visible(gui_widget_t* widget, bool visible);
+
+/**
+ * Получает флаг фокусируемости виджета.
+ * @param widget Виджет.
+ * @return Флаг фокусируемости виджета.
+ */
+ALWAYS_INLINE static bool gui_widget_focusable(gui_widget_t* widget)
+{
+    return widget->focusable;
+}
+
+/**
+ * Устанавливает флаг фокусируемости виджета.
+ * @param widget Виджет.
+ * @param focusable Флаг фокусируемости виджета.
+ */
+ALWAYS_INLINE static void gui_widget_set_focusable(gui_widget_t* widget, bool focusable)
+{
+    widget->focusable = focusable;
+}
+
+/**
+ * Получает флаг нахождения виджета в фокусе.
+ * @param widget Виджет.
+ * @return Флаг нахождения виджета в фокусе.
+ */
+ALWAYS_INLINE static bool gui_widget_has_focus(gui_widget_t* widget)
+{
+    return gui_is_focus_widget(gui_object_gui(GUI_OBJECT(widget)), widget);
+}
+
+/**
+ * Переводит фокус на виджет.
+ * @param widget Виджет.
+ */
+extern void gui_widget_set_focus(gui_widget_t* widget);
 
 /**
  * Получает координату X виджета.

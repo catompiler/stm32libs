@@ -21,14 +21,16 @@ typedef struct _Gui_Theme {
     graphics_color_t front_color; //!< Цвет отрисовки.
     graphics_color_t border_color; //!< Цвет границы.
     graphics_color_t font_color; //!< Цвет шрифта.
+    graphics_color_t focus_color; //!< Цвет границы в фокусе.
     const font_t* widget_font; //!< Шрифт виджета.
     const font_t* menu_font; //!< Шрифт меню.
 } gui_theme_t;
 
 #define MAKE_GUI_THEME(arg_back_color, arg_front_color, arg_border_color, arg_font_color,\
-                       arg_widget_font, arg_menu_font)\
+                       arg_focus_color, arg_widget_font, arg_menu_font)\
         { .back_color = arg_back_color, .front_color = arg_front_color,\
           .border_color = arg_border_color, .font_color = arg_font_color,\
+          .focus_color = arg_focus_color,\
           .widget_font = arg_widget_font, .menu_font = arg_menu_font }
 
 #ifndef GUI_WIDGET_TYPE_DEFINED
@@ -42,10 +44,12 @@ typedef struct _Gui {
     graphics_t* graphics; //!< Графический буфер.
     gui_theme_t* theme; //!< Тема оформления.
     gui_widget_t* root_widget; //!< Корневой виджет.
+    gui_widget_t* focus_widget; //!< Виджет в фокусе.
 } gui_t;
 
 #define MAKE_GUI(arg_graphics, arg_theme)\
-        { .graphics = arg_graphics, .theme = arg_theme}
+        { .graphics = arg_graphics, .theme = arg_theme,\
+          .root_widget = NULL, .focus_widget = NULL }
 
 /**
  * Инициализирует графический интерфейс.
@@ -109,6 +113,57 @@ ALWAYS_INLINE static gui_widget_t* gui_root_widget(gui_t* gui)
  * @return Код ошибки.
  */
 extern err_t gui_set_root_widget(gui_t* gui, gui_widget_t* widget);
+
+/**
+ * Получает виджет в фокусе.
+ * @param gui Графический интерфейс.
+ * @return Виджет в фокусе.
+ */
+ALWAYS_INLINE static gui_widget_t* gui_focus_widget(gui_t* gui)
+{
+    return gui->focus_widget;
+}
+
+/**
+ * Получает флаг нахождения виджета в фокусе.
+ * @param gui Графический интерфейс.
+ * @return Флаг нахождения виджета в фокусе.
+ */
+ALWAYS_INLINE static bool gui_is_focus_widget(gui_t* gui, gui_widget_t* widget)
+{
+    return gui->focus_widget == widget;
+}
+
+/**
+ * Устанавливает виджет в фокусе.
+ * @param gui Графический интерфейс.
+ * @param widget Виджет в фокусе, NULL для снятия фокуса.
+ * @return true, если новый фокус установлен, иначе false.
+ */
+extern bool gui_set_focus_widget(gui_t* gui, gui_widget_t* widget);
+
+/**
+ * Очищает фокус.
+ * @param gui Графический интерфейс.
+ */
+ALWAYS_INLINE static void gui_clear_focus_widget(gui_t* gui)
+{
+    gui_set_focus_widget(gui, NULL);
+}
+
+/**
+ * Устанавливает фокус на следующий виджет.
+ * @param gui Графический интерфейс.
+ * @return true, если новый фокус установлен, иначе false.
+ */
+extern bool gui_focus_next_widget(gui_t* gui);
+
+/**
+ * Устанавливает фокус на предыдущий виджет.
+ * @param gui Графический интерфейс.
+ * @return true, если новый фокус установлен, иначе false.
+ */
+extern bool gui_focus_prev_widget(gui_t* gui);
 
 #endif	/* GUI_H */
 

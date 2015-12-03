@@ -45,6 +45,7 @@ err_t gui_widget_init_parent(gui_widget_t* widget, gui_t* gui, gui_widget_t* par
     
     widget->id = next_widget_id ++;
     widget->visible = false;
+    widget->focusable = false;
     rect_init(&widget->rect);
     widget->border = GUI_BORDER_NONE;
     widget->back_color = gui_theme(gui_object_gui(GUI_OBJECT(widget)))->back_color;
@@ -94,7 +95,15 @@ void gui_widget_set_visible(gui_widget_t* widget, bool visible)
             gui_widget_screen_rect(widget, &rect);
             gui_widget_repaint(GUI_WIDGET(parent), &rect);
         }
+        if(gui_widget_has_focus(widget)){
+            gui_clear_focus_widget(gui_object_gui(GUI_OBJECT(widget)));
+        }
     }
+}
+
+void gui_widget_set_focus(gui_widget_t* widget)
+{
+    gui_set_focus_widget(gui_object_gui(GUI_OBJECT(widget)), widget);
 }
 
 void gui_widget_set_x(gui_widget_t* widget, graphics_pos_t x)
@@ -224,22 +233,27 @@ void gui_widget_move(gui_widget_t* widget, graphics_pos_t x, graphics_pos_t y)
     
     gui_object_t* parent = gui_object_parent(GUI_OBJECT(widget));
     
-    if(parent){
-        rect_t rect;
-        gui_repaint_event_t event;
+    if(gui_widget_visible(widget)){
+        if(parent){
+            rect_t rect;
+            gui_repaint_event_t event;
 
-        gui_widget_screen_rect(widget, &rect);
+            gui_widget_screen_rect(widget, &rect);
 
-        rect_set_x(&widget->rect, x);
-        rect_set_y(&widget->rect, y);
+            rect_set_x(&widget->rect, x);
+            rect_set_y(&widget->rect, y);
 
-        gui_repaint_event_init_rect(&event, &rect);
-        gui_widget_repaint_event(GUI_WIDGET(parent), &event);
+            gui_repaint_event_init_rect(&event, &rect);
+            gui_widget_repaint_event(GUI_WIDGET(parent), &event);
+        } else {
+            rect_set_x(&widget->rect, x);
+            rect_set_y(&widget->rect, y);
+        }
+        gui_widget_repaint(widget, NULL);
     } else {
         rect_set_x(&widget->rect, x);
         rect_set_y(&widget->rect, y);
     }
-    gui_widget_repaint(widget, NULL);
 }
 
 void gui_widget_set_width(gui_widget_t* widget, graphics_size_t width)
@@ -285,7 +299,7 @@ void gui_widget_resize(gui_widget_t* widget, graphics_size_t width, graphics_siz
 
 void gui_widget_repaint(gui_widget_t* widget, const rect_t* rect)
 {
-    //if(!gui_widget_visible_parents(widget)) return;
+    if(!gui_widget_visible(widget)) return;
     gui_repaint_event_t event;
     if(rect){
         gui_repaint_event_init_rect(&event, rect);
@@ -309,14 +323,19 @@ void gui_widget_on_repaint(gui_widget_t* widget, const rect_t* rect)
     
     gui_theme_t* theme = gui_theme(gui_widget_gui(widget));
     
+    painter_set_pen(&painter, PAINTER_PEN_SOLID);
     painter_set_brush(&painter, PAINTER_BRUSH_SOLID);
     painter_set_brush_color(&painter, widget->back_color);
     
-    if(widget->border == GUI_BORDER_NONE){
+    if(gui_widget_has_focus(widget)){
+        painter_set_pen_color(&painter, theme->focus_color);
+    }else{
+        painter_set_pen_color(&painter, theme->border_color);
+    }
+    
+    if(widget->border == GUI_BORDER_NONE && !gui_widget_has_focus(widget)){
         painter_draw_fillrect(&painter, 0, 0, rect_width(&widget->rect) - 1, rect_height(&widget->rect) - 1);
     }else{
-        painter_set_pen(&painter, PAINTER_PEN_SOLID);
-        painter_set_pen_color(&painter, theme->border_color);
         painter_draw_rect(&painter, 0, 0, rect_width(&widget->rect) - 1, rect_height(&widget->rect) - 1);
     }
     

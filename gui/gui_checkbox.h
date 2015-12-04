@@ -17,7 +17,10 @@ struct _Gui_Checkbox {
     gui_widget_t super; //!< Суперкласс.
     const char* text; //!< Текст флажка.
     bool checked; //!< Флаг.
+    void (*on_toggled)(gui_checkbox_t* checkbox, bool checked); //!< Каллбэк при изменении флага.
 };
+
+typedef void (*gui_checkbox_on_toggled_t)(gui_checkbox_t*, bool);
 
 //! Приводит указатель checkbox к типу флажка.
 #define GUI_CHECKBOX(checkbox) ((gui_checkbox_t*)(checkbox))
@@ -72,6 +75,26 @@ ALWAYS_INLINE static bool gui_checkbox_checked(gui_checkbox_t* checkbox)
  * @param checked Установленность флажка.
  */
 extern void gui_checkbox_set_checked(gui_checkbox_t* checkbox, bool checked);
+
+/**
+ * Получает каллбэк изменения флага.
+ * @param checkbox Флажок.
+ * @return Каллбэк изменения флага.
+ */
+ALWAYS_INLINE static gui_checkbox_on_toggled_t gui_checkbox_on_toggled(gui_checkbox_t* checkbox)
+{
+    return checkbox->on_toggled;
+}
+
+/**
+ * Устанавливает каллбэк изменения флага.
+ * @param checkbox Флажок.
+ * @param on_toggled Каллбэк изменения флага.
+ */
+ALWAYS_INLINE static void gui_checkbox_set_on_toggled(gui_checkbox_t* checkbox, gui_checkbox_on_toggled_t on_toggled)
+{
+    checkbox->on_toggled = on_toggled;
+}
 
 /**
  * Обработчик перерисовки.

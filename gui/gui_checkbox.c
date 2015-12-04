@@ -15,6 +15,7 @@ err_t gui_checkbox_init_parent(gui_checkbox_t* checkbox, gui_t* gui, gui_widget_
     GUI_WIDGET(checkbox)->focusable = true;
     checkbox->text = NULL;
     checkbox->checked = false;
+    checkbox->on_toggled = NULL;
     
     return E_NO_ERROR;
 }
@@ -28,6 +29,9 @@ void gui_checkbox_set_text(gui_checkbox_t* checkbox, const char* text)
 void gui_checkbox_set_checked(gui_checkbox_t* checkbox, bool checked)
 {
     checkbox->checked = checked;
+    
+    if(checkbox->on_toggled) checkbox->on_toggled(checkbox, checked);
+    
     gui_widget_repaint(GUI_WIDGET(checkbox), NULL);
 }
 

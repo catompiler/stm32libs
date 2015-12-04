@@ -1,5 +1,8 @@
 #include "gui.h"
 #include "gui_widget.h"
+#include "graphics/rect.h"
+
+
 
 err_t gui_init(gui_t* gui, graphics_t* graphics, gui_theme_t* theme)
 {
@@ -149,4 +152,19 @@ bool gui_focus_prev_widget(gui_t* gui)
         if(widget == start_widget) break;
     }
     return false;
+}
+
+gui_widget_t* gui_widget_from_point(gui_t* gui, graphics_pos_t x, graphics_pos_t y)
+{
+    rect_t rect;
+    
+    gui_widget_t* widget = gui_first_widget(gui->root_widget);
+    
+    while(widget){
+        gui_widget_screen_visible_position(widget, NULL, &rect);
+        if(rect_contains(&rect, x, y)) break;
+        widget = gui_next_widget(widget);
+    }
+    
+    return widget;
 }

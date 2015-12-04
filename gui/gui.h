@@ -6,8 +6,8 @@
 #define	GUI_H
 
 #include "defs/defs.h"
-#include "graphics.h"
-#include "font.h"
+#include "graphics/graphics.h"
+#include "graphics/font.h"
 
 //! Тип границы виджета.
 typedef enum _Gui_Border {
@@ -18,7 +18,9 @@ typedef enum _Gui_Border {
 //! Структура темы оформления GUI.
 typedef struct _Gui_Theme {
     graphics_color_t back_color; //!< Цвет фона.
-    graphics_color_t front_color; //!< Цвет отрисовки.
+    graphics_color_t front_color; //!< Цвет переднего плана.
+    graphics_color_t panel_color; //!< Цвет фона контейнеров.
+    graphics_color_t widget_color; //!< Цвет элементов управления.
     graphics_color_t border_color; //!< Цвет границы.
     graphics_color_t font_color; //!< Цвет шрифта.
     graphics_color_t focus_color; //!< Цвет границы в фокусе.
@@ -26,9 +28,12 @@ typedef struct _Gui_Theme {
     const font_t* menu_font; //!< Шрифт меню.
 } gui_theme_t;
 
-#define MAKE_GUI_THEME(arg_back_color, arg_front_color, arg_border_color, arg_font_color,\
+#define MAKE_GUI_THEME(arg_back_color, arg_front_color,\
+                       arg_panel_color, arg_widget_color,\
+                       arg_border_color, arg_font_color,\
                        arg_focus_color, arg_widget_font, arg_menu_font)\
         { .back_color = arg_back_color, .front_color = arg_front_color,\
+          .panel_color = arg_panel_color, .widget_color = arg_widget_color,\
           .border_color = arg_border_color, .font_color = arg_font_color,\
           .focus_color = arg_focus_color,\
           .widget_font = arg_widget_font, .menu_font = arg_menu_font }
@@ -164,6 +169,15 @@ extern bool gui_focus_next_widget(gui_t* gui);
  * @return true, если новый фокус установлен, иначе false.
  */
 extern bool gui_focus_prev_widget(gui_t* gui);
+
+/**
+ * Получает виджет по заданным координатам.
+ * @param gui Графический интерфейс.
+ * @param x Координата X.
+ * @param y Координата Y.
+ * @return Виджет по заданным координатам.
+ */
+extern gui_widget_t* gui_widget_from_point(gui_t* gui, graphics_pos_t x, graphics_pos_t y);
 
 #endif	/* GUI_H */
 

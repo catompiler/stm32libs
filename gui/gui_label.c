@@ -1,6 +1,6 @@
 #include "gui_label.h"
 #include "utils/utils.h"
-#include "painter.h"
+#include "graphics/painter.h"
 
 err_t gui_label_init(gui_label_t* label, gui_t* gui)
 {
@@ -34,6 +34,8 @@ void gui_label_on_repaint(gui_label_t* label, const rect_t* rect)
     
     gui_widget_begin_paint(GUI_WIDGET(label), &painter, rect);
     
+    painter_set_pen(&painter, PAINTER_PEN_SOLID);
+    painter_set_pen_color(&painter, theme->font_color);
     painter_set_font(&painter, theme->widget_font);
     painter_set_source_image_mode(&painter, PAINTER_SOURCE_IMAGE_MODE_BITMAP);
     

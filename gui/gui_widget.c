@@ -2,7 +2,7 @@
 
 #include "gui_widget.h"
 #include "utils/utils.h"
-#include "painter.h"
+#include "graphics/painter.h"
 
 
 static widget_id_t next_widget_id = 1;
@@ -48,7 +48,7 @@ err_t gui_widget_init_parent(gui_widget_t* widget, gui_t* gui, gui_widget_t* par
     widget->focusable = false;
     rect_init(&widget->rect);
     widget->border = GUI_BORDER_NONE;
-    widget->back_color = gui_theme(gui_object_gui(GUI_OBJECT(widget)))->back_color;
+    widget->back_color = gui_theme(gui_object_gui(GUI_OBJECT(widget)))->panel_color;
     widget->on_resize = gui_widget_on_resize;
     widget->on_repaint = gui_widget_on_repaint;
     

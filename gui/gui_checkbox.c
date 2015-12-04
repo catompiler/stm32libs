@@ -31,9 +31,20 @@ void gui_checkbox_set_checked(gui_checkbox_t* checkbox, bool checked)
     gui_widget_repaint(GUI_WIDGET(checkbox), NULL);
 }
 
-#define CHECKBOX_SIZE 8
+// Типы флажка
+// Крестик.
+#define CHECKBOX_CHECK_X 0
+// Галочка.
+#define CHECKBOX_CHECK_V 1
+// Тип флажка.
+#ifndef CHECKBOX_CHECK
+#define CHECKBOX_CHECK CHECKBOX_CHECK_V
+#endif
+// Размеры флажка,
+#define CHECKBOX_SIZE 10
 #define CHECKBOX_LEFT 1
 #define TEXT_LEFT (CHECKBOX_SIZE + (CHECKBOX_SIZE) / 2 + CHECKBOX_LEFT)
+#define CHECKBOX_BOX_DELTA 2
 
 void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect)
 {
@@ -61,9 +72,24 @@ void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect)
     painter_draw_rect(&painter, check_left, check_top, check_right, check_bottom);
     
     if(checkbox->checked){
-        check_left ++; check_top ++; check_right --; check_bottom --;
+#if CHECKBOX_CHECK == CHECKBOX_CHECK_X
+        check_left += CHECKBOX_BOX_DELTA; check_top += CHECKBOX_BOX_DELTA;
+        check_right -= CHECKBOX_BOX_DELTA; check_bottom -= CHECKBOX_BOX_DELTA;
+        
         painter_draw_line(&painter, check_left, check_top, check_right, check_bottom);
         painter_draw_line(&painter, check_left, check_bottom, check_right, check_top);
+#elif CHECKBOX_CHECK == CHECKBOX_CHECK_V  
+        graphics_pos_t check_left_half = check_left + (CHECKBOX_SIZE / 2);// - CHECKBOX_BOX_DELTA;
+        graphics_pos_t check_top_half = check_top + (CHECKBOX_SIZE / 2);// - CHECKBOX_BOX_DELTA;
+        
+        check_left += CHECKBOX_BOX_DELTA; check_top += CHECKBOX_BOX_DELTA;
+        check_right -= CHECKBOX_BOX_DELTA; check_bottom -= CHECKBOX_BOX_DELTA;
+        
+        painter_draw_line(&painter, check_left, check_top_half, check_left_half - 1, check_bottom);
+        painter_draw_line(&painter, check_left_half, check_bottom - 1, check_right, check_top);
+#else
+#error CHECKBOX_CHECK define: invalid value (0 - [X], 1 - [V])!
+#endif
     }
     
     if(checkbox->text != NULL){

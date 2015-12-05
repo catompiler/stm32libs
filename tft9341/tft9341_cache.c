@@ -21,7 +21,8 @@ err_t tft9341_cache_buffer_init(tft9341_cache_buffer_t* buffer, void* data, size
 }
 
 err_t tft9341_cache_init(tft9341_cache_t* cache, tft9341_t* tft, size_t pixel_size,
-                         tft9341_cache_buffer_t* buffers, size_t buffers_count)
+                         tft9341_cache_buffer_t* buffers, size_t buffers_count,
+                         tft9341_row_col_exchange_t row_col_exchange)
 {
     if(tft == NULL) return E_NULL_POINTER;
     if(buffers == NULL && buffers_count != 0) return E_NULL_POINTER;
@@ -31,6 +32,7 @@ err_t tft9341_cache_init(tft9341_cache_t* cache, tft9341_t* tft, size_t pixel_si
     cache->pixel_size = pixel_size;
     cache->buffers = buffers;
     cache->buffers_count = buffers_count;
+    cache->row_col_exchange = row_col_exchange;
     
     return E_NO_ERROR;
 }
@@ -194,9 +196,9 @@ ALWAYS_INLINE static void tft9341_cache_buffer_reset(tft9341_cache_buffer_t* buf
  * @param cache Кэш.
  * @param buffer Буфер.
  */
-static void tft9341_cache_buffer_flush(tft9341_cache_t* cache, tft9341_cache_buffer_t* buffer)
+static err_t tft9341_cache_buffer_flush(tft9341_cache_t* cache, tft9341_cache_buffer_t* buffer)
 {
-    if(!tft9341_cache_buffer_dirty(buffer)) return;
+    if(!tft9341_cache_buffer_dirty(buffer)) return E_NO_ERROR;
     
     uint16_t x1 = buffer->x;
     uint16_t y1 = buffer->y;
@@ -212,9 +214,11 @@ static void tft9341_cache_buffer_flush(tft9341_cache_t* cache, tft9341_cache_buf
             break;
     }
     
-    tft9341_write_region(cache->tft, buffer->x, buffer->y, x1, y1, buffer->data, buffer->byte_index);
-    
+    err_t err = tft9341_write_region(cache->tft, buffer->x, buffer->y, x1, y1, buffer->data, buffer->byte_index);
+
     tft9341_cache_buffer_reset(buffer);
+    
+    return err;
 }
 
 /**
@@ -306,17 +310,20 @@ err_t tft9341_cache_set_pixel(tft9341_cache_t* cache, graphics_pos_t x, graphics
     return tft9341_set_pixel(cache->tft, x, y, put_buffer, cache->pixel_size);
 }
 
-void tft9341_cache_flush(tft9341_cache_t* cache)
+err_t tft9341_cache_flush(tft9341_cache_t* cache)
 {
-    if(!tft9341_cache_has_buffers(cache)) return;
+    if(!tft9341_cache_has_buffers(cache)) return E_NO_ERROR;
     
     tft9341_cache_buffer_t* buffer = NULL;
     
     size_t i = 0;
     for(;i < cache->buffers_count; i++){
         buffer = tft9341_cache_get_buffer(cache, i);
-        if(tft9341_cache_buffer_valid(buffer)) tft9341_cache_buffer_flush(cache, buffer);
+        if(tft9341_cache_buffer_valid(buffer)){
+            RETURN_ERR_IF_FAIL(tft9341_cache_buffer_flush(cache, buffer));
+        }
     }
+    return tft9341_wait(cache->tft);
 }
 
 static tft9341_cache_buffer_t* tft9341_cache_get_largest_buffer(tft9341_cache_t* cache)
@@ -433,7 +440,13 @@ err_t tft9341_cache_fill_region_impl(tft9341_cache_t* cache, graphics_pos_t x0, 
 
 err_t tft9341_cache_fill(tft9341_cache_t* cache, graphics_color_t color)
 {
-    return tft9341_cache_fill_region_impl(cache, 0, 0, 0x1ff, 0x1ff, TFT9341_PIXELS_COUNT * cache->pixel_size, color);
+    graphics_pos_t right, bottom;
+    if(cache->row_col_exchange){
+        right = 319; bottom = 239;
+    }else{
+        right = 239; bottom = 319;
+    }
+    return tft9341_cache_fill_region_impl(cache, 0, 0, right, bottom, TFT9341_PIXELS_COUNT * cache->pixel_size, color);
 }
 
 err_t tft9341_cache_fill_region(tft9341_cache_t* cache, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1, graphics_color_t color)
@@ -447,5 +460,5 @@ err_t tft9341_cache_fill_region(tft9341_cache_t* cache, graphics_pos_t x0, graph
     if(x0 > x1) SWAP(x0, x1, swap_var);
     if(y0 > y1) SWAP(y0, y1, swap_var);
     
-    return tft9341_cache_fill_region_impl(cache, x0, y0, x1, y1, ((x1 - x0) * (y1 - y0)) * cache->pixel_size, color);
+    return tft9341_cache_fill_region_impl(cache, x0, y0, x1, y1, ((x1 - x0 + 1) * (y1 - y0 + 1)) * cache->pixel_size, color);
 }

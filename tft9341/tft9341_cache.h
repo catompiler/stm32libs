@@ -1,9 +1,15 @@
+/**
+ * @file tft9341_cache.h
+ * Библиотека для работы с кэшем экрана TFT на контроллере ILI9341.
+ */
+
 #ifndef TFT9341_CACHE_H
 #define TFT9341_CACHE_H
 
 #include <stdint.h>
 #include <stddef.h>
 #include "errors/errors.h"
+#include "defs/defs.h"
 #include "tft9341/tft9341.h"
 #include "graphics/graphics.h"
 
@@ -36,15 +42,16 @@ typedef struct _Tft9341_Cache {
     tft9341_cache_buffer_t* buffers; //!< Буферы кэша.
     size_t buffers_count; //!< Число буферов.
     size_t current_buffer; //!< Текущий буфер.
+    tft9341_row_col_exchange_t row_col_exchange; //!< Ориентация экрана.
 } tft9341_cache_t;
 
 #define make_tft9341_cache_buffer(arg_data, arg_size)\
     { .data = (uint8_t*)arg_data, .size = arg_size, .byte_index = 0, .pixels_count = 0,\
       .x = 0, .y = 0, .pos = TFT9341_CACHE_BUF_POS_UNALIGNED }
 
-#define make_tft9341_cache(arg_tft, arg_pixel_size, arg_buffers, arg_buffers_count)\
+#define make_tft9341_cache(arg_tft, arg_pixel_size, arg_buffers, arg_buffers_count, arg_row_col_exchange)\
     { .tft = arg_tft, .pixel_size = arg_pixel_size, .buffers = arg_buffers,\
-      .buffers_count = arg_buffers_count, .current_buffer = 0 }
+      .buffers_count = arg_buffers_count, .current_buffer = 0, .row_col_exchange = arg_row_col_exchange }
 
 /**
  * Инициализирует буфер кэша.
@@ -65,7 +72,29 @@ extern err_t tft9341_cache_buffer_init(tft9341_cache_buffer_t* buffer, void* dat
  * @return Код ошибки.
  */
 extern err_t tft9341_cache_init(tft9341_cache_t* cache, tft9341_t* tft, size_t pixel_size,
-                                tft9341_cache_buffer_t* buffers, size_t buffers_count);
+                                tft9341_cache_buffer_t* buffers, size_t buffers_count,
+                                tft9341_row_col_exchange_t row_col_exchange);
+
+/**
+ * Получает ориентацию TFT.
+ * @param cache Кэш TFT.
+ * @return Ориентация TFT.
+ */
+ALWAYS_INLINE static tft9341_row_col_exchange_t tft9341_cache_tft_row_col_exchange(tft9341_cache_t* cache)
+{
+    return cache->row_col_exchange;
+}
+
+/**
+ * Устанавливает ориентацию TFT.
+ * @param cache Кэш TFT.
+ * @param row_col_exchange Ориентация TFT.
+ */
+ALWAYS_INLINE static void tft9341_cache_set_tft_row_col_exchange(tft9341_cache_t* cache, tft9341_row_col_exchange_t row_col_exchange)
+{
+    cache->row_col_exchange = row_col_exchange;
+}
+
 
 /**
  * Устанавливает пиксел.
@@ -80,8 +109,9 @@ extern err_t tft9341_cache_set_pixel(tft9341_cache_t* cache, graphics_pos_t x, g
 /**
  * Сбрасывает кэш в экран.
  * @param cache Кэш.
+ * @return Код ошибки.
  */
-extern void tft9341_cache_flush(tft9341_cache_t* cache);
+extern err_t tft9341_cache_flush(tft9341_cache_t* cache);
 
 /**
  * Заливает TFT заданным цветом.

@@ -51,6 +51,27 @@ err_t graphics_init_virtual(graphics_t* graphics, void* data, graphics_size_t wi
 
     return E_NO_ERROR;
 }
+
+bool graphics_flush(graphics_t* graphics)
+{
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        if(graphics->vbuf->virtual_flush){
+            return graphics->vbuf->virtual_flush(graphics);
+        }
+    }
+    return false;
+}
+
+bool graphics_fast_fillrect(graphics_t* graphics, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom, graphics_color_t color)
+{
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        if(graphics->vbuf->virtual_fast_fillrect){
+            return graphics->vbuf->virtual_fast_fillrect(graphics, left, top, right, bottom, color);
+        }
+    }
+    return false;
+}
+
 #endif
 
 size_t graphics_data_size(const graphics_t* graphics)
@@ -118,15 +139,28 @@ size_t graphics_data_size(const graphics_t* graphics)
 
 void graphics_clear(graphics_t* graphics)
 {
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        graphics_fill(graphics, 0x0);
+    }else
+#endif
     if(graphics->data != NULL){
         memset(graphics->data, 0x0, graphics_data_size(graphics));
-    }else{
-        graphics_fill(graphics, 0x0);
     }
 }
 
 void graphics_fill(graphics_t* graphics, graphics_color_t color)
 {
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(graphics->type == GRAPHICS_TYPE_VIRTUAL){
+        if(graphics->vbuf->virtual_fast_fillrect){
+            if(graphics->vbuf->virtual_fast_fillrect(graphics, 0, 0,
+                                graphics->width - 1, graphics->height - 1, color)){
+                return;
+            }
+        }
+    }
+#endif
     graphics_pos_t y, x;
     for(y = 0; y < graphics_height(graphics); y ++){
         for(x = 0; x < graphics_width(graphics); x ++){

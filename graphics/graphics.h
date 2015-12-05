@@ -235,6 +235,14 @@ typedef bool (*graphics_xor_pixel_proc_t)(struct _Graphics* graphics, graphics_p
  * AND над пикселом.
  */
 typedef bool (*graphics_and_pixel_proc_t)(struct _Graphics* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+/**
+ * Сброс буфера в устройство.
+ */
+typedef bool (*graphics_flush_proc_t)(struct _Graphics* graphics);
+/**
+ * Быстрый вывод залитого прямоугольника.
+ */
+typedef bool (*graphics_fast_fillrect_proc_t)(struct _Graphics* graphics, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom, graphics_color_t color);
 
 /**
  * Структура виртуального буфера.
@@ -245,6 +253,8 @@ typedef struct Graphics_Vbuf {
     graphics_or_pixel_proc_t virtual_or_pixel; //!< OR над пикселом.
     graphics_xor_pixel_proc_t virtual_xor_pixel; //!< XOR над пикселом.
     graphics_and_pixel_proc_t virtual_and_pixel; //!< AND над пикселом.
+    graphics_flush_proc_t virtual_flush; //!< Сброс буфера в устройство.
+    graphics_fast_fillrect_proc_t virtual_fast_fillrect; //!< Быстрый вывод залитого прямоугольника.
 } graphics_vbuf_t;
 
 #endif
@@ -281,11 +291,13 @@ typedef struct _Graphics {
  */
 #define make_graphics_vbuf(arg_virtual_get_pixel, arg_virtual_set_pixel,\
                            arg_virtual_or_pixel, arg_virtual_xor_pixel,\
-                           arg_virtual_and_pixel)\
+                           arg_virtual_and_pixel, arg_virtual_flush,\
+                           arg_virtual_fast_fillrect)\
 {\
  .virtual_get_pixel = arg_virtual_get_pixel, .virtual_set_pixel = arg_virtual_set_pixel,\
  .virtual_or_pixel  = arg_virtual_or_pixel,  .virtual_xor_pixel = arg_virtual_xor_pixel,\
- .virtual_and_pixel = arg_virtual_and_pixel\
+ .virtual_and_pixel = arg_virtual_and_pixel, .virtual_flush = arg_virtual_flush,\
+ .virtual_fast_fillrect = arg_virtual_fast_fillrect\
 }
 /**
  * Заполняет структуру изображения с виртуальным буфером по месту объявления.
@@ -404,6 +416,26 @@ static ALWAYS_INLINE graphics_vbuf_t* graphics_virtual_buffer(graphics_t* graphi
 {
     return graphics->vbuf;
 }
+
+/**
+ * Сбрасывает буфер в устройство.
+ * @param graphics Изображение.
+ * @return true в случае успеха, иначе false.
+ */
+extern bool graphics_flush(graphics_t* graphics);
+
+/**
+ * Быстро выводит залитый прямоугольник.
+ * @param graphics Изображение.
+ * @param left Лево.
+ * @param top Верх.
+ * @param right Право.
+ * @param bottom Низ.
+ * @param color Цвет.
+ * @return true в случае успеха, false в случае неудачи,
+ * либо если функция быстрой заливки не поддерживается буферорм.
+ */
+extern bool graphics_fast_fillrect(graphics_t* graphics, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom, graphics_color_t color);
 #endif
 
 /**

@@ -548,6 +548,21 @@ static ALWAYS_INLINE graphics_color_t painter_get_pixel(const painter_t* painter
 }
 
 /**
+ * Сбрасывает буфер изображения в устройство.
+ * Имеет смысл лишь для виртуального
+ * буфера изображения.
+ * @param painter Рисовальщик.
+ * @return true в случае успеха, иначе false.
+ */
+extern bool painter_flush(painter_t* painter);
+
+/**
+ * Заполняет изображение.
+ * @param painter Рисовальщик.
+ */
+extern void painter_fill(painter_t* painter);
+
+/**
  * Рисует точку.
  * @param painter Рисовальщик.
  * @param x Координата X.
@@ -732,7 +747,7 @@ extern void painter_draw_ellipse_arc(painter_t* painter, graphics_pos_t center_x
  * @param x Координата X.
  * @param y Координата Y.
  */
-extern void painter_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y);
+extern void painter_flood_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y);
 
 /**
  * Отрисовывает символ.

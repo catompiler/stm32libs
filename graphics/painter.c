@@ -78,6 +78,21 @@ static ALWAYS_INLINE void painter_put_pixel(painter_t* painter, graphics_pos_t x
     }
 }
 
+bool painter_flush(painter_t* painter)
+{
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    return graphics_flush(painter_graphics(painter));
+#else
+    return false;
+#endif
+}
+
+void painter_fill(painter_t* painter)
+{
+    painter_draw_fillrect(painter, 0, 0, graphics_width(painter_graphics(painter)) - 1,
+                                         graphics_height(painter_graphics(painter)) - 1);
+}
+
 void painter_draw_point(painter_t* painter, graphics_pos_t x, graphics_pos_t y)
 {
     painter_put_pixel(painter, x, y, painter->pen_color);
@@ -409,6 +424,15 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
         right --;
         bottom --;
 
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(painter->brush == PAINTER_BRUSH_SOLID){
+        if(graphics_fast_fillrect(painter_graphics(painter), left, top,
+                                  right, bottom, painter_brush_color(painter))){
+            return;
+        }
+    }
+#endif
+        
         // Заливка.
         graphics_pos_t x_first = left;
         graphics_pos_t y_first = top;
@@ -423,6 +447,15 @@ void painter_draw_fillrect(painter_t* painter, graphics_pos_t left, graphics_pos
 {
     if(painter->brush == PAINTER_BRUSH_NONE) return;
 
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(painter->brush == PAINTER_BRUSH_SOLID){
+        if(graphics_fast_fillrect(painter_graphics(painter), left, top,
+                                  right, bottom, painter_brush_color(painter))){
+            return;
+        }
+    }
+#endif
+    
     if(left > right){
         graphics_pos_t tmp;
         SWAP(left, right, tmp);
@@ -1289,7 +1322,7 @@ static graphics_pos_t painter_fill_target_impl(painter_t* painter, graphics_pos_
 }
 
 
-void painter_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y)
+void painter_flood_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y)
 {
     switch(painter->fill_mode){
         default:

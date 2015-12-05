@@ -1,5 +1,3 @@
-#include <winerror.h>
-
 #include "gui_widget.h"
 #include "utils/utils.h"
 #include "graphics/painter.h"
@@ -373,6 +371,8 @@ err_t gui_widget_begin_paint(gui_widget_t* widget, painter_t* painter, const rec
 err_t gui_widget_end_paint(gui_widget_t* widget, painter_t* painter)
 {
     if(painter == NULL) return E_NULL_POINTER;
+    
+    painter_flush(painter);
     
     return E_NO_ERROR;
 }

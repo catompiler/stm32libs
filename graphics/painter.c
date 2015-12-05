@@ -380,6 +380,31 @@ static void painter_fill_back(painter_t* painter, graphics_pos_t x_first, graphi
     }
 }
 
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+static bool painter_fast_fillrect_impl(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom)
+{
+    if(painter->brush != PAINTER_BRUSH_SOLID) return false;
+    
+    if(painter_offset_enabled(painter)){
+        left   += painter->offset_point.x;
+        right  += painter->offset_point.x;
+        top    += painter->offset_point.y;
+        bottom += painter->offset_point.y;
+    }
+    if(painter_scissor_enabled(painter)){
+        if(left   < painter->scissor_rect.left)   left   = painter->scissor_rect.left;
+        if(right  > painter->scissor_rect.right)  right  = painter->scissor_rect.right;
+        if(top    < painter->scissor_rect.top)    top    = painter->scissor_rect.top;
+        if(bottom > painter->scissor_rect.bottom) bottom = painter->scissor_rect.bottom;
+    }
+    
+    if(left > right || top > bottom) return true;
+    
+    return graphics_fast_fillrect(painter_graphics(painter), left, top,
+                                  right, bottom, painter_brush_color(painter));
+}
+#endif
+
 void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom)
 {
     if(left == right){
@@ -425,12 +450,9 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
         bottom --;
 
 #ifdef USE_GRAPHICS_VIRTUAL_BUFFER
-    if(painter->brush == PAINTER_BRUSH_SOLID){
-        if(graphics_fast_fillrect(painter_graphics(painter), left, top,
-                                  right, bottom, painter_brush_color(painter))){
+        if(painter_fast_fillrect_impl(painter, left, top, right, bottom)){
             return;
         }
-    }
 #endif
         
         // Заливка.
@@ -448,11 +470,8 @@ void painter_draw_fillrect(painter_t* painter, graphics_pos_t left, graphics_pos
     if(painter->brush == PAINTER_BRUSH_NONE) return;
 
 #ifdef USE_GRAPHICS_VIRTUAL_BUFFER
-    if(painter->brush == PAINTER_BRUSH_SOLID){
-        if(graphics_fast_fillrect(painter_graphics(painter), left, top,
-                                  right, bottom, painter_brush_color(painter))){
-            return;
-        }
+    if(painter_fast_fillrect_impl(painter, left, top, right, bottom)){
+        return;
     }
 #endif
     

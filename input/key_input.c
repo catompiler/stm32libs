@@ -196,12 +196,20 @@ err_t key_input_set_layout_by_name(const char* name)
 
 err_t key_input_next_layout(void)
 {
+    if(input.layouts_count == 0) return E_INVALID_VALUE;
+    
     CYCLIC_INC(input.cur_layout, 0, input.layouts_count);
+    
+    return E_NO_ERROR;
 }
 
 err_t key_input_prev_layout(void)
 {
+    if(input.layouts_count == 0) return E_INVALID_VALUE;
+    
     CYCLIC_INC(input.cur_layout, 0, input.layouts_count);
+    
+    return E_NO_ERROR;
 }
 
 wchar_t key_input_key_to_char(key_t key)
@@ -238,7 +246,7 @@ wchar_t key_input_key_to_char(key_t key)
     return layout->map_normal[key];
 }
 
-key_input_on_pressed_callback_t key_input_on_pressed_callback()
+key_input_on_pressed_callback_t key_input_on_pressed_callback(void)
 {
     return input.on_pressed;
 }
@@ -248,7 +256,7 @@ void key_input_set_on_pressed_callback(key_input_on_pressed_callback_t callback)
     input.on_pressed = callback;
 }
 
-key_input_on_released_callback_t key_input_on_released_callback()
+key_input_on_released_callback_t key_input_on_released_callback(void)
 {
     return input.on_released;
 }

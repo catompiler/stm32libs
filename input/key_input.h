@@ -214,7 +214,7 @@ extern wchar_t key_input_key_to_char(key_t key);
  * Получает каллбэк нажатия клавиши.
  * @return Каллбэк нажатия клавиши.
  */
-extern key_input_on_pressed_callback_t key_input_on_pressed_callback();
+extern key_input_on_pressed_callback_t key_input_on_pressed_callback(void);
 
 /**
  * Устанавливает каллбэк нажатия клавиши.
@@ -226,7 +226,7 @@ extern void key_input_set_on_pressed_callback(key_input_on_pressed_callback_t ca
  * Получает каллбэк отпускания клавиши.
  * @return Каллбэк отпускания клавиши.
  */
-extern key_input_on_released_callback_t key_input_on_released_callback();
+extern key_input_on_released_callback_t key_input_on_released_callback(void);
 
 /**
  * Устанавливает каллбэк отпускания клавиши.

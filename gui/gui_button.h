@@ -94,14 +94,14 @@ extern void gui_button_on_repaint(gui_button_t* button, const rect_t* rect);
  * @param button Кнопка.
  * @param key Код клавиши.
  */
-extern void gui_button_on_key_press(gui_button_t* button, key_t key);
+extern void gui_button_on_key_press(gui_button_t* button, keycode_t key);
 
 /**
  * Обработчик отпускания клавиши.
  * @param button Кнопка.
  * @param key Код клавиши.
  */
-extern void gui_button_on_key_release(gui_button_t* button, key_t key);
+extern void gui_button_on_key_release(gui_button_t* button, keycode_t key);
 
 #endif	/* GUI_BUTTON_H */
 

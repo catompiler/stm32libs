@@ -1,7 +1,7 @@
 #include "gui_checkbox.h"
 #include "utils/utils.h"
 #include "graphics/painter.h"
-#include "keys.h"
+#include "input/keys.h"
 
 err_t gui_checkbox_init(gui_checkbox_t* checkbox, gui_t* gui)
 {
@@ -125,7 +125,7 @@ void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect)
     gui_widget_end_paint(GUI_WIDGET(checkbox), &painter);
 }
 
-void gui_checkbox_on_key_press(gui_checkbox_t* checkbox, key_t key)
+void gui_checkbox_on_key_press(gui_checkbox_t* checkbox, keycode_t key)
 {
     if(key == KEY_ENTER || key == KEY_SPACE){
         gui_checkbox_set_checked(checkbox, !gui_checkbox_checked(checkbox));

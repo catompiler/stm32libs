@@ -1,7 +1,7 @@
 #include "gui_button.h"
 #include "utils/utils.h"
 #include "graphics/painter.h"
-#include "keys.h"
+#include "input/keys.h"
 
 err_t gui_button_init(gui_button_t* button, gui_t* gui)
 {
@@ -80,7 +80,7 @@ void gui_button_on_repaint(gui_button_t* button, const rect_t* rect)
     gui_widget_end_paint(GUI_WIDGET(button), &painter);
 }
 
-void gui_button_on_key_press(gui_button_t* button, key_t key)
+void gui_button_on_key_press(gui_button_t* button, keycode_t key)
 {
     if(key == KEY_ENTER || key == KEY_SPACE){
         if(!button->pressing){
@@ -90,7 +90,7 @@ void gui_button_on_key_press(gui_button_t* button, key_t key)
     }
 }
 
-void gui_button_on_key_release(gui_button_t* button, key_t key)
+void gui_button_on_key_release(gui_button_t* button, keycode_t key)
 {
     if(key == KEY_ENTER || key == KEY_SPACE){
         if(button->pressing){

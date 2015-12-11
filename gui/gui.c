@@ -1,7 +1,7 @@
 #include "gui.h"
 #include "gui_widget.h"
 #include "graphics/rect.h"
-#include "key_input.h"
+#include "input/key_input.h"
 
 
 
@@ -177,7 +177,7 @@ void gui_repaint(gui_t* gui, rect_t* rect)
     gui_widget_repaint(gui->root_widget, rect);
 }
 
-void gui_key_pressed(gui_t* gui, key_t key)
+void gui_key_pressed(gui_t* gui, keycode_t key)
 {
     if(gui->focus_widget == NULL) return;
     
@@ -187,7 +187,7 @@ void gui_key_pressed(gui_t* gui, key_t key)
     gui_widget_key_event(gui->focus_widget, &event);
 }
 
-void gui_key_released(gui_t* gui, key_t key)
+void gui_key_released(gui_t* gui, keycode_t key)
 {
     if(gui->focus_widget == NULL) return;
     

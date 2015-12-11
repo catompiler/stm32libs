@@ -213,13 +213,13 @@ extern void gui_spinbox_on_repaint(gui_spinbox_t* spinbox, const rect_t* rect);
  * @param spinbox Спинбокс.
  * @param key Код клавиши.
  */
-extern void gui_spinbox_on_key_press(gui_spinbox_t* spinbox, key_t key);
+extern void gui_spinbox_on_key_press(gui_spinbox_t* spinbox, keycode_t key);
 
 /**
  * Обработчик отпускания клавиши.
  * @param spinbox Спинбокс.
  * @param key Код клавиши.
  */
-extern void gui_spinbox_on_key_release(gui_spinbox_t* spinbox, key_t key);
+extern void gui_spinbox_on_key_release(gui_spinbox_t* spinbox, keycode_t key);
 
 #endif	/* GUI_SPINBOX_H */

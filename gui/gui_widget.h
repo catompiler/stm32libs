@@ -61,13 +61,13 @@ struct _Gui_Widget {
      * @param widget Виджет.
      * @param key Код клавиши.
      */
-    void (*on_key_press)(gui_widget_t* widget, key_t key);
+    void (*on_key_press)(gui_widget_t* widget, keycode_t key);
     /**
      * Обработчик отпускания клавиши.
      * @param widget Виджет.
      * @param key Код клавиши.
      */
-    void (*on_key_release)(gui_widget_t* widget, key_t key);
+    void (*on_key_release)(gui_widget_t* widget, keycode_t key);
 };
 
 //! Приводит указатель widget к типу виджета.
@@ -80,10 +80,10 @@ struct _Gui_Widget {
 #define GUI_WIDGET_ON_RERIZE_PROC(proc) ((void (*)(gui_widget_t*, graphics_size_t, graphics_size_t))proc)
 
 //! Приводит указатель на фонкцию proc к типу обработчика нажатия клавиши.
-#define GUI_WIDGET_ON_KEY_PRESS_PROC(proc) ((void (*)(gui_widget_t*, key_t))proc)
+#define GUI_WIDGET_ON_KEY_PRESS_PROC(proc) ((void (*)(gui_widget_t*, keycode_t))proc)
 
 //! Приводит указатель на фонкцию proc к типу обработчика отпускания клавиши.
-#define GUI_WIDGET_ON_KEY_RELEASE_PROC(proc) ((void (*)(gui_widget_t*, key_t))proc)
+#define GUI_WIDGET_ON_KEY_RELEASE_PROC(proc) ((void (*)(gui_widget_t*, keycode_t))proc)
 
 /**
  * Обработчик события изменения размера.
@@ -432,14 +432,14 @@ extern void gui_widget_on_repaint(gui_widget_t* widget, const rect_t* rect);
  * @param widget Виджет.
  * @param key Код клавиши.
  */
-extern void gui_widget_on_key_press(gui_widget_t* widget, key_t key);
+extern void gui_widget_on_key_press(gui_widget_t* widget, keycode_t key);
 
 /**
  * Обработчик отпускания клавиши.
  * @param widget Виджет.
  * @param key Код клавиши.
  */
-extern void gui_widget_on_key_release(gui_widget_t* widget, key_t key);
+extern void gui_widget_on_key_release(gui_widget_t* widget, keycode_t key);
 
 /**
  * Получает графический интерфейс виджета.

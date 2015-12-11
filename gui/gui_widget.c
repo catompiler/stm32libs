@@ -354,11 +354,11 @@ void gui_widget_on_repaint(gui_widget_t* widget, const rect_t* rect)
     gui_widget_end_paint(widget, &painter);
 }
 
-void gui_widget_on_key_press(gui_widget_t* widget, key_t key)
+void gui_widget_on_key_press(gui_widget_t* widget, keycode_t key)
 {
 }
 
-void gui_widget_on_key_release(gui_widget_t* widget, key_t key)
+void gui_widget_on_key_release(gui_widget_t* widget, keycode_t key)
 {
 }
 

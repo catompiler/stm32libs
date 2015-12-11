@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include "utils/utils.h"
 #include "graphics/painter.h"
-#include "painter.h"
-#include "keys.h"
+#include "input/keys.h"
 #include <limits.h>
 
 
@@ -202,7 +201,7 @@ void gui_spinbox_on_repaint(gui_spinbox_t* spinbox, const rect_t* rect)
     gui_widget_end_paint(GUI_WIDGET(spinbox), &painter);
 }
 
-void gui_spinbox_on_key_press(gui_spinbox_t* spinbox, key_t key)
+void gui_spinbox_on_key_press(gui_spinbox_t* spinbox, keycode_t key)
 {
     if(key == KEY_UP){
         spinbox->incrementing = true;
@@ -213,7 +212,7 @@ void gui_spinbox_on_key_press(gui_spinbox_t* spinbox, key_t key)
     }
 }
 
-void gui_spinbox_on_key_release(gui_spinbox_t* spinbox, key_t key)
+void gui_spinbox_on_key_release(gui_spinbox_t* spinbox, keycode_t key)
 {
     if(key == KEY_UP){
         spinbox->incrementing = false;

@@ -195,14 +195,14 @@ extern void gui_repaint(gui_t* gui, rect_t* rect);
  * @param gui Графический интерфейс.
  * @param key Код клавиши.
  */
-extern void gui_key_pressed(gui_t* gui, key_t key);
+extern void gui_key_pressed(gui_t* gui, keycode_t key);
 
 /**
  * Обрабатывает отпускание клавиши.
  * @param gui Графический интерфейс.
  * @param key Код клавиши.
  */
-extern void gui_key_released(gui_t* gui, key_t key);
+extern void gui_key_released(gui_t* gui, keycode_t key);
 
 #endif	/* GUI_H */
 

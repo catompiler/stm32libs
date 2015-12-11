@@ -133,7 +133,7 @@ extern void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect
  * @param checkbox Флажок.
  * @param key Код клавиши.
  */
-extern void gui_checkbox_on_key_press(gui_checkbox_t* checkbox, key_t key);
+extern void gui_checkbox_on_key_press(gui_checkbox_t* checkbox, keycode_t key);
 
 #endif	/* GUI_CHECKBOX_H */
 

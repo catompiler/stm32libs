@@ -41,7 +41,7 @@ typedef struct _Gui_Repaint_Event {
 //! Структура события клавиатуры.
 typedef struct _Gui_Key_Event {
     gui_event_t super; //!< Суперкласс.
-    key_t key; //!< Код клавиши.
+    keycode_t key; //!< Код клавиши.
 } gui_key_event_t;
 
 //! Приводит указатель event к типу события.
@@ -135,13 +135,13 @@ ALWAYS_INLINE static void gui_repaint_event_init_rect(gui_repaint_event_t* event
     rect_set_bottom(&event->rect, rect_bottom(rect));
 }
 
-ALWAYS_INLINE static void gui_key_press_event_init(gui_key_event_t* event, key_t key)
+ALWAYS_INLINE static void gui_key_press_event_init(gui_key_event_t* event, keycode_t key)
 {
     gui_event_init(GUI_EVENT(event), GUI_EVENT_TYPE_KEY_PRESS);
     event->key = key;
 }
 
-ALWAYS_INLINE static void gui_key_release_event_init(gui_key_event_t* event, key_t key)
+ALWAYS_INLINE static void gui_key_release_event_init(gui_key_event_t* event, keycode_t key)
 {
     gui_event_init(GUI_EVENT(event), GUI_EVENT_TYPE_KEY_RELEASE);
     event->key = key;

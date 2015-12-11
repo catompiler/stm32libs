@@ -1,8 +1,7 @@
 #include "gui_radiobutton.h"
 #include "utils/utils.h"
 #include "graphics/painter.h"
-#include "keys.h"
-#include "painter.h"
+#include "input/keys.h"
 
 err_t gui_radiobutton_init(gui_radiobutton_t* radiobutton, gui_t* gui)
 {
@@ -124,7 +123,7 @@ void gui_radiobutton_on_repaint(gui_radiobutton_t* radiobutton, const rect_t* re
     gui_widget_end_paint(GUI_WIDGET(radiobutton), &painter);
 }
 
-void gui_radiobutton_on_key_press(gui_radiobutton_t* radiobutton, key_t key)
+void gui_radiobutton_on_key_press(gui_radiobutton_t* radiobutton, keycode_t key)
 {
     if(key == KEY_ENTER || key == KEY_SPACE){
         gui_radiobutton_set_checked(radiobutton, true);

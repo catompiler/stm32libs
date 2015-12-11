@@ -133,7 +133,7 @@ extern void gui_radiobutton_on_repaint(gui_radiobutton_t* radiobutton, const rec
  * @param radiobutton Переключатель.
  * @param key Код клавиши.
  */
-extern void gui_radiobutton_on_key_press(gui_radiobutton_t* radiobutton, key_t key);
+extern void gui_radiobutton_on_key_press(gui_radiobutton_t* radiobutton, keycode_t key);
 
 #endif	/* GUI_RADIOBUTTON_H */
 

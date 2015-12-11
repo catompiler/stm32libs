@@ -38,10 +38,10 @@ typedef uint8_t keymods_t;
 typedef uint16_t keysym_t;
 
 //! Тип каллбэка нажатия клавиши.
-typedef void (*key_input_on_pressed_callback_t)(key_t key);
+typedef void (*key_input_on_pressed_callback_t)(keycode_t key);
 
 //! Тип каллбэка отпускания клавиши.
-typedef void (*key_input_on_released_callback_t)(key_t key);
+typedef void (*key_input_on_released_callback_t)(keycode_t key);
 
 //! Тип состояния клавиши.
 typedef enum _KeyState {
@@ -74,21 +74,21 @@ extern err_t key_input_init(void);
  * @param key Код клавиши.
  * @return Код ошибки.
  */
-extern err_t key_input_pressed(key_t key);
+extern err_t key_input_pressed(keycode_t key);
 
 /**
  * Обработчик отпускания клавиши.
  * @param key Код клавиши.
  * @return Код ошибки.
  */
-extern err_t key_input_released(key_t key);
+extern err_t key_input_released(keycode_t key);
 
 /**
  * Получает состояние клавиши.
  * @param key Код клавиши.
  * @return Состояние клавиши.
  */
-extern key_state_t key_input_key_state(key_t key);
+extern key_state_t key_input_key_state(keycode_t key);
 
 /**
  * Получает состояние модификатора.
@@ -208,7 +208,7 @@ extern err_t key_input_prev_layout(void);
  * @param key Код клавиши.
  * @return Символ, 0 при ошибке.
  */
-extern wchar_t key_input_key_to_char(key_t key);
+extern wchar_t key_input_key_to_char(keycode_t key);
 
 /**
  * Получает каллбэк нажатия клавиши.

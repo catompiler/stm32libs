@@ -40,7 +40,7 @@ err_t key_input_init(void)
     return E_NO_ERROR;
 }
 
-err_t key_input_pressed(key_t key)
+err_t key_input_pressed(keycode_t key)
 {
     if(key > KEY_MAX) return E_INVALID_VALUE;
     
@@ -74,7 +74,7 @@ err_t key_input_pressed(key_t key)
     return E_NO_ERROR;
 }
 
-err_t key_input_released(key_t key)
+err_t key_input_released(keycode_t key)
 {
     if(key > KEY_MAX) return E_INVALID_VALUE;
     
@@ -108,7 +108,7 @@ err_t key_input_released(key_t key)
     return E_NO_ERROR;
 }
 
-key_state_t key_input_key_state(key_t key)
+key_state_t key_input_key_state(keycode_t key)
 {
     if(key > KEY_MAX) return KEY_RELEASED;
     return bits_value(input.keys_bitmap, key);
@@ -212,7 +212,7 @@ err_t key_input_prev_layout(void)
     return E_NO_ERROR;
 }
 
-wchar_t key_input_key_to_char(key_t key)
+wchar_t key_input_key_to_char(keycode_t key)
 {
     if(key >= KEY_MAX) return 0;
     

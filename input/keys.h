@@ -145,7 +145,7 @@ typedef char charcode_t;
 #define CHARCODE_TILDE          0x7e // 126 - '~'
 #define CHARCODE_DEL            0x7f // 127 - '\x7f'
 
-typedef uint8_t key_t;
+typedef uint8_t keycode_t;
 
 //! Максимальное значение кода клавиши.
 #define KEY_MAX 0x9b

@@ -11,6 +11,7 @@ err_t gui_label_init_parent(gui_label_t* label, gui_t* gui, gui_widget_t* parent
 {
     RETURN_ERR_IF_FAIL(gui_widget_init_parent(GUI_WIDGET(label), gui, parent));
     
+    GUI_WIDGET(label)->type_id = GUI_LABEL_TYPE_ID;
     GUI_WIDGET(label)->on_repaint = GUI_WIDGET_ON_REPAINT_PROC(gui_label_on_repaint);
     
     return E_NO_ERROR;
@@ -24,9 +25,9 @@ void gui_label_set_text(gui_label_t* label, const char* text)
 
 void gui_label_on_repaint(gui_label_t* label, const rect_t* rect)
 {
-    if(label->text == NULL) return;
-    
     gui_widget_on_repaint(GUI_WIDGET(label), rect);
+    
+    if(label->text == NULL) return;
     
     gui_theme_t* theme = gui_theme(gui_object_gui(GUI_OBJECT(label)));
     

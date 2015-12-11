@@ -10,13 +10,18 @@
 #include "errors/errors.h"
 #include "defs/defs.h"
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct _Gui_Checkbox gui_checkbox_t;
+
+//! Зеначение идентификатора типа флажка.
+#define GUI_CHECKBOX_TYPE_ID 3
 
 struct _Gui_Checkbox {
     gui_widget_t super; //!< Суперкласс.
     const char* text; //!< Текст флажка.
     bool checked; //!< Флаг.
+    size_t check_size; //!< Размер флажка.
     void (*on_toggled)(gui_checkbox_t* checkbox, bool checked); //!< Каллбэк при изменении флага.
 };
 
@@ -24,6 +29,9 @@ typedef void (*gui_checkbox_on_toggled_t)(gui_checkbox_t*, bool);
 
 //! Приводит указатель checkbox к типу флажка.
 #define GUI_CHECKBOX(checkbox) ((gui_checkbox_t*)(checkbox))
+
+// Размер флажка по-умолчанию,
+#define GUI_CHECKBOX_DEFAULT_CHECK_SIZE 12
 
 /**
  * Инициализирует флажок.
@@ -97,11 +105,35 @@ ALWAYS_INLINE static void gui_checkbox_set_on_toggled(gui_checkbox_t* checkbox, 
 }
 
 /**
+ * Получает размер флажка.
+ * @param checkbox Флажок.
+ * @return Размер флажка.
+ */
+ALWAYS_INLINE static size_t gui_checkbox_check_size(gui_checkbox_t* checkbox)
+{
+    return checkbox->check_size;
+}
+
+/**
+ * Устанавливает размер флажка.
+ * @param checkbox Флажок.
+ * @param size Размер флажка.
+ */
+extern void gui_checkbox_set_check_size(gui_checkbox_t* checkbox, size_t size);
+
+/**
  * Обработчик перерисовки.
  * @param checkbox Флажок.
  * @param rect Область перерисовки.
  */
 extern void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect);
+
+/**
+ * Обработчик нажатия клавиши.
+ * @param checkbox Флажок.
+ * @param key Код клавиши.
+ */
+extern void gui_checkbox_on_key_press(gui_checkbox_t* checkbox, key_t key);
 
 #endif	/* GUI_CHECKBOX_H */
 

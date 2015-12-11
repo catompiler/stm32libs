@@ -8,6 +8,8 @@
 #include "defs/defs.h"
 #include "graphics/graphics.h"
 #include "graphics/font.h"
+#include "graphics/rect.h"
+#include "input/key_input.h"
 
 //! Тип границы виджета.
 typedef enum _Gui_Border {
@@ -24,6 +26,7 @@ typedef struct _Gui_Theme {
     graphics_color_t border_color; //!< Цвет границы.
     graphics_color_t font_color; //!< Цвет шрифта.
     graphics_color_t focus_color; //!< Цвет границы в фокусе.
+    graphics_color_t pressed_color; //!< Цвет нажатого виджета.
     const font_t* widget_font; //!< Шрифт виджета.
     const font_t* menu_font; //!< Шрифт меню.
 } gui_theme_t;
@@ -31,11 +34,12 @@ typedef struct _Gui_Theme {
 #define MAKE_GUI_THEME(arg_back_color, arg_front_color,\
                        arg_panel_color, arg_widget_color,\
                        arg_border_color, arg_font_color,\
-                       arg_focus_color, arg_widget_font, arg_menu_font)\
+                       arg_focus_color, arg_pressed_color,\
+                       arg_widget_font, arg_menu_font)\
         { .back_color = arg_back_color, .front_color = arg_front_color,\
           .panel_color = arg_panel_color, .widget_color = arg_widget_color,\
           .border_color = arg_border_color, .font_color = arg_font_color,\
-          .focus_color = arg_focus_color,\
+          .focus_color = arg_focus_color, .pressed_color = arg_pressed_color,\
           .widget_font = arg_widget_font, .menu_font = arg_menu_font }
 
 #ifndef GUI_WIDGET_TYPE_DEFINED
@@ -178,6 +182,27 @@ extern bool gui_focus_prev_widget(gui_t* gui);
  * @return Виджет по заданным координатам.
  */
 extern gui_widget_t* gui_widget_from_point(gui_t* gui, graphics_pos_t x, graphics_pos_t y);
+
+/**
+ * Перерисовывает графический интерфейс.
+ * @param gui Графический интерфейс.
+ * @param rect Область перерисовки, может быть NULL.
+ */
+extern void gui_repaint(gui_t* gui, rect_t* rect);
+
+/**
+ * Обрабатывает нажатие клавиши.
+ * @param gui Графический интерфейс.
+ * @param key Код клавиши.
+ */
+extern void gui_key_pressed(gui_t* gui, key_t key);
+
+/**
+ * Обрабатывает отпускание клавиши.
+ * @param gui Графический интерфейс.
+ * @param key Код клавиши.
+ */
+extern void gui_key_released(gui_t* gui, key_t key);
 
 #endif	/* GUI_H */
 

@@ -12,6 +12,7 @@ err_t gui_number_label_init_parent(gui_number_label_t* label, gui_t* gui, gui_wi
 {
     RETURN_ERR_IF_FAIL(gui_widget_init_parent(GUI_WIDGET(label), gui, parent));
     
+    GUI_WIDGET(label)->type_id = GUI_NUMBER_LABEL_TYPE_ID;
     GUI_WIDGET(label)->on_repaint = GUI_WIDGET_ON_REPAINT_PROC(gui_number_label_on_repaint);
     label->number = 0;
     

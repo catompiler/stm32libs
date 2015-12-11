@@ -18,6 +18,9 @@ typedef enum _Gui_Number_Label_Format {
 
 typedef struct _Gui_Number_Label gui_number_label_t;
 
+//! Зеначение идентификатора типа числовой метки.
+#define GUI_NUMBER_LABEL_TYPE_ID 2
+
 struct _Gui_Number_Label {
     gui_widget_t super; //!< Суперкласс.
     int number; //!< Отображаемое число.

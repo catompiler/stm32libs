@@ -27,10 +27,17 @@ typedef struct _Gui_Widget gui_widget_t;
 //! Тип идентификатора виджета.
 typedef int widget_id_t;
 
+//! Тип идентификатора типа виджета.
+typedef int widget_type_id_t;
+
+//! Зеначение идентификатора типа виджета.
+#define GUI_WIDGET_TYPE_ID 0
+
 //! Структура виджета графического интерфейса.
 struct _Gui_Widget {
     gui_object_t super; //!< Суперкласс.
     widget_id_t id; //!< Идентификатор виджета.
+    widget_type_id_t type_id; //!< Идентификатор типа виджета.
     bool visible; //!< Флаг видимости.
     bool focusable; //!< Флаг фокусируемости.
     rect_t rect; //!< Прямоугольная область окна.
@@ -49,6 +56,18 @@ struct _Gui_Widget {
      * @param rect Область перерисовки, может быть NULL.
      */
     void (*on_repaint)(gui_widget_t* widget, const rect_t* rect);
+    /**
+     * Обработчик нажатия клавиши.
+     * @param widget Виджет.
+     * @param key Код клавиши.
+     */
+    void (*on_key_press)(gui_widget_t* widget, key_t key);
+    /**
+     * Обработчик отпускания клавиши.
+     * @param widget Виджет.
+     * @param key Код клавиши.
+     */
+    void (*on_key_release)(gui_widget_t* widget, key_t key);
 };
 
 //! Приводит указатель widget к типу виджета.
@@ -59,6 +78,12 @@ struct _Gui_Widget {
 
 //! Приводит указатель на фонкцию proc к типу обработчика изменения размера виджета.
 #define GUI_WIDGET_ON_RERIZE_PROC(proc) ((void (*)(gui_widget_t*, graphics_size_t, graphics_size_t))proc)
+
+//! Приводит указатель на фонкцию proc к типу обработчика нажатия клавиши.
+#define GUI_WIDGET_ON_KEY_PRESS_PROC(proc) ((void (*)(gui_widget_t*, key_t))proc)
+
+//! Приводит указатель на фонкцию proc к типу обработчика отпускания клавиши.
+#define GUI_WIDGET_ON_KEY_RELEASE_PROC(proc) ((void (*)(gui_widget_t*, key_t))proc)
 
 /**
  * Обработчик события изменения размера.
@@ -73,6 +98,13 @@ extern void gui_widget_resize_event(gui_widget_t* widget, gui_resize_event_t* ev
  * @param event Событие перерисовки.
  */
 extern void gui_widget_repaint_event(gui_widget_t* widget, gui_repaint_event_t* event);
+
+/**
+ * Обработчик события клавиатуры.
+ * @param widget Виджет.
+ * @param event Событие клавиатуры.
+ */
+extern void gui_widget_key_event(gui_widget_t* widget, gui_key_event_t* event);
 
 /**
  * Инициализирует виджет.
@@ -109,6 +141,16 @@ ALWAYS_INLINE static widget_id_t gui_widget_id(gui_widget_t* widget)
 ALWAYS_INLINE static void gui_widget_set_id(gui_widget_t* widget, widget_id_t id)
 {
     widget->id = id;
+}
+
+/**
+ * Получает идентификатор типа виджета.
+ * @param widget Виджет.
+ * @return Идентификатор типа виджета.
+ */
+ALWAYS_INLINE static widget_type_id_t gui_widget_type_id(gui_widget_t* widget)
+{
+    return widget->type_id;
 }
 
 /**
@@ -384,6 +426,20 @@ extern void gui_widget_on_resize(gui_widget_t* widget, graphics_size_t width, gr
  * @param rect Область перерисовки.
  */
 extern void gui_widget_on_repaint(gui_widget_t* widget, const rect_t* rect);
+
+/**
+ * Обработчик нажатия клавиши.
+ * @param widget Виджет.
+ * @param key Код клавиши.
+ */
+extern void gui_widget_on_key_press(gui_widget_t* widget, key_t key);
+
+/**
+ * Обработчик отпускания клавиши.
+ * @param widget Виджет.
+ * @param key Код клавиши.
+ */
+extern void gui_widget_on_key_release(gui_widget_t* widget, key_t key);
 
 /**
  * Получает графический интерфейс виджета.

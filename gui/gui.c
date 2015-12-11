@@ -1,6 +1,7 @@
 #include "gui.h"
 #include "gui_widget.h"
 #include "graphics/rect.h"
+#include "key_input.h"
 
 
 
@@ -167,4 +168,31 @@ gui_widget_t* gui_widget_from_point(gui_t* gui, graphics_pos_t x, graphics_pos_t
     }
     
     return widget;
+}
+
+void gui_repaint(gui_t* gui, rect_t* rect)
+{
+    if(gui->root_widget == NULL) return;
+    
+    gui_widget_repaint(gui->root_widget, rect);
+}
+
+void gui_key_pressed(gui_t* gui, key_t key)
+{
+    if(gui->focus_widget == NULL) return;
+    
+    gui_key_event_t event;
+    gui_key_press_event_init(&event, key);
+    
+    gui_widget_key_event(gui->focus_widget, &event);
+}
+
+void gui_key_released(gui_t* gui, key_t key)
+{
+    if(gui->focus_widget == NULL) return;
+    
+    gui_key_event_t event;
+    gui_key_release_event_init(&event, key);
+    
+    gui_widget_key_event(gui->focus_widget, &event);
 }

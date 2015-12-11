@@ -32,6 +32,17 @@ void gui_widget_repaint_event(gui_widget_t* widget, gui_repaint_event_t* event)
     list_foreach2_second(&GUI_OBJECT(widget)->childs, gui_wdiget_foreach_childs_repaint, event);
 }
 
+void gui_widget_key_event(gui_widget_t* widget, gui_key_event_t* event)
+{
+    if(event == NULL) return;
+    
+    if(GUI_EVENT(event)->type == GUI_EVENT_TYPE_KEY_PRESS){
+        if(widget->on_key_press) widget->on_key_press(widget, event->key);
+    }else{
+        if(widget->on_key_release) widget->on_key_release(widget, event->key);
+    }
+}
+
 err_t gui_widget_init(gui_widget_t* widget, gui_t* gui)
 {
     return gui_widget_init_parent(widget, gui, NULL);
@@ -42,6 +53,7 @@ err_t gui_widget_init_parent(gui_widget_t* widget, gui_t* gui, gui_widget_t* par
     RETURN_ERR_IF_FAIL(gui_object_init_parent(GUI_OBJECT(widget), gui, GUI_OBJECT(parent)));
     
     widget->id = next_widget_id ++;
+    widget->type_id = GUI_WIDGET_TYPE_ID;
     widget->visible = false;
     widget->focusable = false;
     rect_init(&widget->rect);
@@ -49,6 +61,8 @@ err_t gui_widget_init_parent(gui_widget_t* widget, gui_t* gui, gui_widget_t* par
     widget->back_color = gui_theme(gui_object_gui(GUI_OBJECT(widget)))->panel_color;
     widget->on_resize = gui_widget_on_resize;
     widget->on_repaint = gui_widget_on_repaint;
+    widget->on_key_press = gui_widget_on_key_press;
+    widget->on_key_release = gui_widget_on_key_release;
     
     return E_NO_ERROR;
 }
@@ -338,6 +352,14 @@ void gui_widget_on_repaint(gui_widget_t* widget, const rect_t* rect)
     }
     
     gui_widget_end_paint(widget, &painter);
+}
+
+void gui_widget_on_key_press(gui_widget_t* widget, key_t key)
+{
+}
+
+void gui_widget_on_key_release(gui_widget_t* widget, key_t key)
+{
 }
 
 err_t gui_widget_begin_paint(gui_widget_t* widget, painter_t* painter, const rect_t* rect)

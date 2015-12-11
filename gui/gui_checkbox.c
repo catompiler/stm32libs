@@ -1,6 +1,7 @@
 #include "gui_checkbox.h"
 #include "utils/utils.h"
 #include "graphics/painter.h"
+#include "keys.h"
 
 err_t gui_checkbox_init(gui_checkbox_t* checkbox, gui_t* gui)
 {
@@ -11,10 +12,13 @@ err_t gui_checkbox_init_parent(gui_checkbox_t* checkbox, gui_t* gui, gui_widget_
 {
     RETURN_ERR_IF_FAIL(gui_widget_init_parent(GUI_WIDGET(checkbox), gui, parent));
     
+    GUI_WIDGET(checkbox)->type_id = GUI_CHECKBOX_TYPE_ID;
     GUI_WIDGET(checkbox)->on_repaint = GUI_WIDGET_ON_REPAINT_PROC(gui_checkbox_on_repaint);
+    GUI_WIDGET(checkbox)->on_key_press = GUI_WIDGET_ON_KEY_PRESS_PROC(gui_checkbox_on_key_press);
     GUI_WIDGET(checkbox)->focusable = true;
     checkbox->text = NULL;
     checkbox->checked = false;
+    checkbox->check_size = GUI_CHECKBOX_DEFAULT_CHECK_SIZE;
     checkbox->on_toggled = NULL;
     
     return E_NO_ERROR;
@@ -28,10 +32,19 @@ void gui_checkbox_set_text(gui_checkbox_t* checkbox, const char* text)
 
 void gui_checkbox_set_checked(gui_checkbox_t* checkbox, bool checked)
 {
+    if(checkbox->checked == checked) return;
+    
     checkbox->checked = checked;
     
     if(checkbox->on_toggled) checkbox->on_toggled(checkbox, checked);
     
+    gui_widget_repaint(GUI_WIDGET(checkbox), NULL);
+}
+
+void gui_checkbox_set_check_size(gui_checkbox_t* checkbox, size_t size)
+{
+    if(checkbox->check_size == size) return;
+    checkbox->check_size = size;
     gui_widget_repaint(GUI_WIDGET(checkbox), NULL);
 }
 
@@ -45,9 +58,7 @@ void gui_checkbox_set_checked(gui_checkbox_t* checkbox, bool checked)
 #define CHECKBOX_CHECK CHECKBOX_CHECK_V
 #endif
 // Размеры флажка,
-#define CHECKBOX_SIZE 10
 #define CHECKBOX_LEFT 1
-#define TEXT_LEFT (CHECKBOX_SIZE + (CHECKBOX_SIZE) / 2 + CHECKBOX_LEFT)
 #define CHECKBOX_BOX_DELTA 2
 
 void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect)
@@ -62,11 +73,11 @@ void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect)
     
     //graphics_pos_t widget_width = (graphics_pos_t)gui_widget_width(GUI_WIDGET(checkbox));
     graphics_pos_t widget_height = (graphics_pos_t)gui_widget_height(GUI_WIDGET(checkbox));
-    
+
     graphics_pos_t check_left = 1;
-    graphics_pos_t check_top = (widget_height - CHECKBOX_SIZE) / 2;
-    graphics_pos_t check_right = check_left + CHECKBOX_SIZE - 1;
-    graphics_pos_t check_bottom = check_top + CHECKBOX_SIZE - 1;
+    graphics_pos_t check_top = (widget_height - checkbox->check_size) / 2;
+    graphics_pos_t check_right = check_left + checkbox->check_size - 1;
+    graphics_pos_t check_bottom = check_top + checkbox->check_size - 1;
     
     painter_set_pen(&painter, PAINTER_PEN_SOLID);
     painter_set_brush(&painter, PAINTER_BRUSH_SOLID);
@@ -83,8 +94,8 @@ void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect)
         painter_draw_line(&painter, check_left, check_top, check_right, check_bottom);
         painter_draw_line(&painter, check_left, check_bottom, check_right, check_top);
 #elif CHECKBOX_CHECK == CHECKBOX_CHECK_V  
-        graphics_pos_t check_left_half = check_left + (CHECKBOX_SIZE / 2);// - CHECKBOX_BOX_DELTA;
-        graphics_pos_t check_top_half = check_top + (CHECKBOX_SIZE / 2);// - CHECKBOX_BOX_DELTA;
+        graphics_pos_t check_left_half = check_left + (checkbox->check_size / 2);// - CHECKBOX_BOX_DELTA;
+        graphics_pos_t check_top_half = check_top + (checkbox->check_size / 2);// - CHECKBOX_BOX_DELTA;
         
         check_left += CHECKBOX_BOX_DELTA; check_top += CHECKBOX_BOX_DELTA;
         check_right -= CHECKBOX_BOX_DELTA; check_bottom -= CHECKBOX_BOX_DELTA;
@@ -105,7 +116,7 @@ void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect)
         graphics_pos_t text_x, text_y;
         painter_string_size(&painter, checkbox->text, (graphics_size_t*)&text_x, (graphics_size_t*)&text_y);
 
-        text_x = TEXT_LEFT;// + (widget_width - text_x) / 2;
+        text_x = (checkbox->check_size + (checkbox->check_size) / 2 + CHECKBOX_LEFT);
         text_y = (widget_height - text_y) / 2;
 
         painter_draw_string(&painter, text_x, text_y, checkbox->text);
@@ -114,4 +125,9 @@ void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect)
     gui_widget_end_paint(GUI_WIDGET(checkbox), &painter);
 }
 
-
+void gui_checkbox_on_key_press(gui_checkbox_t* checkbox, key_t key)
+{
+    if(key == KEY_ENTER || key == KEY_SPACE){
+        gui_checkbox_set_checked(checkbox, !gui_checkbox_checked(checkbox));
+    }
+}

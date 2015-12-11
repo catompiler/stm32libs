@@ -12,6 +12,9 @@
 
 typedef struct _Gui_Label gui_label_t;
 
+//! Зеначение идентификатора типа метки.
+#define GUI_LABEL_TYPE_ID 1
+
 struct _Gui_Label {
     gui_widget_t super; //!< Суперкласс.
     const char* text; //!< Отображаемый текст.

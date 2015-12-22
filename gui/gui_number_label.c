@@ -21,6 +21,7 @@ err_t gui_number_label_init_parent(gui_number_label_t* label, gui_t* gui, gui_wi
 
 void gui_number_label_set_number(gui_number_label_t* label, int number)
 {
+    if(label->number == number) return;
     label->number = number;
     gui_widget_repaint(GUI_WIDGET(label), NULL);
 }

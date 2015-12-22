@@ -77,7 +77,7 @@ struct _Gui_Widget {
 #define GUI_WIDGET_ON_REPAINT_PROC(proc) ((void (*)(gui_widget_t*, const rect_t*))proc)
 
 //! Приводит указатель на фонкцию proc к типу обработчика изменения размера виджета.
-#define GUI_WIDGET_ON_RERIZE_PROC(proc) ((void (*)(gui_widget_t*, graphics_size_t, graphics_size_t))proc)
+#define GUI_WIDGET_ON_RESIZE_PROC(proc) ((void (*)(gui_widget_t*, graphics_size_t, graphics_size_t))proc)
 
 //! Приводит указатель на фонкцию proc к типу обработчика нажатия клавиши.
 #define GUI_WIDGET_ON_KEY_PRESS_PROC(proc) ((void (*)(gui_widget_t*, keycode_t))proc)

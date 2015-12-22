@@ -75,6 +75,7 @@ void gui_widget_set_border(gui_widget_t* widget, gui_border_t border)
 
 void gui_widget_set_back_color(gui_widget_t* widget, graphics_color_t back_color)
 {
+    if(widget->back_color == back_color) return;
     widget->back_color = back_color;
     gui_widget_repaint(widget, NULL);
 }

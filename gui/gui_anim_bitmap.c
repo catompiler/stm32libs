@@ -1,8 +1,7 @@
 #include "gui_anim_bitmap.h"
 #include "utils/utils.h"
 #include "graphics/painter.h"
-#include "graphics.h"
-#include "painter.h"
+#include "graphics/graphics.h"
 #include <string.h>
 
 #define GUI_ANIM_BITMAP_OFF 0
@@ -24,7 +23,7 @@ err_t gui_anim_bitmap_init_parent(gui_anim_bitmap_t* anim_bitmap, gui_t* gui, gu
     GUI_WIDGET(anim_bitmap)->on_repaint = GUI_WIDGET_ON_REPAINT_PROC(gui_anim_bitmap_on_repaint);
     GUI_WIDGET(anim_bitmap)->on_resize = GUI_WIDGET_ON_RESIZE_PROC(gui_anim_bitmap_on_resize);
     GUI_WIDGET(anim_bitmap)->back_color = theme->back_color;
-    GUI_WIDGET(anim_bitmap)->focusable = true;
+    GUI_WIDGET(anim_bitmap)->focusable = false;
     anim_bitmap->front_color = theme->front_color;
     anim_bitmap->margin = 0;
     anim_bitmap->bitmap = NULL;
@@ -153,18 +152,21 @@ static gui_anim_bitmap_item_t* gui_anim_get_free_item(gui_anim_bitmap_t* anim_bi
 static bool anim_bitmap_cur_is_on(gui_anim_bitmap_t* anim_bitmap,
                 graphics_pos_t x, graphics_pos_t y)
 {
+    if(anim_bitmap->bitmap == NULL) return false;
     return graphics_get_pixel(anim_bitmap->bitmap, x, y) != 0;
 }
 
 /*static bool anim_bitmap_new_is_on(gui_anim_bitmap_t* anim_bitmap,
                 graphics_pos_t x, graphics_pos_t y)
 {
+    if(anim_bitmap->target_bitmap == NULL) return false;
     return graphics_get_pixel(anim_bitmap->target_bitmap, x, y) != 0;
 }*/
 
 static bool anim_bitmap_is_changed_to_on(gui_anim_bitmap_t* anim_bitmap,
                 graphics_pos_t x, graphics_pos_t y)
 {
+    if(anim_bitmap->bitmap == NULL || anim_bitmap->target_bitmap == NULL) return false;
     return (graphics_get_pixel(anim_bitmap->bitmap, x, y) == 0) &&
            (graphics_get_pixel(anim_bitmap->target_bitmap, x, y) != 0);
 }
@@ -172,6 +174,7 @@ static bool anim_bitmap_is_changed_to_on(gui_anim_bitmap_t* anim_bitmap,
 static bool anim_bitmap_is_changed_to_off(gui_anim_bitmap_t* anim_bitmap,
                 graphics_pos_t x, graphics_pos_t y)
 {
+    if(anim_bitmap->bitmap == NULL || anim_bitmap->target_bitmap == NULL) return false;
     return (graphics_get_pixel(anim_bitmap->bitmap, x, y) != 0) &&
            (graphics_get_pixel(anim_bitmap->target_bitmap, x, y) == 0);
 }
@@ -199,7 +202,7 @@ static bool gui_anim_item_get_nearest_pos(gui_anim_bitmap_t* anim_bitmap,
     
     graphics_pos_t x, y;
     graphics_pos_t dx, dy;
-    graphics_pos_t min_x, min_y;
+    graphics_pos_t min_x = 0, min_y = 0;
     graphics_pos_t x_from, x_to, y_from, y_to;
     graphics_pos_t bitmap_right = graphics_width(anim_bitmap->bitmap) - 1;
     graphics_pos_t bitmap_bottom = graphics_height(anim_bitmap->bitmap) - 1;
@@ -325,12 +328,12 @@ ALWAYS_INLINE static void gui_anim_bitmap_bit_off(gui_anim_bitmap_t* anim_bitmap
     graphics_set_pixel(anim_bitmap->bitmap, x, y, GUI_ANIM_BITMAP_OFF);
 }
 
-ALWAYS_INLINE static void gui_anim_bitamp_item_on(gui_anim_bitmap_t* anim_bitmap, gui_anim_bitmap_item_t* anim_item)
+ALWAYS_INLINE static void gui_anim_bitmap_item_on(gui_anim_bitmap_t* anim_bitmap, gui_anim_bitmap_item_t* anim_item)
 {
     gui_anim_bitmap_bit_on(anim_bitmap, anim_item->dst_bitmap_pos.x, anim_item->dst_bitmap_pos.y);
 }
 
-ALWAYS_INLINE static void gui_anim_bitamp_item_off(gui_anim_bitmap_t* anim_bitmap, gui_anim_bitmap_item_t* anim_item)
+ALWAYS_INLINE static void gui_anim_bitmap_item_off(gui_anim_bitmap_t* anim_bitmap, gui_anim_bitmap_item_t* anim_item)
 {
     gui_anim_bitmap_bit_off(anim_bitmap, anim_item->dst_bitmap_pos.x, anim_item->dst_bitmap_pos.y);
 }
@@ -393,7 +396,7 @@ static bool gui_anim_item_start_move(gui_anim_bitmap_t* anim_bitmap, gui_anim_bi
     
     anim_item->action = action;
     anim_item->done = false;
-    anim_item->delay_steps = 0;
+    //anim_item->delay_steps = 0;
     anim_item->effect_type = GUI_ANIM_BITMAP_EFFECT_MOVE;
     
     // pixel changed to on
@@ -411,8 +414,8 @@ static bool gui_anim_item_start_move(gui_anim_bitmap_t* anim_bitmap, gui_anim_bi
         anim_item->dst_bitmap_pos.x = x;
         anim_item->dst_bitmap_pos.y = y;
 
-        anim_item->effects.move.src_pos.x = anim_item->pos.x;
-        anim_item->effects.move.src_pos.y = anim_item->pos.y;
+        //anim_item->effects.move.src_pos.x = anim_item->pos.x;
+        //anim_item->effects.move.src_pos.y = anim_item->pos.y;
         anim_item->effects.move.dst_pos.x = x * anim_bitmap->item_width;
         anim_item->effects.move.dst_pos.y = y * anim_bitmap->item_height;
         //
@@ -429,16 +432,18 @@ static bool gui_anim_item_start_move(gui_anim_bitmap_t* anim_bitmap, gui_anim_bi
         anim_item->dst_bitmap_pos.x = anim_x;
         anim_item->dst_bitmap_pos.y = anim_y;
 
-        anim_item->effects.move.src_pos.x = anim_item->pos.x;
-        anim_item->effects.move.src_pos.y = anim_item->pos.y;
+        //anim_item->effects.move.src_pos.x = anim_item->pos.x;
+        //anim_item->effects.move.src_pos.y = anim_item->pos.y;
         anim_item->effects.move.dst_pos.x = anim_x * anim_bitmap->item_width;
         anim_item->effects.move.dst_pos.y = anim_y * anim_bitmap->item_height;
     
         gui_anim_bitmap_bit_off(anim_bitmap, x, y);
     }
     
-    dx = anim_item->effects.move.dst_pos.x - anim_item->effects.move.src_pos.x;
-    dy = anim_item->effects.move.dst_pos.y - anim_item->effects.move.src_pos.y;
+    //dx = anim_item->effects.move.dst_pos.x - anim_item->effects.move.src_pos.x;
+    //dy = anim_item->effects.move.dst_pos.y - anim_item->effects.move.src_pos.y;
+    dx = anim_item->effects.move.dst_pos.x - anim_item->pos.x;
+    dy = anim_item->effects.move.dst_pos.y - anim_item->pos.y;
     
     dx = ABS(dx);
     dy = ABS(dy);
@@ -465,11 +470,14 @@ static bool gui_anim_item_step_move(gui_anim_bitmap_t* anim_bitmap, gui_anim_bit
     dy = ABS(dy);
     
     graphics_pos_t err = dx - dy;
-    graphics_pos_t err2 = err << 1;
+    graphics_pos_t err2 = 0;
     
     size_t i = 0;
     
     for(; i < anim_item->delta; i ++){
+        
+        err2 = err << 1;
+        
         if(err2 > -dy){
             err -= dy;
             anim_item->pos.x += x_step;
@@ -484,7 +492,7 @@ static bool gui_anim_item_step_move(gui_anim_bitmap_t* anim_bitmap, gui_anim_bit
            anim_item->pos.y == anim_item->effects.move.dst_pos.y){
             anim_item->done = true;
             if(anim_item->action == GUI_ANIM_ITEM_ADD){
-                gui_anim_bitamp_item_on(anim_bitmap, anim_item);
+                gui_anim_bitmap_item_on(anim_bitmap, anim_item);
             }
             break;
         }
@@ -498,7 +506,7 @@ static bool gui_anim_item_start_resize(gui_anim_bitmap_t* anim_bitmap, gui_anim_
 {
     anim_item->action = action;
     anim_item->done = false;
-    anim_item->delay_steps = 0;
+    //anim_item->delay_steps = 0;
     anim_item->effect_type = GUI_ANIM_BITMAP_EFFECT_RESIZE;
     
     anim_item->dst_bitmap_pos.x = x;
@@ -507,7 +515,7 @@ static bool gui_anim_item_start_resize(gui_anim_bitmap_t* anim_bitmap, gui_anim_
     anim_item->pos.x = x * anim_bitmap->item_width;
     anim_item->pos.y = y * anim_bitmap->item_height;
     
-    graphics_size_t size = MAX(anim_bitmap->item_width, anim_bitmap->item_height);
+    graphics_size_t size = MAX(anim_bitmap->item_width, anim_bitmap->item_height) / 2;
     
     if(anim_bitmap->max_steps == 0) anim_item->delta = size;
     else anim_item->delta = size / anim_bitmap->max_steps;
@@ -551,7 +559,7 @@ static bool gui_anim_item_step_resize(gui_anim_bitmap_t* anim_bitmap, gui_anim_b
         if(anim_item->size.x >= anim_bitmap->item_width &&
            anim_item->size.y >= anim_bitmap->item_height){
             anim_item->done = true;
-            gui_anim_bitamp_item_on(anim_bitmap, anim_item);
+            gui_anim_bitmap_item_on(anim_bitmap, anim_item);
         }
     }else{
         if(anim_item->size.x > delta2){
@@ -577,7 +585,6 @@ static bool gui_anim_item_start_gravity(gui_anim_bitmap_t* anim_bitmap, gui_anim
     
     anim_item->action = action;
     anim_item->done = false;
-    anim_item->delay_steps = 0;
     anim_item->effect_type = GUI_ANIM_BITMAP_EFFECT_GRAVITY;
     
     anim_item->dst_bitmap_pos.x = x;
@@ -589,7 +596,7 @@ static bool gui_anim_item_start_gravity(gui_anim_bitmap_t* anim_bitmap, gui_anim
     
     anim_bitmap->cur_pixel ++;
     
-    anim_item->delay_steps = anim_bitmap->cur_pixel + 1;
+    anim_item->effects.gravity.delay_steps = anim_bitmap->cur_pixel + 1;
     
     // pixel changed to on
     if(action == GUI_ANIM_ITEM_ADD){
@@ -599,7 +606,7 @@ static bool gui_anim_item_start_gravity(gui_anim_bitmap_t* anim_bitmap, gui_anim
     else{
         anim_item->pos.y = y * anim_bitmap->item_height;
         anim_item->effects.gravity.dst_y = anim_bitmap->item_height * graphics_height(anim_bitmap->bitmap);
-        gui_anim_bitmap_bit_off(anim_bitmap, x, y);
+        if(anim_item->effects.gravity.delay_steps == 0) gui_anim_bitmap_bit_off(anim_bitmap, x, y);
     }
     
     //dy = anim_item->effects.gravity.dst_y - anim_item->pos.y;
@@ -615,17 +622,25 @@ static bool gui_anim_item_start_gravity(gui_anim_bitmap_t* anim_bitmap, gui_anim
 
 static bool gui_anim_item_step_gravity(gui_anim_bitmap_t* anim_bitmap, gui_anim_bitmap_item_t* anim_item)
 {
-    if(!anim_item->done && anim_item->delay_steps != 0){
-        anim_item->delay_steps --;
+    if(anim_item->done) return false;
+    
+    if(anim_item->effects.gravity.delay_steps != 0){
+        anim_item->effects.gravity.delay_steps --;
+        if(anim_item->effects.gravity.delay_steps == 0){
+            if(anim_item->action == GUI_ANIM_ITEM_DEL){
+                gui_anim_bitmap_item_off(anim_bitmap, anim_item);
+            }
+        }
         return false;
     }
+
     anim_item->pos.y += anim_item->effects.gravity.v_cur;
     anim_item->effects.gravity.v_cur += anim_item->delta;
     if(anim_item->pos.y >= anim_item->effects.gravity.dst_y){
         anim_item->pos.y = anim_item->effects.gravity.dst_y;
         anim_item->done = true;
         if(anim_item->action == GUI_ANIM_ITEM_ADD){
-            gui_anim_bitamp_item_on(anim_bitmap, anim_item);
+            gui_anim_bitmap_item_on(anim_bitmap, anim_item);
         }
     }
     return anim_item->done;
@@ -649,6 +664,8 @@ static bool gui_anim_flush(gui_anim_bitmap_t* anim_bitmap)
             gui_anim_bitmap_flush_pos(anim_bitmap, x, y);
         }
     }
+    
+    gui_anim_items_reset(anim_bitmap);
     
     return true;
 }
@@ -851,6 +868,8 @@ bool gui_anim_bitmap_animation_start(gui_anim_bitmap_t* anim_bitmap)
 
 bool gui_anim_bitmap_animation_step(gui_anim_bitmap_t* anim_bitmap)
 {
+    if(anim_bitmap->anim_done) return true;
+    
     anim_bitmap->anim_done = gui_anim_step(anim_bitmap);
     
     return anim_bitmap->anim_done;
@@ -865,15 +884,30 @@ bool gui_anim_bitmap_animation_flush(gui_anim_bitmap_t* anim_bitmap)
 
 static void gui_anim_bitmap_paint_bit(gui_anim_bitmap_t* anim_bitmap, painter_t* painter, graphics_pos_t x, graphics_pos_t y)
 {
+    graphics_pos_t left = x * anim_bitmap->item_width;
+    graphics_pos_t top = y * anim_bitmap->item_height;
+    graphics_pos_t right = (x + 1) * anim_bitmap->item_width - 1;
+    graphics_pos_t bottom = (y + 1) * anim_bitmap->item_height - 1;
+    
     if(graphics_get_pixel(anim_bitmap->bitmap, x, y)){
+    
+        if(anim_bitmap->margin){
+            painter_set_brush_color(painter, gui_widget_back_color(GUI_WIDGET(anim_bitmap)));
+            painter_draw_fillrect(painter, left, top, right, top + anim_bitmap->margin);
+            painter_draw_fillrect(painter, left, bottom - anim_bitmap->margin, right, bottom);
+            painter_draw_fillrect(painter, left, top + anim_bitmap->margin, left + anim_bitmap->margin, bottom - anim_bitmap->margin);
+            painter_draw_fillrect(painter, right - anim_bitmap->margin, top + anim_bitmap->margin, right, bottom - anim_bitmap->margin);
+        }
         painter_set_brush_color(painter, anim_bitmap->front_color);
+
+        painter_draw_fillrect(painter, left + anim_bitmap->margin,
+                                       top + anim_bitmap->margin,
+                                       right - anim_bitmap->margin,
+                                       bottom - anim_bitmap->margin);
     }else{
         painter_set_brush_color(painter, gui_widget_back_color(GUI_WIDGET(anim_bitmap)));
+        painter_draw_fillrect(painter, left, top, right, bottom);
     }
-    painter_draw_fillrect(painter, x * anim_bitmap->item_width + anim_bitmap->margin,
-                                   y * anim_bitmap->item_height + anim_bitmap->margin,
-                                   (x + 1) * anim_bitmap->item_width - 1 - anim_bitmap->margin,
-                                   (y + 1) * anim_bitmap->item_height - 1 - anim_bitmap->margin);
 }
 
 static void gui_anim_bitmap_paint_bitmap(gui_anim_bitmap_t* anim_bitmap, painter_t* painter)
@@ -917,15 +951,24 @@ static void gui_anim_bitmap_paint_items(gui_anim_bitmap_t* anim_bitmap, painter_
 
 void gui_anim_bitmap_on_repaint(gui_anim_bitmap_t* anim_bitmap, const rect_t* rect)
 {
-    gui_widget_on_repaint(GUI_WIDGET(anim_bitmap), rect);
-    
     if(anim_bitmap->bitmap == NULL) return;
     
-    //gui_theme_t* theme = gui_theme(gui_object_gui(GUI_OBJECT(anim_bitmap)));
+    gui_theme_t* theme = gui_theme(gui_object_gui(GUI_OBJECT(anim_bitmap)));
     
     painter_t painter;
     
     gui_widget_begin_paint(GUI_WIDGET(anim_bitmap), &painter, rect);
+    
+    if(gui_widget_border(GUI_WIDGET(anim_bitmap)) != GUI_BORDER_NONE || gui_widget_has_focus(GUI_WIDGET(anim_bitmap))){
+        painter_set_brush(&painter, PAINTER_BRUSH_NONE);
+        painter_set_pen(&painter, PAINTER_PEN_SOLID);
+        if(!gui_widget_has_focus(GUI_WIDGET(anim_bitmap))){
+            painter_set_pen_color(&painter, theme->border_color);
+        }else{
+            painter_set_pen_color(&painter, theme->focus_color);
+        }
+        painter_draw_rect(&painter, 0, 0, gui_widget_width(GUI_WIDGET(anim_bitmap)) - 1, gui_widget_height(GUI_WIDGET(anim_bitmap)) - 1);
+    }
     
     gui_anim_bitmap_paint_bitmap(anim_bitmap, &painter);
     gui_anim_bitmap_paint_items(anim_bitmap, &painter);

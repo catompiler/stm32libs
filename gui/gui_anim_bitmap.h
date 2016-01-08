@@ -39,21 +39,21 @@ typedef struct _Gui_Anim_Bitmap_Item {
     graphics_pos_t delta; //!< Величина изменения за шаг.
     union _Effects {
         struct _Move {
-            point_t src_pos; //!< Исходная позиция.
+            //point_t src_pos; //!< Исходная позиция.
             point_t dst_pos; //!< Целевая позиция.
-            graphics_pos_t err; //!< Ошибка для алгоритма Брезенхема.
+            //graphics_pos_t err; //!< Ошибка для алгоритма Брезенхема.
         } move;
         struct _Resize {
             graphics_size_t size; //!< Текущий размер.
             graphics_size_t dst_size; //!< Целевой размер.
         } resize;
         struct _Gravity {
+            size_t delay_steps; //!< Задержка анимации элемента.
             graphics_pos_t dst_y; //!< Целевая позиция.
             graphics_size_t v_cur; //!< Текущая скорость падения.
         } gravity;
     } effects;
     gui_anim_bitmap_effect_t effect_type; //!< Тип эффекта.
-    size_t delay_steps; //!< Задержка анимации элемента.
     bool done; //!< Флаг окончания анимирования.
 } gui_anim_bitmap_item_t;
 
@@ -232,9 +232,29 @@ ALWAYS_INLINE static graphics_color_t gui_anim_bitmap_back_color(gui_anim_bitmap
  * @param anim_bitmap Анимированный битмап.
  * @param back_color Цвет фона анимированного битмапа.
  */
-ALWAYS_INLINE static  void gui_anim_bitmap_set_back_color(gui_anim_bitmap_t* anim_bitmap, graphics_color_t back_color)
+ALWAYS_INLINE static void gui_anim_bitmap_set_back_color(gui_anim_bitmap_t* anim_bitmap, graphics_color_t back_color)
 {
     gui_widget_set_back_color(GUI_WIDGET(anim_bitmap), back_color);
+}
+
+/**
+ * Получает максимальное число кадров анимации анимированного битмапа.
+ * @param anim_bitmap Анимированный битмап.
+ * @return Максимальное число кадров анимации анимированного битмапа.
+ */
+ALWAYS_INLINE static size_t gui_anim_bitmap_max_steps(gui_anim_bitmap_t* anim_bitmap)
+{
+    return anim_bitmap->max_steps;
+}
+
+/**
+ * Устанавливает максимальное число кадров анимации анимированного битмапа.
+ * @param anim_bitmap Анимированный битмап.
+ * @param max_steps Максимальное число кадров анимации анимированного битмапа.
+ */
+ALWAYS_INLINE static void gui_anim_bitmap_set_max_steps(gui_anim_bitmap_t* anim_bitmap, size_t max_steps)
+{
+    anim_bitmap->max_steps = max_steps;
 }
 
 /**

@@ -30,29 +30,38 @@ typedef enum _Gui_Anim_Item_Action {
     GUI_ANIM_ITEM_DEL //! Удаление.
 } gui_anim_item_action_t;
 
+//! Тип структуры точки с полями типа short.
+typedef struct _Gui_Anim_Short_Point {
+    int16_t x;
+    int16_t y;
+} gui_anim_short_point_t;
+
+//! Тип размера short.
+typedef uint16_t gui_anim_short_size_t;
+
 //! Анимированный элемент битмапа.
 typedef struct _Gui_Anim_Bitmap_Item {
-    point_t pos; //!< Текущая позиция.
-    point_t size; //!< Текущий размер.
-    gui_anim_item_action_t action; //!< Действие для элемента.
-    point_t dst_bitmap_pos; //!< Позиция пиксела в битмапе.
-    graphics_pos_t delta; //!< Величина изменения за шаг.
+    gui_anim_short_point_t pos; //!< Текущая позиция.
+    gui_anim_short_point_t size; //!< Текущий размер.
+    gui_anim_short_point_t dst_bitmap_pos; //!< Позиция пиксела в битмапе.
     union _Effects {
         struct _Move {
             //point_t src_pos; //!< Исходная позиция.
-            point_t dst_pos; //!< Целевая позиция.
+            gui_anim_short_point_t dst_pos; //!< Целевая позиция.
             //graphics_pos_t err; //!< Ошибка для алгоритма Брезенхема.
         } move;
         struct _Resize {
-            graphics_size_t size; //!< Текущий размер.
-            graphics_size_t dst_size; //!< Целевой размер.
+            gui_anim_short_size_t size; //!< Текущий размер.
+            //gui_anim_short_size_t dst_size; //!< Целевой размер.
         } resize;
         struct _Gravity {
-            size_t delay_steps; //!< Задержка анимации элемента.
-            graphics_pos_t dst_y; //!< Целевая позиция.
-            graphics_size_t v_cur; //!< Текущая скорость падения.
+            gui_anim_short_size_t dst_y; //!< Целевая позиция.
+            int16_t v_cur; //!< Текущая скорость падения.
+            //gui_anim_short_size_t delay_steps; //!< Задержка анимации элемента.
         } gravity;
     } effects;
+    gui_anim_short_size_t delta; //!< Величина изменения за шаг.
+    gui_anim_item_action_t action; //!< Действие для элемента.
     gui_anim_bitmap_effect_t effect_type; //!< Тип эффекта.
     bool done; //!< Флаг окончания анимирования.
 } gui_anim_bitmap_item_t;
@@ -79,8 +88,8 @@ struct _Gui_Anim_Bitmap {
     bool anim_done; //!< Флаг завершения анимации.
     graphics_size_t item_width; //!< Ширина элемента.
     graphics_size_t item_height; //!< Высота элемента.
-    size_t cur_pixel; //!< Текущий анимируемый пиксел битмапа.
-    size_t max_steps; //!< Максимум шагов анимации.
+    uint16_t cur_pixel; //!< Текущий анимируемый пиксел битмапа.
+    uint16_t max_steps; //!< Максимум шагов анимации.
 };
 
 //! Приводит указатель anim_bitmap к типу анимированного битмапа.
@@ -242,7 +251,7 @@ ALWAYS_INLINE static void gui_anim_bitmap_set_back_color(gui_anim_bitmap_t* anim
  * @param anim_bitmap Анимированный битмап.
  * @return Максимальное число кадров анимации анимированного битмапа.
  */
-ALWAYS_INLINE static size_t gui_anim_bitmap_max_steps(gui_anim_bitmap_t* anim_bitmap)
+ALWAYS_INLINE static uint16_t gui_anim_bitmap_max_steps(gui_anim_bitmap_t* anim_bitmap)
 {
     return anim_bitmap->max_steps;
 }
@@ -252,7 +261,7 @@ ALWAYS_INLINE static size_t gui_anim_bitmap_max_steps(gui_anim_bitmap_t* anim_bi
  * @param anim_bitmap Анимированный битмап.
  * @param max_steps Максимальное число кадров анимации анимированного битмапа.
  */
-ALWAYS_INLINE static void gui_anim_bitmap_set_max_steps(gui_anim_bitmap_t* anim_bitmap, size_t max_steps)
+ALWAYS_INLINE static void gui_anim_bitmap_set_max_steps(gui_anim_bitmap_t* anim_bitmap, uint16_t max_steps)
 {
     anim_bitmap->max_steps = max_steps;
 }

@@ -590,13 +590,14 @@ static bool gui_anim_item_start_gravity(gui_anim_bitmap_t* anim_bitmap, gui_anim
     anim_item->dst_bitmap_pos.x = x;
     anim_item->dst_bitmap_pos.y = y;
     
-    anim_item->effects.gravity.v_cur = 1;
+    //anim_item->effects.gravity.v_cur = 1;
     
     anim_item->pos.x = x * anim_bitmap->item_width;
     
-    anim_bitmap->cur_pixel ++;
+    //anim_item->effects.gravity.delay_steps = anim_bitmap->cur_pixel + 1;
+    anim_item->effects.gravity.v_cur = - anim_bitmap->cur_pixel;
     
-    anim_item->effects.gravity.delay_steps = anim_bitmap->cur_pixel + 1;
+    anim_bitmap->cur_pixel ++;
     
     // pixel changed to on
     if(action == GUI_ANIM_ITEM_ADD){
@@ -606,7 +607,8 @@ static bool gui_anim_item_start_gravity(gui_anim_bitmap_t* anim_bitmap, gui_anim
     else{
         anim_item->pos.y = y * anim_bitmap->item_height;
         anim_item->effects.gravity.dst_y = anim_bitmap->item_height * graphics_height(anim_bitmap->bitmap);
-        if(anim_item->effects.gravity.delay_steps == 0) gui_anim_bitmap_bit_off(anim_bitmap, x, y);
+        //if(anim_item->effects.gravity.delay_steps == 0) gui_anim_bitmap_bit_off(anim_bitmap, x, y);
+        if(anim_item->effects.gravity.v_cur == 0) gui_anim_bitmap_bit_off(anim_bitmap, x, y);
     }
     
     //dy = anim_item->effects.gravity.dst_y - anim_item->pos.y;
@@ -624,9 +626,19 @@ static bool gui_anim_item_step_gravity(gui_anim_bitmap_t* anim_bitmap, gui_anim_
 {
     if(anim_item->done) return false;
     
-    if(anim_item->effects.gravity.delay_steps != 0){
+    /*if(anim_item->effects.gravity.delay_steps != 0){
         anim_item->effects.gravity.delay_steps --;
         if(anim_item->effects.gravity.delay_steps == 0){
+            if(anim_item->action == GUI_ANIM_ITEM_DEL){
+                gui_anim_bitmap_item_off(anim_bitmap, anim_item);
+            }
+        }
+        return false;
+    }*/
+    
+    if(anim_item->effects.gravity.v_cur < 0){
+        anim_item->effects.gravity.v_cur ++;
+        if(anim_item->effects.gravity.v_cur == 0){
             if(anim_item->action == GUI_ANIM_ITEM_DEL){
                 gui_anim_bitmap_item_off(anim_bitmap, anim_item);
             }

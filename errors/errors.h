@@ -25,6 +25,8 @@ typedef uint8_t err_t;
 #define E_IO_ERROR 5
 //! Нехватка памяти.
 #define E_OUT_OF_MEMORY 6
+//! Нереализованный функционал.
+#define E_NOT_IMPLEMENTED 7
 
 //! Начальный код для пользовательских ошибок.
 #define E_USER 100

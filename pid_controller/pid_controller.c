@@ -28,8 +28,8 @@ bool pid_controller_calculate(pid_controller_t* controller, fixed32_t e, fixed32
     // P = Kp * e;
     fixed32_t p = ((int64_t)controller->kp * e) >> FIXED32_FRACT_BITS;
     
-    // I = Ki * (e(t) + e(t-1))/2 * dt + I(t-1);
-    fixed32_t i = ((int64_t)controller->ki * (e + controller->prev_e) / 2) >> FIXED32_FRACT_BITS;
+    // I = Ki * e(t) * dt + I(t-1);
+    fixed32_t i = ((int64_t)controller->ki * e) >> FIXED32_FRACT_BITS;
               i = ((int64_t)i * dt) >> FIXED32_FRACT_BITS;
               i = i + controller->prev_i;
     

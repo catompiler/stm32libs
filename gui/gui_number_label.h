@@ -14,6 +14,7 @@
 typedef enum _Gui_Number_Label_Format {
     GUI_NUMBER_LABEL_DEC = 0, //!< Десятичный формат числа.
     GUI_NUMBER_LABEL_HEX, //!< Шестнадцатиричный формат числа.
+    GUI_NUMBER_LABEL_FIX, //!< Формат числа с фиксированной запятой (fixed32_t).
 } gui_number_label_format_t;
 
 typedef struct _Gui_Number_Label gui_number_label_t;
@@ -25,10 +26,14 @@ struct _Gui_Number_Label {
     gui_widget_t super; //!< Суперкласс.
     int number; //!< Отображаемое число.
     gui_number_label_format_t format; //!< Формат числа.
+    size_t decimals; //!< Число знаков дробной части для формата с фиксированной запятой.
 };
 
 //! Приводит указатель label к типу числовой метки.
 #define GUI_NUMBER_LABEL(label) ((gui_number_label_t*)(label))
+
+//! Максимальное число знаков после запятой.
+#define GUI_NUMBER_LABEL_DECIMALS_MAX 6
 
 /**
  * Инициализирует метку.
@@ -80,6 +85,23 @@ ALWAYS_INLINE static gui_number_label_format_t gui_number_label_format(gui_numbe
  * @param format Формат числа метки.
  */
 extern void gui_number_label_set_format(gui_number_label_t* label, gui_number_label_format_t format);
+
+/**
+ * Получает число знаков дробной части метки.
+ * @param label Метка.
+ * @return Число знаков дробной части метки.
+ */
+ALWAYS_INLINE static int gui_number_label_decimals(gui_number_label_t* label)
+{
+    return label->decimals;
+}
+
+/**
+ * Устанавливает число знаков дробной части метки.
+ * @param label Метка.
+ * @param decimal Число знаков дробной части метки.
+ */
+extern void gui_number_label_set_decimals(gui_number_label_t* label, int decimals);
 
 /**
  * Обработчик перерисовки.

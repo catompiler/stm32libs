@@ -15,6 +15,8 @@ err_t gui_number_label_init_parent(gui_number_label_t* label, gui_t* gui, gui_wi
     GUI_WIDGET(label)->type_id = GUI_NUMBER_LABEL_TYPE_ID;
     GUI_WIDGET(label)->on_repaint = GUI_WIDGET_ON_REPAINT_PROC(gui_number_label_on_repaint);
     label->number = 0;
+    label->format = GUI_NUMBER_LABEL_DEC;
+    label->decimals = GUI_NUMBER_LABEL_DECIMALS_MAX;
     
     return E_NO_ERROR;
 }
@@ -32,7 +34,28 @@ void gui_number_label_set_format(gui_number_label_t* label, gui_number_label_for
     gui_widget_repaint(GUI_WIDGET(label), NULL);
 }
 
-#define NUMBER_BUFFER_LEN 12 //-2 147 483 648
+void gui_number_label_set_decimals(gui_number_label_t* label, int decimals)
+{
+    label->decimals = MIN(decimals, GUI_NUMBER_LABEL_DECIMALS_MAX);
+    if(label->format == GUI_NUMBER_LABEL_FIX){
+        gui_widget_repaint(GUI_WIDGET(label), NULL);
+    }
+}
+
+//#define NUMBER_BUFFER_LEN 12 //-2 147 483 648
+#define NUMBER_BUFFER_LEN 19 //-2 147 483 648.123 456
+#define NUMBER_FORMAT_LEN 8 //%d.%06d
+
+static int gui_number_label_get_f32_fract(gui_number_label_t* label)
+{
+    int denom = 0;
+    size_t i;
+    for(i = 0; i < label->decimals; i ++){
+        if(denom == 0) denom = 10;
+        else denom *= 10;
+    }
+    return fixed32_get_fract_by_denom((int64_t)label->number, denom);
+}
 
 void gui_number_label_on_repaint(gui_number_label_t* label, const rect_t* rect)
 {
@@ -57,6 +80,18 @@ void gui_number_label_on_repaint(gui_number_label_t* label, const rect_t* rect)
             break;
         case GUI_NUMBER_LABEL_HEX:
             snprintf(num_buffer, NUMBER_BUFFER_LEN, "0x%x", label->number);
+            break;
+        case GUI_NUMBER_LABEL_FIX:{
+            char num_format[NUMBER_FORMAT_LEN];
+            int int_part = fixed32_get_int(label->number);
+            if(label->decimals != 0){
+                int fract_part = gui_number_label_get_f32_fract(label);
+                snprintf(num_format, NUMBER_FORMAT_LEN, "%%d.%%0%dd", (int)label->decimals);
+                snprintf(num_buffer, NUMBER_BUFFER_LEN, num_format, int_part, fract_part);
+            }else{
+                snprintf(num_buffer, NUMBER_BUFFER_LEN, "%d", int_part);
+            }
+            }
             break;
     }
     graphics_pos_t number_x, number_y;

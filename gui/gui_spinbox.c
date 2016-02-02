@@ -50,7 +50,7 @@ void gui_spinbox_inc_value(gui_spinbox_t* spinbox)
 {
     int value = spinbox->value;
     
-    CYCLIC_ADD(value, spinbox->increment, spinbox->minimum, spinbox->maximum);
+    CLAMP_ADD(value, spinbox->increment, spinbox->maximum);
     
     gui_spinbox_set_value(spinbox, value);
 }
@@ -59,7 +59,7 @@ void gui_spinbox_dec_value(gui_spinbox_t* spinbox)
 {
     int value = spinbox->value;
     
-    CYCLIC_SUB(value, spinbox->increment, spinbox->minimum, spinbox->maximum);
+    CLAMP_SUB(value, spinbox->increment, spinbox->minimum);
     
     gui_spinbox_set_value(spinbox, value);
 }

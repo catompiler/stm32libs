@@ -61,6 +61,18 @@
 #define CYCLIC_DEC(VAL, MIN, MAX) CYCLIC_SUB(VAL, 1, MIN, MAX)
 
 /**
+ * Ограничительный инкремент/декремент на заданное значение.
+ */
+#define CLAMP_ADD(VAL, ADD, MAX) do{VAL += (ADD); if(VAL > (MAX)) VAL = (MAX);}while(0)
+#define CLAMP_SUB(VAL, SUB, MIN) do{VAL -= (SUB); if(VAL < (MIN)) VAL = (MIN);}while(0)
+
+/**
+ * Ограничительный инкремент/декремент на 1.
+ */
+#define CLAMP_INC(VAL, MAX) CLAMP_ADD(VAL, 1, MAX)
+#define CLAMP_DEC(VAL, MIN) CLAMP_SUB(VAL, 1, MIN)
+
+/**
  * Ожидание пока условие C истинно.
  */
 #define WAIT_WHILE_TRUE(C) do{}while((C))

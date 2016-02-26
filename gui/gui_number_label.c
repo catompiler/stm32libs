@@ -54,7 +54,7 @@ static int gui_number_label_get_f32_fract(gui_number_label_t* label)
         if(denom == 0) denom = 10;
         else denom *= 10;
     }
-    return fixed32_get_fract_by_denom((int64_t)label->number, denom);
+    return fixed32_get_fract_by_denom((int64_t)fixed_abs(label->number), denom);
 }
 
 void gui_number_label_on_repaint(gui_number_label_t* label, const rect_t* rect)

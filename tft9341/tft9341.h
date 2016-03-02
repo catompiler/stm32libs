@@ -55,7 +55,7 @@ typedef struct _Tft9341 {
 /**
  * Тип структуры инициализации дисплея.
  */
-typedef struct _Lcd8544_init {
+typedef struct _Tft9341_init {
     spi_bus_t*          spi; //!< Шина SPI.
     spi_transfer_id_t   transfer_id; //!< Идентификатор передачи.
     GPIO_TypeDef*       ce_gpio; //!< Порт выбора ведомого.

@@ -67,6 +67,33 @@ extern err_t list_append(list_t* list, list_item_t* item);
 extern err_t list_prepend(list_t* list, list_item_t* item);
 
 /**
+ * Добавляет элемент в список после заданного элемента.
+ * @param list Список.
+ * @param ref Место вставки.
+ * @param item Элемент списка.
+ * @return Код ошибки.
+ */
+extern err_t list_insert_after(list_t* list, list_item_t* ref, list_item_t* item);
+
+/**
+ * Добавляет элемент в список перед заданным элементом.
+ * @param list Список.
+ * @param ref Место вставки.
+ * @param item Элемент списка.
+ * @return Код ошибки.
+ */
+extern err_t list_insert_before(list_t* list, list_item_t* ref, list_item_t* item);
+
+/**
+ * Добавляет элемент в сортированный список.
+ * @param list Список.
+ * @param item Элемент списка.
+ * @param compare Функция сравнения.
+ * @return Код ошибки.
+ */
+extern err_t list_insert_sorted(list_t* list, list_item_t* item, int (*compare)(const void*, const void*));
+
+/**
  * Удаляет элемент из списка.
  * @param list Список.
  * @param item Элемент списка.
@@ -75,7 +102,7 @@ extern err_t list_prepend(list_t* list, list_item_t* item);
 extern err_t list_remove(list_t* list, list_item_t* item);
 
 /**
- * Создаёт новый элемент списка с заданными данными
+ * Создаёт новый элемент списка с заданными данными.
  * и добавляет его в конец списка.
  * @param list Список.
  * @param data Данные элемента списка.
@@ -84,13 +111,40 @@ extern err_t list_remove(list_t* list, list_item_t* item);
 extern list_item_t* list_append_new(list_t* list, void* data);
 
 /**
- * Создаёт новый элемент списка с заданными данными
+ * Создаёт новый элемент списка с заданными данными.
  * и добавляет его в начало списка.
  * @param list Список.
  * @param data Данные элемента списка.
  * @return Новый элемент списка.
  */
 extern list_item_t* list_prepend_new(list_t* list, void* data);
+
+/**
+ * Создаёт новый элемент списока после заданного элемента.
+ * @param list Список.
+ * @param ref Место вставки.
+ * @param data Данные элемента списка.
+ * @return Новый элемент списка.
+ */
+extern list_item_t* list_insert_after_new(list_t* list, list_item_t* ref, void* data);
+
+/**
+ * Создаёт новый элемент списока перед заданным элементом.
+ * @param list Список.
+ * @param ref Место вставки.
+ * @param data Данные элемента списка.
+ * @return Новый элемент списка.
+ */
+extern list_item_t* list_insert_before_new(list_t* list, list_item_t* ref, void* data);
+
+/**
+ * Создаёт новый элемент в сортированном списке.
+ * @param list Список.
+ * @param data Данные элемента списка.
+ * @param compare Функция сравнения.
+ * @return Новый элемент списка.
+ */
+extern list_item_t* list_insert_sorted_new(list_t* list, void* data, int (*compare)(const void*, const void*));
 
 /**
  * Удаляет элемент из списка и уничтожает его.

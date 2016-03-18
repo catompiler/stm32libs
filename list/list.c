@@ -162,6 +162,9 @@ err_t list_remove(list_t* list, list_item_t* item)
     
     list_item_link_safe(item->prev, item->next);
     
+    item->prev = NULL;
+    item->next = NULL;
+    
     return E_NO_ERROR;
 }
 

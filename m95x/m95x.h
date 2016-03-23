@@ -160,6 +160,22 @@ extern size_t m95x_avail_data_size(m95x_t* eeprom, m95x_address_t address);
 err_t m95x_read(m95x_t* eeprom, m95x_address_t address, void* data, size_t size);
 
 /**
+ * Разрешает запись в EEPROM.
+ * Синхронная операция.
+ * @param eeprom EEPROM.
+ * @return Код ошибки.
+ */
+err_t m95x_write_enable(m95x_t* eeprom);
+
+/**
+ * Запрещает запись в EEPROM.
+ * Синхронная операция.
+ * @param eeprom EEPROM.
+ * @return Код ошибки.
+ */
+err_t m95x_write_enable(m95x_t* eeprom);
+
+/**
  * Записывает память EEPROM.
  * Асинхронная операция.
  * Размер данных для записи не должен

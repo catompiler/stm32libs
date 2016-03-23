@@ -385,6 +385,70 @@ err_t m95x_read(m95x_t* eeprom, m95x_address_t address, void* data, size_t size)
     return err;
 }
 
+err_t m95x_write_enable(m95x_t* eeprom)
+{
+    if(!m95x_wait_current_op(eeprom)) return E_BUSY;
+    
+    err_t err = E_NO_ERROR;
+    
+    size_t buffer_index = 0;
+    size_t message_index = 0;
+    
+    uint8_t* cmd_buf = m95x_get_buffer(eeprom, M95X_CMD_SIZE, &buffer_index);
+#ifdef M95X_GET_MEM_DEBUG
+    if(cmd_buf == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    spi_message_t* cmd_msg = m95x_get_message(eeprom, &message_index);
+#ifdef M95X_GET_MEM_DEBUG
+    if(cmd_msg == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    cmd_buf[0] = M95X_CMD_WREN;
+    
+    err = spi_message_init(cmd_msg, SPI_WRITE, cmd_buf, NULL, M95X_CMD_SIZE);
+    if(err != E_NO_ERROR) return err;
+    
+    err = m95x_transfer(eeprom, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = m95x_wait(eeprom);
+    
+    return err;
+}
+
+err_t m95x_write_disable(m95x_t* eeprom)
+{
+    if(!m95x_wait_current_op(eeprom)) return E_BUSY;
+    
+    err_t err = E_NO_ERROR;
+    
+    size_t buffer_index = 0;
+    size_t message_index = 0;
+    
+    uint8_t* cmd_buf = m95x_get_buffer(eeprom, M95X_CMD_SIZE, &buffer_index);
+#ifdef M95X_GET_MEM_DEBUG
+    if(cmd_buf == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    spi_message_t* cmd_msg = m95x_get_message(eeprom, &message_index);
+#ifdef M95X_GET_MEM_DEBUG
+    if(cmd_msg == NULL) return E_OUT_OF_MEMORY;
+#endif
+    
+    cmd_buf[0] = M95X_CMD_WRDI;
+    
+    err = spi_message_init(cmd_msg, SPI_WRITE, cmd_buf, NULL, M95X_CMD_SIZE);
+    if(err != E_NO_ERROR) return err;
+    
+    err = m95x_transfer(eeprom, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = m95x_wait(eeprom);
+    
+    return err;
+}
+
 err_t m95x_write(m95x_t* eeprom, m95x_address_t address, const void* data, size_t size)
 {
     if(data == NULL) return E_NULL_POINTER;
@@ -400,7 +464,7 @@ err_t m95x_write(m95x_t* eeprom, m95x_address_t address, const void* data, size_
     size_t buffer_index = 0;
     size_t message_index = 0;
     
-    uint8_t* cmd_addr_buf = m95x_get_buffer(eeprom, M95X_CMD_SIZE + M95X_CMD_SIZE + M95X_ADDRESS_SIZE, &buffer_index);
+    uint8_t* cmd_addr_buf = m95x_get_buffer(eeprom, M95X_CMD_SIZE + M95X_ADDRESS_SIZE, &buffer_index);
 #ifdef M95X_GET_MEM_DEBUG
     if(cmd_addr_buf == NULL) return E_OUT_OF_MEMORY;
 #endif
@@ -415,12 +479,11 @@ err_t m95x_write(m95x_t* eeprom, m95x_address_t address, const void* data, size_
     if(data_msg == NULL) return E_OUT_OF_MEMORY;
 #endif
     
-    cmd_addr_buf[0] = M95X_CMD_WREN;
-    cmd_addr_buf[1] = M95X_CMD_READ;
-    cmd_addr_buf[2] = (address >> 8) & 0xff;
-    cmd_addr_buf[3] = address & 0xff;
+    cmd_addr_buf[0] = M95X_CMD_WRITE;
+    cmd_addr_buf[1] = (address >> 8) & 0xff;
+    cmd_addr_buf[2] = address & 0xff;
     
-    err = spi_message_init(cmd_msg, SPI_WRITE, cmd_addr_buf, NULL, M95X_CMD_SIZE + M95X_CMD_SIZE + M95X_ADDRESS_SIZE);
+    err = spi_message_init(cmd_msg, SPI_WRITE, cmd_addr_buf, NULL, M95X_CMD_SIZE + M95X_ADDRESS_SIZE);
     if(err != E_NO_ERROR) return err;
     
     err = spi_message_init(data_msg, SPI_WRITE, data, NULL, size);

@@ -12,9 +12,6 @@
 #include "future/future.h"
 #include "spi/spi.h"
 
-//! Размер страницы в байтах по-умолчанию.
-#define M95X_DEFAULT_PAGE_SIZE 64
-
 //! Идентификатор передачи по-умолчанию.
 #define M95X_DEFAULT_TRANSFER_ID 95
 
@@ -51,13 +48,13 @@ typedef struct _M95X {
 typedef uint16_t m95x_address_t;
 
 //! Размер страницы.
-typedef enum _M95X_Page_Size {
+typedef enum _M95X_Page {
     M95X_PAGE_64 = 0, //!< 64 байта на страницу.
     M95X_PAGE_128     //!< 128 байт на страницу.
-} m95x_page_size_t;
+} m95x_page_t;
 
 //! Размер страницы по-умолчанию.
-#define M95X_PAGE_SIZE_DEFAULT M95X_PAGE_64
+#define M95X_PAGE_DEFAULT M95X_PAGE_64
 
 /**
  * Тип структуры инициализации дисплея.
@@ -67,7 +64,7 @@ typedef struct _M95X_init {
     spi_transfer_id_t   transfer_id; //!< Идентификатор передачи.
     GPIO_TypeDef*       ce_gpio; //!< Порт выбора ведомого.
     uint16_t            ce_pin; //!< Пин выбора ведомого.
-    m95x_page_size_t    page_size; //!< Размер страницы.
+    m95x_page_t         page; //!< Размер страницы.
 } m95x_init_t;
 
 //! Тип защиты памяти EEPROM.
@@ -121,6 +118,13 @@ extern err_t m95x_error(m95x_t* eeprom);
  * @return Код ошибки операции.
  */
 extern err_t m95x_wait(m95x_t* eeprom);
+
+/**
+ * Получает размер страницы памяти в байтах.
+ * @param eeprom EEPROM.
+ * @return Размер страницы памяти в байтах.
+ */
+extern size_t m95x_page_size(m95x_t* eeprom);
 
 /**
  * Считывает регистр статуса.

@@ -134,9 +134,9 @@ bool m95x_spi_callback(m95x_t* eeprom)
     return true;
 }
 
-uint16_t m95x_pages_size_in_bytes(m95x_page_size_t size)
+uint16_t m95x_pages_size_in_bytes(m95x_page_t page)
 {
-    switch(size){
+    switch(page){
         default:
         case M95X_PAGE_64:
             break;
@@ -167,7 +167,7 @@ err_t m95x_init(m95x_t* eeprom, m95x_init_t* eeprom_init)
     eeprom->transfer_id = eeprom_init->transfer_id;
     
     // Размер страницы в байтах.
-    eeprom->page_size = m95x_pages_size_in_bytes(eeprom_init->page_size);
+    eeprom->page_size = m95x_pages_size_in_bytes(eeprom_init->page);
     
     return E_NO_ERROR;
 }
@@ -186,6 +186,11 @@ err_t m95x_wait(m95x_t* eeprom)
 {
     future_wait(&eeprom->future);
     return pvoid_to_int(err_t, future_result(&eeprom->future));
+}
+
+size_t m95x_page_size(m95x_t* eeprom)
+{
+    return (size_t)eeprom->page_size;
 }
 
 /**

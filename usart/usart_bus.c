@@ -43,6 +43,7 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     usart->dma_rx_channel = usart_bus_is->dma_rx_channel;
     
     usart->callback = NULL;
+    usart->rx_callback = NULL;
     usart->dma_rx_locked = false;
     usart->dma_tx_locked = false;
     usart->rx_status = USART_STATUS_IDLE;
@@ -72,6 +73,38 @@ void usart_bus_irq_handler(usart_bus_t* usart)
     }
 }
 
+bool usart_bus_rx_busy(usart_bus_t* usart)
+{
+}
+
+bool usart_bus_tx_busy(usart_bus_t* usart)
+{
+}
+
+void usart_bus_rx_wait(usart_bus_t* usart)
+{
+}
+
+void usart_bus_tx_wait(usart_bus_t* usart)
+{
+}
+
+usart_transfer_id_t usart_bus_rx_transfer_id(usart_bus_t* usart)
+{
+}
+
+bool usart_bus_set_rx_transfer_id(usart_bus_t* usart, usart_transfer_id_t id)
+{
+}
+
+usart_transfer_id_t usart_bus_tx_transfer_id(usart_bus_t* usart)
+{
+}
+
+bool usart_bus_set_tx_transfer_id(usart_bus_t* usart, usart_transfer_id_t id)
+{
+}
+
 usart_bus_callback_t usart_bus_callback(usart_bus_t* usart)
 {
     return usart->callback;
@@ -80,6 +113,16 @@ usart_bus_callback_t usart_bus_callback(usart_bus_t* usart)
 void usart_bus_set_callback(usart_bus_t* usart, usart_bus_callback_t callback)
 {
     usart->callback = callback;
+}
+
+usart_bus_rx_callback_t usart_bus_rx_callback(usart_bus_t* usart)
+{
+    return usart->rx_callback;
+}
+
+void usart_bus_set_rx_callback(usart_bus_t* usart, usart_bus_rx_callback_t callback)
+{
+    usart->rx_callback = callback;
 }
 
 usart_status_t usart_bus_rx_status(usart_bus_t* usart)

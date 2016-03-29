@@ -27,6 +27,12 @@ FunctionalState usart_bus_receiver_state(USART_TypeDef* usart)
     return DISABLE;
 }
 
+FunctionalState usart_bus_halfduplex_state(USART_TypeDef* usart)
+{
+    if(usart->CR3 & USART_CR3_HDSEL) return ENABLE;
+    return DISABLE;
+}
+
 err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
 {
     // Адрес периферии не может быть нулём.
@@ -36,7 +42,21 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     usart->dma_tx_channel = usart_bus_is->dma_tx_channel;
     usart->dma_rx_channel = usart_bus_is->dma_rx_channel;
     
+    usart->callback = NULL;
+    usart->dma_rx_locked = false;
+    usart->dma_tx_locked = false;
+    usart->rx_status = USART_STATUS_IDLE;
+    usart->tx_status = USART_STATUS_IDLE;
+    usart->rx_error = USART_ERROR_NONE;
+    usart->tx_error = USART_ERROR_NONE;
+    
     USART_WakeUpConfig(usart->usart_device, USART_WakeUp_IdleLine);
+    
+    USART_ITConfig(usart->usart_device, USART_IT_PE, ENABLE);
+    USART_ITConfig(usart->usart_device, USART_IT_ORE, ENABLE);
+    USART_ITConfig(usart->usart_device, USART_IT_NE, ENABLE);
+    USART_ITConfig(usart->usart_device, USART_IT_FE, ENABLE);
+    USART_ITConfig(usart->usart_device, USART_IT_ERR, ENABLE);
     
     if((usart_bus_receiver_state(usart->usart_device) != DISABLE)){
         USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
@@ -60,6 +80,26 @@ usart_bus_callback_t usart_bus_callback(usart_bus_t* usart)
 void usart_bus_set_callback(usart_bus_t* usart, usart_bus_callback_t callback)
 {
     usart->callback = callback;
+}
+
+usart_status_t usart_bus_rx_status(usart_bus_t* usart)
+{
+    return usart->rx_status;
+}
+
+usart_status_t usart_bus_tx_status(usart_bus_t* usart)
+{
+    return usart->tx_status;
+}
+
+usart_error_t usart_bus_rx_error(usart_bus_t* usart)
+{
+    return usart->rx_error;
+}
+
+usart_error_t usart_bus_tx_error(usart_bus_t* usart)
+{
+    return usart->tx_error;
 }
 
 void usart_bus_sleep(usart_bus_t* usart)

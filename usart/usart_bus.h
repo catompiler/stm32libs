@@ -54,6 +54,10 @@ typedef struct _UsartBus {
     usart_bus_callback_t callback; //!< Каллбэк при приёме байта.
     bool dma_rx_locked;//!< Заблокирован канал получения.
     bool dma_tx_locked;//!< Заблокирован канал передачи.
+    usart_status_t rx_status; //!< Состояние канала приёма.
+    usart_status_t tx_status; //!< Состояние канала передачи.
+    usart_error_t rx_error; //!< Ошибка канала приёма.
+    usart_error_t tx_error; //!< Ошибка канала передачи.
 }usart_bus_t;
 
 /**
@@ -69,6 +73,13 @@ extern FunctionalState usart_bus_transmitter_state(USART_TypeDef* usart);
  * @return Флаг разрешённости приёмника USART.
  */
 extern FunctionalState usart_bus_receiver_state(USART_TypeDef* usart);
+
+/**
+ * Получает флаг полудуплексного режима USART.
+ * @param usart Устройство USART.
+ * @return Флаг полудуплексного режима USART.
+ */
+extern FunctionalState usart_bus_halfduplex_state(USART_TypeDef* usart);
 
 /**
  * Инициализирует шину USART.
@@ -99,6 +110,34 @@ extern usart_bus_callback_t usart_bus_callback(usart_bus_t* usart);
  * @param callback Каллбэк приёма байта.
  */
 extern void usart_bus_set_callback(usart_bus_t* usart, usart_bus_callback_t callback);
+
+/**
+ * Получает состояние канала приёма шины USART.
+ * @param usart Шина USART.
+ * @return Состояние канала приёма.
+ */
+extern usart_status_t usart_bus_rx_status(usart_bus_t* usart);
+
+/**
+ * Получает состояние канала передачи шины USART.
+ * @param usart Шина USART.
+ * @return Состояние канала передачи.
+ */
+extern usart_status_t usart_bus_tx_status(usart_bus_t* usart);
+
+/**
+ * Получает ошибку канала приёма шины USART.
+ * @param usart Шина USART.
+ * @return Ошибка канала приёма.
+ */
+extern usart_error_t usart_bus_rx_error(usart_bus_t* usart);
+
+/**
+ * Получает ошибку канала передачи шины USART.
+ * @param usart Шина USART.
+ * @return Ошибка канала передачи.
+ */
+extern usart_error_t usart_bus_tx_error(usart_bus_t* usart);
 
 /**
  * Пропускает текущий поток данных

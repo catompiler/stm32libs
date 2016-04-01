@@ -74,14 +74,16 @@ typedef struct _UsartBus {
     DMA_Channel_TypeDef* dma_tx_channel; //!< Канал DMA для передачи.
     usart_bus_callback_t callback; //!< Каллбэк шины USART.
     usart_bus_rx_callback_t rx_callback; //!< Каллбэк при приёме байта.
-    usart_transfer_id_t rx_transfer_id;//!< Идентификатор приёма.
-    usart_transfer_id_t tx_transfer_id;//!< Идентификатор передачи.
     bool dma_rx_locked;//!< Заблокирован канал получения.
     bool dma_tx_locked;//!< Заблокирован канал передачи.
+    usart_transfer_id_t rx_transfer_id;//!< Идентификатор приёма.
+    usart_transfer_id_t tx_transfer_id;//!< Идентификатор передачи.
     usart_status_t rx_status; //!< Состояние канала приёма.
     usart_status_t tx_status; //!< Состояние канала передачи.
     usart_error_t rx_error; //!< Ошибка канала приёма.
     usart_error_t tx_error; //!< Ошибка канала передачи.
+    uint16_t rx_size; //!< Размер данных для приёма.
+    uint16_t tx_size; //!< Размер данных для передачи.
 } usart_bus_t;
 
 /**
@@ -120,6 +122,20 @@ extern err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is);
  * @param usart Шина USART.
  */
 extern void usart_bus_irq_handler(usart_bus_t* usart);
+
+/**
+ * Обработчик прерывания канала передачи DMA.
+ * @param usart Шина USART.
+ * @return true, если канал использовался шиной usart, иначе false.
+ */
+extern bool usart_bus_dma_rx_channel_irq_handler(usart_bus_t* usart);
+
+/**
+ * Обработчик прерывания канала приёма DMA.
+ * @param usart Шина USART.
+ * @return true, если канал использовался шиной usart, иначе false.
+ */
+extern bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart);
 
 /**
  * Получает флаг занятости шины usart на приём.
@@ -248,22 +264,24 @@ extern void usart_bus_sleep(usart_bus_t* usart);
 extern void usart_bus_wake(usart_bus_t* usart);
 
 /**
- * Копирует данные в буфер для асинхронной передачи по USART.
- * Если буфера нехватает, ждёт освобождения.
+ * Передаёт данные по шине USART.
+ * Асинхронная операция.
  * @param usart Шина USART.
  * @param data Данные.
  * @param size Размер данных.
  * @return Код ошибки.
  */
-extern err_t usart_bus_write(usart_bus_t* usart, const void* data, size_t size);
+extern err_t usart_bus_send(usart_bus_t* usart, const void* data, size_t size);
 
 /**
- * Получает асинхронно принятые по USART данные.
+ * Направляет все последующие
+ * полученные данные вплоть до
+ * заданного размера в заданный буфер.
  * @param usart Шина USART.
  * @param data Буфер для данных.
  * @param size Размер буфера.
  * @return Код ошибки.
  */
-extern err_t usart_bus_read(usart_bus_t* usart, void* data, size_t size);
+extern err_t usart_bus_recv(usart_bus_t* usart, void* data, size_t size);
 
 #endif	/* USART_BUS_H */

@@ -61,7 +61,7 @@ typedef bool (*usart_bus_callback_t)(void);
  * Вызывается при приёме байта.
  * @return true, если событие обработано, иначе false.
  */
-typedef bool (*usart_bus_rx_callback_t)(uint8_t byte);
+typedef bool (*usart_bus_rx_byte_callback_t)(uint8_t byte);
 
 /**
  * Тип идентификатора приёма/передачи.
@@ -78,8 +78,9 @@ typedef struct _UsartBus {
     USART_TypeDef* usart_device; //!< Устройство USART.
     DMA_Channel_TypeDef* dma_rx_channel; //!< Канал DMA для приёма.
     DMA_Channel_TypeDef* dma_tx_channel; //!< Канал DMA для передачи.
-    usart_bus_callback_t callback; //!< Каллбэк шины USART.
-    usart_bus_rx_callback_t rx_callback; //!< Каллбэк при приёме байта.
+    usart_bus_rx_byte_callback_t rx_byte_callback; //!< Каллбэк при приёме байта.
+    usart_bus_callback_t rx_callback; //!< Каллбэк событий приёма данных шины USART.
+    usart_bus_callback_t tx_callback; //!< Каллбэк событий передачи данных шины USART.
     bool dma_rx_locked;//!< Заблокирован канал получения.
     bool dma_tx_locked;//!< Заблокирован канал передачи.
     usart_transfer_id_t rx_transfer_id;//!< Идентификатор приёма.
@@ -201,32 +202,46 @@ extern usart_transfer_id_t usart_bus_tx_transfer_id(usart_bus_t* usart);
 extern bool usart_bus_set_tx_transfer_id(usart_bus_t* usart, usart_transfer_id_t id);
 
 /**
- * Получает каллбэк шины USART.
- * @param usart Шина USART.
- * @return Каллбэк.
- */
-extern usart_bus_callback_t usart_bus_callback(usart_bus_t* usart);
-
-/**
- * Устанавливает каллбэк шины USART.
- * @param usart Шина USART.
- * @param callback Каллбэк.
- */
-extern void usart_bus_set_callback(usart_bus_t* usart, usart_bus_callback_t callback);
-
-/**
  * Получает каллбэк приёма байта шины USART.
  * @param usart Шина USART.
  * @return Каллбэк приёма байта.
  */
-extern usart_bus_rx_callback_t usart_bus_rx_callback(usart_bus_t* usart);
+extern usart_bus_rx_byte_callback_t usart_bus_rx_byte_callback(usart_bus_t* usart);
 
 /**
  * Устанавливает каллбэк приёма байта шины USART.
  * @param usart Шина USART.
  * @param callback Каллбэк приёма байта.
  */
-extern void usart_bus_set_rx_callback(usart_bus_t* usart, usart_bus_rx_callback_t callback);
+extern void usart_bus_set_rx_byte_callback(usart_bus_t* usart, usart_bus_rx_byte_callback_t callback);
+
+/**
+ * Получает каллбэк событий приёма данных шины USART.
+ * @param usart Шина USART.
+ * @return Каллбэк приёма байта.
+ */
+extern usart_bus_callback_t usart_bus_rx_callback(usart_bus_t* usart);
+
+/**
+ * Устанавливает каллбэк событий приёма данных шины USART.
+ * @param usart Шина USART.
+ * @param callback Каллбэк приёма байта.
+ */
+extern void usart_bus_set_rx_callback(usart_bus_t* usart, usart_bus_callback_t callback);
+
+/**
+ * Получает каллбэк событий передачи данных шины USART.
+ * @param usart Шина USART.
+ * @return Каллбэк.
+ */
+extern usart_bus_callback_t usart_bus_tx_callback(usart_bus_t* usart);
+
+/**
+ * Устанавливает каллбэк событий передачи данных шины USART.
+ * @param usart Шина USART.
+ * @param callback Каллбэк.
+ */
+extern void usart_bus_set_tx_callback(usart_bus_t* usart, usart_bus_callback_t callback);
 
 /**
  * Получает состояние канала приёма шины USART.

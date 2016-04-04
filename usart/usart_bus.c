@@ -168,8 +168,9 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     usart->dma_tx_channel = usart_bus_is->dma_tx_channel;
     usart->dma_rx_channel = usart_bus_is->dma_rx_channel;
     
-    usart->callback = NULL;
+    usart->rx_byte_callback = NULL;
     usart->rx_callback = NULL;
+    usart->tx_callback = NULL;
     usart->dma_rx_locked = false;
     usart->dma_tx_locked = false;
     usart->rx_status = USART_STATUS_IDLE;
@@ -199,9 +200,14 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     return E_NO_ERROR;
 }
 
-static ALWAYS_INLINE void usart_bus_done(usart_bus_t* usart)
+static ALWAYS_INLINE void usart_bus_rx_done(usart_bus_t* usart)
 {
-    if(usart->callback) usart->callback();
+    if(usart->rx_callback) usart->rx_callback();
+}
+
+static ALWAYS_INLINE void usart_bus_tx_done(usart_bus_t* usart)
+{
+    if(usart->tx_callback) usart->tx_callback();
 }
 
 void usart_bus_irq_handler(usart_bus_t* usart)
@@ -216,12 +222,12 @@ void usart_bus_irq_handler(usart_bus_t* usart)
             
             usart_bus_dma_rx_done(usart);
             
-            usart_bus_done(usart);
+            usart_bus_rx_done(usart);
         }
     }
     // Получен байт.
     if(SR & USART_SR_RXNE){
-        if(usart->rx_callback) usart->rx_callback(byte);
+        if(usart->rx_byte_callback) usart->rx_byte_callback(byte);
     }
 }
 
@@ -242,7 +248,7 @@ bool usart_bus_dma_rx_channel_irq_handler(usart_bus_t* usart)
 
         usart_bus_dma_rx_done(usart);
         
-        usart_bus_done(usart);
+        usart_bus_rx_done(usart);
 
     }else if(DMA_GetITStatus(dma_te_flag)){
 
@@ -250,7 +256,7 @@ bool usart_bus_dma_rx_channel_irq_handler(usart_bus_t* usart)
 
         usart_bus_dma_rx_error(usart);
         
-        usart_bus_done(usart);
+        usart_bus_rx_done(usart);
     }
     
     return true;
@@ -273,7 +279,7 @@ bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart)
 
         usart_bus_dma_tx_done(usart);
         
-        usart_bus_done(usart);
+        usart_bus_tx_done(usart);
 
     }else if(DMA_GetITStatus(dma_te_flag)){
 
@@ -281,7 +287,7 @@ bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart)
 
         usart_bus_dma_tx_error(usart);
         
-        usart_bus_done(usart);
+        usart_bus_tx_done(usart);
     }
     
     return true;
@@ -331,24 +337,34 @@ bool usart_bus_set_tx_transfer_id(usart_bus_t* usart, usart_transfer_id_t id)
     return true;
 }
 
-usart_bus_callback_t usart_bus_callback(usart_bus_t* usart)
+usart_bus_rx_byte_callback_t usart_bus_rx_byte_callback(usart_bus_t* usart)
 {
-    return usart->callback;
+    return usart->rx_byte_callback;
 }
 
-void usart_bus_set_callback(usart_bus_t* usart, usart_bus_callback_t callback)
+void usart_bus_set_rx_byte_callback(usart_bus_t* usart, usart_bus_rx_byte_callback_t callback)
 {
-    usart->callback = callback;
+    usart->rx_byte_callback = callback;
 }
 
-usart_bus_rx_callback_t usart_bus_rx_callback(usart_bus_t* usart)
+usart_bus_callback_t usart_bus_rx_callback(usart_bus_t* usart)
 {
     return usart->rx_callback;
 }
 
-void usart_bus_set_rx_callback(usart_bus_t* usart, usart_bus_rx_callback_t callback)
+void usart_bus_set_rx_callback(usart_bus_t* usart, usart_bus_callback_t callback)
 {
     usart->rx_callback = callback;
+}
+
+usart_bus_callback_t usart_bus_tx_callback(usart_bus_t* usart)
+{
+    return usart->tx_callback;
+}
+
+void usart_bus_set_tx_callback(usart_bus_t* usart, usart_bus_callback_t callback)
+{
+    usart->tx_callback = callback;
 }
 
 usart_status_t usart_bus_rx_status(usart_bus_t* usart)

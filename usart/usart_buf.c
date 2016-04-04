@@ -1,26 +1,27 @@
 #include "usart.h"
 #include "utils/utils.h"
+#include "defs/defs.h"
 
 
-static ITStatus usart_tx_it_state(USART_TypeDef* usart)
+ALWAYS_INLINE static ITStatus usart_tx_it_state(USART_TypeDef* usart)
 {
     if(usart->CR1 & USART_CR1_TXEIE) return ENABLE;
     return DISABLE;
 }
 
-static ITStatus usart_rx_it_state(USART_TypeDef* usart)
+ALWAYS_INLINE static ITStatus usart_rx_it_state(USART_TypeDef* usart)
 {
     if(usart->CR1 & USART_CR1_RXNEIE) return ENABLE;
     return DISABLE;
 }
 
-FunctionalState usart_transmitter_state(USART_TypeDef* usart)
+ALWAYS_INLINE static FunctionalState usart_transmitter_state(USART_TypeDef* usart)
 {
     if(usart->CR1 & USART_CR1_TE) return ENABLE;
     return DISABLE;
 }
 
-FunctionalState usart_receiver_state(USART_TypeDef* usart)
+ALWAYS_INLINE static FunctionalState usart_receiver_state(USART_TypeDef* usart)
 {
     if(usart->CR1 & USART_CR1_RE) return ENABLE;
     return DISABLE;

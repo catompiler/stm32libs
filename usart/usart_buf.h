@@ -1,10 +1,10 @@
 /**
- * @file usart.h
+ * @file usart_buf.h
  * Библиотека для работы с буферами USART.
  */
 
-#ifndef USART_H
-#define	USART_H
+#ifndef USART_BUF_H
+#define	USART_BUF_H
 
 #include "stm32f10x.h"
 #include <stdint.h>
@@ -43,19 +43,6 @@ typedef struct _UsartBufInit {
     size_t read_buffer_size;
 }usart_buf_init_t;
 
-/**
- * Получает флаг разрешённости передатчика USART.
- * @param usart Устройство USART.
- * @return Флаг разрешённости передатчика USART.
- */
-extern FunctionalState usart_transmitter_state(USART_TypeDef* usart);
-
-/**
- * Получает флаг разрешённости приёмника USART.
- * @param usart Устройство USART.
- * @return Флаг разрешённости приёмника USART.
- */
-extern FunctionalState usart_receiver_state(USART_TypeDef* usart);
 
 /**
  * Инициализирует буферизацию USART.

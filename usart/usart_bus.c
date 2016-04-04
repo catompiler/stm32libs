@@ -75,6 +75,52 @@ static void usart_bus_dma_stop_tx(usart_bus_t* usart)
     usart->usart_device->CR3 &= ~USART_CR3_DMAT;
 }
 
+static void usart_bus_dma_rx_done(usart_bus_t* usart)
+{
+    usart_bus_dma_stop_rx(usart);
+
+    usart->rx_status = USART_STATUS_TRANSFERED;
+    usart->rx_size -= usart->dma_rx_channel->CNDTR;
+    
+    usart_bus_dma_unlock_rx_channel(usart);
+
+    USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
+}
+
+static void usart_bus_dma_rx_error(usart_bus_t* usart)
+{
+    usart_bus_dma_stop_rx(usart);
+
+    usart->rx_status = USART_STATUS_ERROR;
+    usart->rx_error = USART_ERROR_DMA;
+    usart->rx_size -= usart->dma_rx_channel->CNDTR;
+    
+    usart_bus_dma_unlock_rx_channel(usart);
+
+    USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
+}
+
+static void usart_bus_dma_tx_done(usart_bus_t* usart)
+{
+    usart_bus_dma_stop_tx(usart);
+
+    usart->tx_status = USART_STATUS_TRANSFERED;
+    usart->tx_size -= usart->dma_tx_channel->CNDTR;
+    
+    usart_bus_dma_unlock_tx_channel(usart);
+}
+
+static void usart_bus_dma_tx_error(usart_bus_t* usart)
+{
+    usart_bus_dma_stop_tx(usart);
+
+    usart->tx_status = USART_STATUS_ERROR;
+    usart->tx_error = USART_ERROR_DMA;
+    usart->tx_size -= usart->dma_tx_channel->CNDTR;
+    
+    usart_bus_dma_unlock_tx_channel(usart);
+}
+
 /*
  * Функции - помощники.
  */
@@ -134,6 +180,8 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     usart->rx_transfer_id = USART_BUS_DEFAULT_TRANSFER_ID;
     usart->tx_transfer_id = USART_BUS_DEFAULT_TRANSFER_ID;
     
+    usart->idle_mode = USART_IDLE_MODE_NONE;
+    
     USART_WakeUpConfig(usart->usart_device, USART_WakeUp_IdleLine);
     
     /*
@@ -159,17 +207,20 @@ static ALWAYS_INLINE void usart_bus_done(usart_bus_t* usart)
 void usart_bus_irq_handler(usart_bus_t* usart)
 {
     uint16_t SR = usart->usart_device->SR;
-    uint8_t byte = 0;
+    uint8_t byte = usart->usart_device->DR;
     
     // Получен IDLE при приёме данных.
     if(SR & USART_SR_IDLE){
-        byte = usart->usart_device->DR;
-        USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
-        USART_ITConfig(usart->usart_device, USART_IT_IDLE, DISABLE);
+        if(usart->idle_mode == USART_IDLE_MODE_END_RX &&
+           usart->rx_status == USART_STATUS_TRANSFERING){
+            
+            usart_bus_dma_rx_done(usart);
+            
+            usart_bus_done(usart);
+        }
     }
     // Получен байт.
     if(SR & USART_SR_RXNE){
-        byte = usart->usart_device->DR;
         if(usart->rx_callback) usart->rx_callback(byte);
     }
 }
@@ -189,25 +240,16 @@ bool usart_bus_dma_rx_channel_irq_handler(usart_bus_t* usart)
 
         DMA_ClearITPendingBit(dma_tc_flag);
 
-        usart_bus_dma_stop_rx(usart);
-        usart_bus_dma_unlock_rx_channel(usart);
-
-        usart->rx_status = USART_STATUS_TRANSFERED;
-        usart->rx_size -= usart->dma_rx_channel->CNDTR;
-
+        usart_bus_dma_rx_done(usart);
+        
         usart_bus_done(usart);
 
     }else if(DMA_GetITStatus(dma_te_flag)){
 
         DMA_ClearITPendingBit(dma_te_flag);
 
-        usart_bus_dma_stop_rx(usart);
-        usart_bus_dma_unlock_rx_channel(usart);
-
-        usart->rx_status = USART_STATUS_ERROR;
-        usart->rx_error = USART_ERROR_DMA;
-        usart->rx_size -= usart->dma_rx_channel->CNDTR;
-
+        usart_bus_dma_rx_error(usart);
+        
         usart_bus_done(usart);
     }
     
@@ -229,25 +271,16 @@ bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart)
 
         DMA_ClearITPendingBit(dma_tc_flag);
 
-        usart_bus_dma_stop_tx(usart);
-        usart_bus_dma_unlock_tx_channel(usart);
-
-        usart->tx_status = USART_STATUS_TRANSFERED;
-        usart->tx_size -= usart->dma_tx_channel->CNDTR;
-
+        usart_bus_dma_tx_done(usart);
+        
         usart_bus_done(usart);
 
     }else if(DMA_GetITStatus(dma_te_flag)){
 
         DMA_ClearITPendingBit(dma_te_flag);
 
-        usart_bus_dma_stop_tx(usart);
-        usart_bus_dma_unlock_tx_channel(usart);
-
-        usart->tx_status = USART_STATUS_ERROR;
-        usart->tx_error = USART_ERROR_DMA;
-        usart->tx_size -= usart->dma_tx_channel->CNDTR;
-
+        usart_bus_dma_tx_error(usart);
+        
         usart_bus_done(usart);
     }
     
@@ -338,6 +371,31 @@ usart_error_t usart_bus_tx_error(usart_bus_t* usart)
     return usart->tx_error;
 }
 
+size_t usart_bus_bytes_received(usart_bus_t* usart)
+{
+    return usart->rx_size;
+}
+
+size_t usart_bus_bytes_transmitted(usart_bus_t* usart)
+{
+    return usart->tx_size;
+}
+
+usart_idle_mode_t usart_bus_idle_mode(usart_bus_t* usart)
+{
+    return usart->idle_mode;
+}
+
+void usart_bus_set_idle_mode(usart_bus_t* usart, usart_idle_mode_t mode)
+{
+    usart->idle_mode = mode;
+    if(mode == USART_IDLE_MODE_NONE){
+        USART_ITConfig(usart->usart_device, USART_IT_IDLE, DISABLE);
+    }else{
+        USART_ITConfig(usart->usart_device, USART_IT_IDLE, ENABLE);
+    }
+}
+
 void usart_bus_sleep(usart_bus_t* usart)
 {
     USART_ReceiverWakeUpCmd(usart->usart_device, ENABLE);
@@ -379,7 +437,6 @@ err_t usart_bus_recv(usart_bus_t* usart, void* data, size_t size)
     if(usart_bus_receiver_state(usart->usart_device) != ENABLE) return E_BUSY;
     
     USART_ITConfig(usart->usart_device, USART_IT_RXNE, DISABLE);
-    USART_ITConfig(usart->usart_device, USART_IT_IDLE, ENABLE);
     
     usart->rx_error = E_NO_ERROR;
     usart->rx_status = USART_STATUS_TRANSFERING;

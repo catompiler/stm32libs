@@ -42,6 +42,12 @@ typedef enum _Usart_Error {
     USART_ERROR_DMA//!< Ошибка DMA.
 } usart_error_t;
 
+//! Тип реакции на IDLE при приёме данных.
+typedef enum _Usart_Idle_Mode {
+    USART_IDLE_MODE_NONE = 0, //!< Ничего не делать.
+    USART_IDLE_MODE_END_RX //!< Завершить приём данных.
+} usart_idle_mode_t;
+
 /**
  * Тип функции обратного вызова.
  * Вызывается при окончании приёма/передачи
@@ -84,6 +90,7 @@ typedef struct _UsartBus {
     usart_error_t tx_error; //!< Ошибка канала передачи.
     uint16_t rx_size; //!< Размер данных для приёма.
     uint16_t tx_size; //!< Размер данных для передачи.
+    usart_idle_mode_t idle_mode; //!< Режим реакции на IDLE при приёме.
 } usart_bus_t;
 
 /**
@@ -248,6 +255,36 @@ extern usart_error_t usart_bus_rx_error(usart_bus_t* usart);
  * @return Ошибка канала передачи.
  */
 extern usart_error_t usart_bus_tx_error(usart_bus_t* usart);
+
+/**
+ * Получает число полученных
+ * после завершения приёма байт данных.
+ * @param usart Шина USART.
+ * @return Число полученных байт данных.
+ */
+extern size_t usart_bus_bytes_received(usart_bus_t* usart);
+
+/**
+ * Получает число переданных
+ * после завершения передачи байт данных.
+ * @param usart Шина USART.
+ * @return Число переданных байт данных.
+ */
+extern size_t usart_bus_bytes_transmitted(usart_bus_t* usart);
+
+/**
+ * Получает вид реакции на IDLE при приёме.
+ * @param usart Шина USART.
+ * @return Вид реакции на IDLE.
+ */
+extern usart_idle_mode_t usart_bus_idle_mode(usart_bus_t* usart);
+
+/**
+ * Устанавливает вид реакции на IDLE при приёме.
+ * @param usart Шина USART.
+ * @param mode Вид реакции на IDLE.
+ */
+extern void usart_bus_set_idle_mode(usart_bus_t* usart, usart_idle_mode_t mode);
 
 /**
  * Пропускает текущий поток данных

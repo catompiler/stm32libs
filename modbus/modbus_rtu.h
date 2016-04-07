@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include "errors/errors.h"
 #include "usart/usart_bus.h"
+#include "defs/defs.h"
 
 
 //! Тип адреса протокола Modbus RTU.
@@ -153,6 +154,26 @@ extern modbus_rtu_msg_sent_callback_t modbus_rtu_msg_sent_callback(modbus_rtu_t*
  * @param callback Каллбэк передачи сообщения.
  */
 extern void modbus_rtu_set_msg_sent_callback(modbus_rtu_t* modbus, modbus_rtu_msg_sent_callback_t callback);
+
+/**
+ * Получает ошибку приёма данных по шине USART.
+ * @param modbus Протокол Modbus RTU.
+ * @return Ошибка приёма данных по шине USART.
+ */
+ALWAYS_INLINE static usart_error_t modbus_rtu_rx_error(modbus_rtu_t* modbus)
+{
+    return usart_bus_rx_error(modbus->usart);
+}
+
+/**
+ * Получает ошибку передачи данных по шине USART.
+ * @param modbus Протокол Modbus RTU.
+ * @return Ошибка передачи данных по шине USART.
+ */
+ALWAYS_INLINE static usart_error_t modbus_rtu_tx_error(modbus_rtu_t* modbus)
+{
+    return usart_bus_tx_error(modbus->usart);
+}
 
 /**
  * Получает сообщение протокола Modbus RTU.

@@ -111,7 +111,17 @@ err_t modbus_rtu_init(modbus_rtu_t* modbus, modbus_rtu_init_t* modbus_is)
 
 err_t modbus_rtu_send_message(modbus_rtu_t* modbus)
 {
-    return usart_bus_send(modbus->usart, &modbus->message.adu, modbus->message.data_size + MODBUS_RTU_FIELDS_CRC_SIZE);
+    if(usart_bus_rx_busy(modbus->usart)) return E_BUSY;
+    
+    usart_bus_receiver_disable(modbus->usart);
+    
+    err_t err = usart_bus_send(modbus->usart, &modbus->message.adu, modbus->message.data_size + MODBUS_RTU_FIELDS_CRC_SIZE);
+    
+    if(err != E_NO_ERROR){
+        usart_bus_receiver_enable(modbus->usart);
+    }
+    
+    return err;
 }
 
 bool modbus_rtu_usart_rx_byte_callback(modbus_rtu_t* modbus, uint8_t byte)
@@ -121,12 +131,10 @@ bool modbus_rtu_usart_rx_byte_callback(modbus_rtu_t* modbus, uint8_t byte)
         return true;
     }
     
-    modbus_rtu_message_recv_init(&modbus->message, byte);
-    
-    if(modbus_rtu_message_recv(&modbus->message, modbus->usart) != E_NO_ERROR){
-        modbus_rtu_message_reset(&modbus->message);
+    if(modbus_rtu_message_recv(&modbus->message, modbus->usart) == E_NO_ERROR){
+        modbus_rtu_message_recv_init(&modbus->message, byte);
+    }else{
         usart_bus_sleep(modbus->usart);
-        return true;
     }
     
     return true;
@@ -150,6 +158,10 @@ bool modbus_rtu_usart_rx_callback(modbus_rtu_t* modbus)
 
 bool modbus_rtu_usart_tx_callback(modbus_rtu_t* modbus)
 {
+    usart_bus_receiver_enable(modbus->usart);
+    
+    if(modbus->sent_callback) modbus->sent_callback();
+    
     return true;
 }
 

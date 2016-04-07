@@ -19,6 +19,46 @@ typedef uint8_t modbus_rtu_address_t;
 //! Тип кода функции протокола Modbus RTU.
 typedef uint8_t modbus_rtu_func_t;
 
+
+// Коды функций протокола Modbus RTU.
+//! Чтение значений из нескольких регистров флагов.
+#define MODBUS_RTU_FUNC_READ_COILS_STATUS 0x1
+//! Чтение значений из нескольких дискретных входов.
+#define MODBUS_RTU_FUNC_READ_DISCR_INPUTS 0x2
+//! Чтение значений из нескольких регистров хранения.
+#define MODBUS_RTU_FUNC_READ_HOLDING_REGS 0x3
+//! Чтение значений из нескольких регистров ввода.
+#define MODBUS_RTU_FUNC_READ_INPUT_REGS 0x4
+//! Запись значения в один регистр флагов.
+#define MODBUS_RTU_FUNC_WRITE_SINGLE_COIL 0x5
+//! Запись значения в один регистр хранения.
+#define MODBUS_RTU_FUNC_WRITE_SINGLE_REG 0x6
+//! Запись значения в несколько регистров флагов.
+#define MODBUS_RTU_FUNC_WRITE_MULTIPLE_COILS 0xf
+//! Запись значения в несколько регистров хранения.
+#define MODBUS_RTU_FUNC_WRITE_MULTIPLE_REGS 0x10
+//! Изменение значения в регистре хранения.
+#define MODBUS_RTU_FUNC_CHANGE_REG 0x16
+//! Чтение данных из очереди FIFO.
+#define MODBUS_RTU_FUNC_READ_FIFO 0x18
+//! Чтение из файла.
+#define MODBUS_RTU_FUNC_READ_FILE 0x14
+//! Запись в файл.
+#define MODBUS_RTU_FUNC_WRITE_FILE 0x15
+//! Чтение сигналов состояния.
+#define MODBUS_RTU_FUNC_READ_EXCEPTION_STATUS 0x7
+//! Диагностика.
+#define MODBUS_RTU_FUNC_DIAGNOSTIC 0x8
+//! Чтение счётчика событий.
+#define MODBUS_RTU_FUNC_READ_EVENT_COUNTER 0xb
+//! Чтение журнала событий.
+#define MODBUS_RTU_FUNC_READ_EVENT_LOG 0xc
+//! Чтение информации об устройстве.
+#define MODBUS_RTU_FUNC_READ_SLAVE_ID 0x11
+//! Encapsulated Interface Transport.
+#define MODBUS_RTU_FUNC_ENCAPS_IFACE_TRANSPORT 0x2b
+
+
 //! Тип ошибки протокола Modbus RTU.
 typedef enum _Modbus_Rtu_Error {
     /**
@@ -73,6 +113,17 @@ typedef enum _Modbus_Rtu_Error {
      */
     MODBUS_RTU_ERROR_PARITY = 0x8
 } modbus_rtu_error_t;
+
+
+//! Типы данных протокола Modbus RTU.
+typedef enum _Modbus_Rtu_Data_Type {
+    MODBUS_RTU_DISCR_INPUT = 0, //!< Дискретный вход.
+    MODBUS_RTU_COIL, //!< Регистр флагов.
+    MODBUS_RTU_INPUT_REG, //!< Регистр ввода.
+    MODBUS_RTU_HOLDING_REG //!< Регистр хранения.
+} modbus_rtu_data_type_t;
+
+
 
 //! Максимальный размер пакета протокола Modbus RTU.
 #define MODBUS_RTU_PACKET_SIZE_MAX 256

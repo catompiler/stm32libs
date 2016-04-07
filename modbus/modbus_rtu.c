@@ -100,11 +100,15 @@ err_t modbus_rtu_init(modbus_rtu_t* modbus, modbus_rtu_init_t* modbus_is)
     modbus->mode = modbus_is->mode;
     modbus->address = modbus_is->address;
     
+    modbus->rx_message = modbus_is->rx_message;
+    modbus->tx_message = modbus_is->tx_message;
+    
     modbus->recv_callback = NULL;
     modbus->sent_callback = NULL;
     
     //memset(&modbus->message, 0x0, sizeof(modbus_rtu_message_t));
-    modbus_rtu_message_reset(&modbus->message);
+    modbus_rtu_message_reset(modbus->rx_message);
+    modbus_rtu_message_reset(modbus->tx_message);
     
     return E_NO_ERROR;
 }
@@ -115,7 +119,7 @@ err_t modbus_rtu_send_message(modbus_rtu_t* modbus)
     
     usart_bus_receiver_disable(modbus->usart);
     
-    err_t err = usart_bus_send(modbus->usart, &modbus->message.adu, modbus->message.data_size + MODBUS_RTU_FIELDS_CRC_SIZE);
+    err_t err = usart_bus_send(modbus->usart, &modbus->tx_message->adu, modbus->tx_message->data_size + MODBUS_RTU_FIELDS_CRC_SIZE);
     
     if(err != E_NO_ERROR){
         usart_bus_receiver_enable(modbus->usart);
@@ -131,8 +135,8 @@ bool modbus_rtu_usart_rx_byte_callback(modbus_rtu_t* modbus, uint8_t byte)
         return true;
     }
     
-    if(modbus_rtu_message_recv(&modbus->message, modbus->usart) == E_NO_ERROR){
-        modbus_rtu_message_recv_init(&modbus->message, byte);
+    if(modbus_rtu_message_recv(modbus->rx_message, modbus->usart) == E_NO_ERROR){
+        modbus_rtu_message_recv_init(modbus->rx_message, byte);
     }else{
         usart_bus_sleep(modbus->usart);
     }
@@ -144,10 +148,10 @@ bool modbus_rtu_usart_rx_callback(modbus_rtu_t* modbus)
 {
     if(usart_bus_rx_error(modbus->usart) != E_NO_ERROR) return true;
     
-    modbus_rtu_message_recv_done(&modbus->message, modbus->usart);
+    modbus_rtu_message_recv_done(modbus->rx_message, modbus->usart);
     
-    uint16_t calc_crc = modbus_rtu_calc_crc(&modbus->message.adu, modbus->message.data_size + MODBUS_RTU_FIELDS_SIZE);
-    uint16_t crc = modbus_rtu_message_crc(&modbus->message);
+    uint16_t calc_crc = modbus_rtu_calc_crc(&modbus->rx_message->adu, modbus->rx_message->data_size + MODBUS_RTU_FIELDS_SIZE);
+    uint16_t crc = modbus_rtu_message_crc(modbus->rx_message);
     
     if(crc != calc_crc) return true;
     
@@ -185,9 +189,28 @@ void modbus_rtu_set_msg_sent_callback(modbus_rtu_t* modbus, modbus_rtu_msg_sent_
     modbus->sent_callback = callback;
 }
 
-modbus_rtu_message_t* modbus_rtu_message(modbus_rtu_t* modbus)
+modbus_rtu_message_t* modbus_rtu_rx_message(modbus_rtu_t* modbus)
 {
-    return &modbus->message;
+    return modbus->rx_message;
+}
+
+modbus_rtu_message_t* modbus_rtu_tx_message(modbus_rtu_t* modbus)
+{
+    return modbus->tx_message;
+}
+
+void modbus_rtu_message_answer_succ(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message)
+{
+    message->adu.address = from_message->adu.address;
+    message->adu.func = from_message->adu.func;
+    message->data_size = 0;
+}
+
+void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message)
+{
+    message->adu.address = from_message->adu.address;
+    message->adu.func = from_message->adu.func & 0x80;
+    message->data_size = 0;
 }
 
 void modbus_rtu_message_reset(modbus_rtu_message_t* message)
@@ -231,7 +254,7 @@ err_t modbus_rtu_message_set_data_size(modbus_rtu_message_t* message, size_t siz
     return E_NO_ERROR;
 }
 
-void* modbus_rtu_message_data_ptr(modbus_rtu_message_t* message)
+void* modbus_rtu_message_data(modbus_rtu_message_t* message)
 {
     return message->adu.data_and_crc;
 }

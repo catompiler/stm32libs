@@ -17,7 +17,7 @@
 typedef uint8_t modbus_rtu_address_t;
 
 //! Тип кода функции протокола Modbus RTU.
-typedef int8_t modbus_rtu_func_t;
+typedef uint8_t modbus_rtu_func_t;
 
 //! Максимальный размер пакета протокола Modbus RTU.
 #define MODBUS_RTU_PACKET_SIZE_MAX 256
@@ -73,7 +73,8 @@ typedef struct _Modbus_Rtu {
     usart_bus_t* usart; //!< Шина USART.
     modbus_rtu_mode_t mode; //!< Режим работы.
     modbus_rtu_address_t address; //!< Адрес.
-    modbus_rtu_message_t message; //!< Сообщение.
+    modbus_rtu_message_t* rx_message; //!< Сообщение для приёма.
+    modbus_rtu_message_t* tx_message; //!< Сообщение для передачи.
     modbus_rtu_msg_recv_callback_t recv_callback; //!< Каллбэк приёма сообщения.
     modbus_rtu_msg_sent_callback_t sent_callback; //!< Каллбэк передачи сообщения.
 } modbus_rtu_t;
@@ -84,6 +85,8 @@ typedef struct _Modbus_Rtu_Init {
     usart_bus_t* usart; //!< Шина USART.
     modbus_rtu_mode_t mode; //!< Режим работы.
     modbus_rtu_address_t address; //!< Адрес.
+    modbus_rtu_message_t* rx_message; //!< Сообщение для приёма.
+    modbus_rtu_message_t* tx_message; //!< Сообщение для передачи.
 } modbus_rtu_init_t;
 
 
@@ -176,11 +179,32 @@ ALWAYS_INLINE static usart_error_t modbus_rtu_tx_error(modbus_rtu_t* modbus)
 }
 
 /**
- * Получает сообщение протокола Modbus RTU.
+ * Получает сообщение для приёма протокола Modbus RTU.
  * @param modbus Протокол Modbus RTU.
- * @return Сообщение протокола Modbus RTU.
+ * @return Сообщение для приёма протокола Modbus RTU.
  */
-extern modbus_rtu_message_t* modbus_rtu_message(modbus_rtu_t* modbus);
+extern modbus_rtu_message_t* modbus_rtu_rx_message(modbus_rtu_t* modbus);
+
+/**
+ * Получает сообщение для передачи протокола Modbus RTU.
+ * @param modbus Протокол Modbus RTU.
+ * @return Сообщение для передачи протокола Modbus RTU.
+ */
+extern modbus_rtu_message_t* modbus_rtu_tx_message(modbus_rtu_t* modbus);
+
+/**
+ * Формирует успешный ответ на сообщение.
+ * @param message Формируемое сообщение.
+ * @param from_message Сообщение для ответа.
+ */
+extern void modbus_rtu_message_answer_succ(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message);
+
+/**
+ * Формирует неудачный ответ на сообщение.
+ * @param message Формируемое сообщение.
+ * @param from_message Сообщение для ответа.
+ */
+extern void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message);
 
 /**
  * Сбрасывает сообщение протокола Modbus RTU.
@@ -236,7 +260,7 @@ extern err_t modbus_rtu_message_set_data_size(modbus_rtu_message_t* message, siz
  * @param message Сообщение протокола Modbus RTU.
  * @return Указатель на данные сообщения протокола Modbus RTU.
  */
-extern void* modbus_rtu_message_data_ptr(modbus_rtu_message_t* message);
+extern void* modbus_rtu_message_data(modbus_rtu_message_t* message);
 
 /**
  * Копирует данные в сообщение протокола Modbus RTU.

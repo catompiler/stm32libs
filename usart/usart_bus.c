@@ -293,6 +293,36 @@ bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart)
     return true;
 }
 
+bool usart_bus_receiver_enabled(usart_bus_t* usart)
+{
+    return usart->usart_device->CR1 & USART_CR1_RE;
+}
+
+void usart_bus_receiver_enable(usart_bus_t* usart)
+{
+    usart->usart_device->CR1 |= USART_CR1_RE;
+}
+
+void usart_bus_receiver_disable(usart_bus_t* usart)
+{
+    usart->usart_device->CR1 &= ~USART_CR1_RE;
+}
+
+bool usart_bus_transmitter_enabled(usart_bus_t* usart)
+{
+    return usart->usart_device->CR1 & USART_CR1_TE;
+}
+
+void usart_bus_transmitter_enable(usart_bus_t* usart)
+{
+    usart->usart_device->CR1 |= USART_CR1_TE;
+}
+
+void usart_bus_transmitter_disable(usart_bus_t* usart)
+{
+    usart->usart_device->CR1 &= ~USART_CR1_TE;
+}
+
 bool usart_bus_rx_busy(usart_bus_t* usart)
 {
     return usart->rx_status == USART_STATUS_TRANSFERING;

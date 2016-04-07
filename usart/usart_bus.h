@@ -146,6 +146,44 @@ extern bool usart_bus_dma_rx_channel_irq_handler(usart_bus_t* usart);
 extern bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart);
 
 /**
+ * Получает флаг включения приёмника.
+ * @param usart Шина USART.
+ * @return true, если приёмник включен, иначе false.
+ */
+extern bool usart_bus_receiver_enabled(usart_bus_t* usart);
+
+/**
+ * Включает приёмник.
+ * @param usart Шина USART.
+ */
+extern void usart_bus_receiver_enable(usart_bus_t* usart);
+
+/**
+ * Выключает приёмник.
+ * @param usart Шина USART.
+ */
+extern void usart_bus_receiver_disable(usart_bus_t* usart);
+
+/**
+ * Получает флаг включения передатчика.
+ * @param usart Шина USART.
+ * @return true, если передатчик включен, иначе false.
+ */
+extern bool usart_bus_transmitter_enabled(usart_bus_t* usart);
+
+/**
+ * Включает передатчик.
+ * @param usart Шина USART.
+ */
+extern void usart_bus_transmitter_enable(usart_bus_t* usart);
+
+/**
+ * Выключает передатчик.
+ * @param usart Шина USART.
+ */
+extern void usart_bus_transmitter_disable(usart_bus_t* usart);
+
+/**
  * Получает флаг занятости шины usart на приём.
  * @param usart Шина usart.
  * @return Флаг занятости шины usart.

@@ -19,6 +19,61 @@ typedef uint8_t modbus_rtu_address_t;
 //! Тип кода функции протокола Modbus RTU.
 typedef uint8_t modbus_rtu_func_t;
 
+//! Тип ошибки протокола Modbus RTU.
+typedef enum _Modbus_Rtu_Error {
+    /**
+     * Нет ошибки.
+     */
+    MODBUS_RTU_ERROR_NONE = 0,
+    /**
+     * Принятый код функции не может быть обработан.
+     */
+    MODBUS_RTU_ERROR_INVALID_FUNC = 0x1,
+    /**
+     * Адрес данных, указанный в запросе, недоступен.
+     */
+    MODBUS_RTU_ERROR_INVALID_ADDRESS = 0x2,
+    /**
+     * Значение, содержащееся в поле данных запроса,
+     * является недопустимой величиной.
+     */
+    MODBUS_RTU_ERROR_INVALID_DATA = 0x3,
+    /**
+     * Невосстанавливаемая ошибка имела место, пока ведомое устройство
+     * пыталось выполнить затребованное действие.
+     */
+    MODBUS_RTU_ERROR_NONRECOVERABLE = 0x4,
+    /**
+     * Ведомое устройство приняло запрос и обрабатывает его,
+     * но это требует много времени.
+     * Этот ответ предохраняет ведущее устройство
+     * от генерации ошибки тайм-аута.
+     */
+    MODBUS_RTU_ERROR_OP_IN_PROGRESS = 0x5,
+    /**
+     * Ведомое устройство занято обработкой команды.
+     * Ведущее устройство должно повторить сообщение позже,
+     * когда ведомое освободится.
+     */
+    MODBUS_RTU_ERROR_BUSY = 0x6,
+    /**
+     * Ведомое устройство не может выполнить программную функцию,
+     * заданную в запросе. Этот код возвращается для
+     * неуспешного программного запроса,
+     * использующего функции с номерами 13 или 14.
+     * Ведущее устройство должно запросить диагностическую информацию
+     * или информацию об ошибках от ведомого.
+     */
+    MODBUS_RTU_ERROR_FUNC = 0x7,
+    /**
+     * Ведомое устройство при чтении расширенной памяти
+     * обнаружило ошибку паритета.
+     * Ведущее устройство может повторить запрос,
+     * но обычно в таких случаях требуется ремонт.
+     */
+    MODBUS_RTU_ERROR_PARITY = 0x8
+} modbus_rtu_error_t;
+
 //! Максимальный размер пакета протокола Modbus RTU.
 #define MODBUS_RTU_PACKET_SIZE_MAX 256
 
@@ -204,7 +259,7 @@ extern void modbus_rtu_message_answer_succ(modbus_rtu_message_t* message, const 
  * @param message Формируемое сообщение.
  * @param from_message Сообщение для ответа.
  */
-extern void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message);
+extern void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message, modbus_rtu_error_t error);
 
 /**
  * Сбрасывает сообщение протокола Modbus RTU.

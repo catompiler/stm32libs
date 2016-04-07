@@ -206,11 +206,12 @@ void modbus_rtu_message_answer_succ(modbus_rtu_message_t* message, const modbus_
     message->data_size = 0;
 }
 
-void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message)
+void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message, modbus_rtu_error_t error)
 {
     message->adu.address = from_message->adu.address;
     message->adu.func = from_message->adu.func & 0x80;
-    message->data_size = 0;
+    message->adu.data_and_crc[0] = error;
+    message->data_size = 1;
 }
 
 void modbus_rtu_message_reset(modbus_rtu_message_t* message)

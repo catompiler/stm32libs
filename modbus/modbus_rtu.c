@@ -1,5 +1,6 @@
 #include "modbus_rtu.h"
 #include <string.h>
+#include "utils/net.h"
 
 
 
@@ -95,6 +96,11 @@ err_t modbus_rtu_init(modbus_rtu_t* modbus, modbus_rtu_init_t* modbus_is)
 {
     if(modbus_is->usart == NULL) return E_NULL_POINTER;
     
+    if(modbus_is->rx_message == NULL) return E_NULL_POINTER;
+    if(modbus_is->tx_message == NULL) return E_NULL_POINTER;
+    
+    memset(modbus, 0x0, sizeof(modbus_rtu_t));
+    
     modbus->usart = modbus_is->usart;
     
     modbus->mode = modbus_is->mode;
@@ -103,18 +109,33 @@ err_t modbus_rtu_init(modbus_rtu_t* modbus, modbus_rtu_init_t* modbus_is)
     modbus->rx_message = modbus_is->rx_message;
     modbus->tx_message = modbus_is->tx_message;
     
-    modbus->recv_callback = NULL;
-    modbus->sent_callback = NULL;
-    
-    //memset(&modbus->message, 0x0, sizeof(modbus_rtu_message_t));
     modbus_rtu_message_reset(modbus->rx_message);
     modbus_rtu_message_reset(modbus->tx_message);
     
     return E_NO_ERROR;
 }
 
+modbus_rtu_address_t modbus_rtu_address(modbus_rtu_t* modbus)
+{
+    return modbus->address;
+}
+
+err_t modbus_rtu_set_address(modbus_rtu_t* modbus, modbus_rtu_address_t address)
+{
+    if(address == MODBUS_RTU_ADDRESS_BROADCAST) return E_INVALID_VALUE;
+    
+    modbus->address = address;
+    
+    return E_NO_ERROR;
+}
+
 err_t modbus_rtu_send_message(modbus_rtu_t* modbus)
 {
+    if(modbus->tx_message->adu.address == MODBUS_RTU_ADDRESS_BROADCAST &&
+       modbus->mode == MODBUS_RTU_MODE_SLAVE){
+        return E_INVALID_VALUE;
+    }
+    
     if(usart_bus_rx_busy(modbus->usart)) return E_BUSY;
     
     usart_bus_receiver_disable(modbus->usart);
@@ -130,7 +151,8 @@ err_t modbus_rtu_send_message(modbus_rtu_t* modbus)
 
 bool modbus_rtu_usart_rx_byte_callback(modbus_rtu_t* modbus, uint8_t byte)
 {
-    if(modbus->mode == MODBUS_RTU_MODE_SLAVE && modbus->address != byte){
+    if(modbus->mode == MODBUS_RTU_MODE_SLAVE &&
+       modbus->address != byte && byte != MODBUS_RTU_ADDRESS_BROADCAST){
         usart_bus_sleep(modbus->usart);
         return true;
     }
@@ -209,7 +231,7 @@ void modbus_rtu_message_answer_succ(modbus_rtu_message_t* message, const modbus_
 void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message, modbus_rtu_error_t error)
 {
     message->adu.address = from_message->adu.address;
-    message->adu.func = from_message->adu.func & 0x80;
+    message->adu.func = from_message->adu.func | 0x80;
     message->adu.data_and_crc[0] = error;
     message->data_size = 1;
 }
@@ -289,4 +311,505 @@ uint16_t modbus_rtu_message_calc_crc(modbus_rtu_message_t* message)
     message->adu.data_and_crc[message->data_size + 1] = crc >> 8;
     
     return crc;
+}
+
+modbus_rtu_read_coil_callback_t modbus_rtu_read_coil_callback(modbus_rtu_t* modbus)
+{
+    return modbus->read_coil_callback;
+}
+
+void modbus_rtu_set_read_coil_callback(modbus_rtu_t* modbus, modbus_rtu_read_coil_callback_t callback)
+{
+    modbus->read_coil_callback = callback;
+}
+
+modbus_rtu_read_din_callback_t modbus_rtu_read_din_callback(modbus_rtu_t* modbus)
+{
+    return modbus->read_din_callback;
+}
+
+void modbus_rtu_set_read_din_callback(modbus_rtu_t* modbus, modbus_rtu_read_din_callback_t callback)
+{
+    modbus->read_din_callback = callback;
+}
+
+modbus_rtu_read_holding_reg_callback_t modbus_rtu_read_holding_reg_callback(modbus_rtu_t* modbus)
+{
+    return modbus->read_holding_reg_callback;
+}
+
+void modbus_rtu_set_read_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_read_holding_reg_callback_t callback)
+{
+    modbus->read_holding_reg_callback = callback;
+}
+
+modbus_rtu_read_input_reg_callback_t modbus_rtu_read_input_reg_callback(modbus_rtu_t* modbus)
+{
+    return modbus->read_input_reg_callback;
+}
+
+void modbus_rtu_set_read_input_reg_callback(modbus_rtu_t* modbus, modbus_rtu_read_input_reg_callback_t callback)
+{
+    modbus->read_input_reg_callback = callback;
+}
+
+modbus_rtu_write_coil_callback_t modbus_rtu_write_coil_callback(modbus_rtu_t* modbus)
+{
+    return modbus->write_coil_callback;
+}
+
+void modbus_rtu_set_write_coil_callback(modbus_rtu_t* modbus, modbus_rtu_write_coil_callback_t callback)
+{
+    modbus->write_coil_callback = callback;
+}
+
+modbus_rtu_write_holding_reg_callback_t modbus_rtu_write_holding_reg_callback(modbus_rtu_t* modbus)
+{
+    return modbus->write_holding_reg_callback;
+}
+
+void modbus_rtu_set_write_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_write_holding_reg_callback_t callback)
+{
+    modbus->write_holding_reg_callback = callback;
+}
+
+modbus_rtu_change_holding_reg_callback_t modbus_rtu_change_holding_reg_callback(modbus_rtu_t* modbus)
+{
+    return modbus->change_holding_reg_callback;
+}
+
+void modbus_rtu_set_change_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_change_holding_reg_callback_t callback)
+{
+    modbus->change_holding_reg_callback = callback;
+}
+
+static err_t modbus_rtu_disp_fail(modbus_rtu_t* modbus, modbus_rtu_error_t error)
+{
+    if(modbus_rtu_message_address(modbus->rx_message) == MODBUS_RTU_ADDRESS_BROADCAST &&
+       modbus->mode == MODBUS_RTU_MODE_SLAVE){
+        return E_NO_ERROR;
+    }
+    
+    modbus_rtu_message_answer_fail(modbus->tx_message, modbus->rx_message, error);
+    modbus_rtu_message_calc_crc(modbus->tx_message);
+    
+    return modbus_rtu_send_message(modbus);
+}
+
+static err_t modbus_rtu_disp_succ(modbus_rtu_t* modbus, size_t data_size)
+{
+    if(modbus_rtu_message_address(modbus->rx_message) == MODBUS_RTU_ADDRESS_BROADCAST &&
+       modbus->mode == MODBUS_RTU_MODE_SLAVE){
+        return E_NO_ERROR;
+    }
+    
+    modbus_rtu_message_answer_succ(modbus->tx_message, modbus->rx_message);
+    modbus_rtu_message_set_data_size(modbus->tx_message, data_size);
+    modbus_rtu_message_calc_crc(modbus->tx_message);
+    
+    return modbus_rtu_send_message(modbus);
+}
+
+static err_t modbus_rtu_disp_read_coils(modbus_rtu_t* modbus)
+{
+    if(modbus->read_coil_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) != sizeof(uint16_t) * 2)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint8_t* tx_data = modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t count = ntohs(rx_data[1]);
+    
+    if(count > (MODBUS_RTU_DATA_SIZE_MAX - 1) * 8)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_coil_value_t value;
+    
+    uint8_t byte_index = 1;
+    uint8_t bit_index = 0;
+    
+    tx_data[byte_index] = 0;
+    
+    uint16_t i = 0;
+    for(; i < count; i ++){
+        modbus_err = modbus->read_coil_callback(address, &value);
+        
+        if(modbus_err != MODBUS_RTU_ERROR_NONE)
+            return modbus_rtu_disp_fail(modbus, modbus_err);
+        
+        if(value){
+            tx_data[byte_index] |= (1 << bit_index);
+        }
+        if(++ bit_index >= 8){
+            bit_index = 0;
+            tx_data[++ byte_index] = 0;
+        }
+        address ++;
+    }
+    
+    tx_data[0] = (byte_index - 1) + (count > 0);
+    
+    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
+    
+    return E_NO_ERROR;
+}
+
+static err_t modbus_rtu_disp_read_dins(modbus_rtu_t* modbus)
+{
+    if(modbus->read_din_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) != sizeof(uint16_t) * 2)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint8_t* tx_data = modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t count = ntohs(rx_data[1]);
+    
+    if(count > (MODBUS_RTU_DATA_SIZE_MAX - 1) * 8)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_din_value_t value;
+    
+    uint8_t byte_index = 1;
+    uint8_t bit_index = 0;
+    
+    tx_data[byte_index] = 0;
+    
+    uint16_t i = 0;
+    for(; i < count; i ++){
+        modbus_err = modbus->read_din_callback(address, &value);
+        
+        if(modbus_err != MODBUS_RTU_ERROR_NONE)
+            return modbus_rtu_disp_fail(modbus, modbus_err);
+        
+        if(value){
+            tx_data[byte_index] |= (1 << bit_index);
+        }
+        if(++ bit_index >= 8){
+            bit_index = 0;
+            tx_data[++ byte_index] = 0;
+        }
+        address ++;
+    }
+    
+    tx_data[0] = (byte_index - 1) + (count > 0);
+    
+    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
+    
+    return E_NO_ERROR;
+}
+
+static err_t modbus_rtu_disp_read_holding_regs(modbus_rtu_t* modbus)
+{
+    if(modbus->read_holding_reg_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) != sizeof(uint16_t) * 2)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint8_t* tx_data = modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t count = ntohs(rx_data[1]);
+    
+    if(count > (MODBUS_RTU_DATA_SIZE_MAX - 1) / 2)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    uint16_t value;
+    
+    uint16_t* regs_values = (uint16_t*)(tx_data + 1);
+    
+    uint16_t i = 0;
+    for(; i < count; i ++){
+        modbus_err = modbus->read_holding_reg_callback(address, &value);
+        
+        if(modbus_err != MODBUS_RTU_ERROR_NONE)
+            return modbus_rtu_disp_fail(modbus, modbus_err);
+        
+        regs_values[i] = htons(value);
+        address ++;
+    }
+    
+    tx_data[0] = count * 2;
+    
+    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
+    
+    return E_NO_ERROR;
+}
+
+static err_t modbus_rtu_disp_read_input_regs(modbus_rtu_t* modbus)
+{
+    if(modbus->read_input_reg_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) != sizeof(uint16_t) * 2)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint8_t* tx_data = modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t count = ntohs(rx_data[1]);
+    
+    if(count > (MODBUS_RTU_DATA_SIZE_MAX - 1) / 2)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    uint16_t value;
+    
+    uint16_t* regs_values = (uint16_t*)(tx_data + 1);
+    
+    uint16_t i = 0;
+    for(; i < count; i ++){
+        modbus_err = modbus->read_input_reg_callback(address, &value);
+        
+        if(modbus_err != MODBUS_RTU_ERROR_NONE)
+            return modbus_rtu_disp_fail(modbus, modbus_err);
+        
+        regs_values[i] = htons(value);
+        address ++;
+    }
+    
+    tx_data[0] = count * 2;
+    
+    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
+    
+    return E_NO_ERROR;
+}
+
+static err_t modbus_rtu_disp_write_coil(modbus_rtu_t* modbus)
+{
+    if(modbus->write_coil_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) != sizeof(uint16_t) * 2)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint16_t* tx_data = (uint16_t*)modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t value = ntohs(rx_data[1]);
+
+    if(value != 0 && value != 0xff00)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_err = modbus->write_coil_callback(address,
+                            value ? MODBUS_RTU_COIL_ON : MODBUS_RTU_COIL_OFF);
+
+    if(modbus_err != MODBUS_RTU_ERROR_NONE)
+        return modbus_rtu_disp_fail(modbus, modbus_err);
+    
+    tx_data[0] = rx_data[0];
+    tx_data[1] = rx_data[1];
+    
+    modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
+    
+    return E_NO_ERROR;
+}
+
+static err_t modbus_rtu_disp_write_reg(modbus_rtu_t* modbus)
+{
+    if(modbus->write_holding_reg_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) != sizeof(uint16_t) * 2)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint16_t* tx_data = (uint16_t*)modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t value = ntohs(rx_data[1]);
+
+    modbus_err = modbus->write_holding_reg_callback(address, value);
+
+    if(modbus_err != MODBUS_RTU_ERROR_NONE)
+        return modbus_rtu_disp_fail(modbus, modbus_err);
+    
+    tx_data[0] = rx_data[0];
+    tx_data[1] = rx_data[1];
+    
+    modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
+    
+    return E_NO_ERROR;
+}
+
+static err_t modbus_rtu_disp_write_coils(modbus_rtu_t* modbus)
+{
+    if(modbus->write_coil_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    const size_t header_size = (sizeof(uint16_t) * 2 + 1);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) < header_size)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint16_t* tx_data = (uint16_t*)modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t count = ntohs(rx_data[1]);
+    uint8_t bytes_count = *((uint8_t*)&rx_data[2]);
+    
+    if((count > (MODBUS_RTU_DATA_SIZE_MAX - header_size) * 8) || (count > bytes_count * 8))
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    uint8_t* coils_values = modbus_rtu_message_data(modbus->rx_message) + header_size;
+    
+    uint8_t byte_index = 0;
+    uint8_t bit_index = 0;
+    
+    modbus_rtu_coil_value_t value;
+    
+    uint16_t i = 0;
+    for(; i < count; i ++){
+        
+        if(coils_values[byte_index] & (1 << bit_index)){
+            value = MODBUS_RTU_COIL_ON;
+        }else{
+            value = MODBUS_RTU_COIL_OFF;
+        }
+        
+        modbus_err = modbus->write_coil_callback(address, value);
+        
+        if(modbus_err != MODBUS_RTU_ERROR_NONE)
+            return modbus_rtu_disp_fail(modbus, modbus_err);
+        
+        if(++ bit_index >= 8){
+            bit_index = 0;
+            byte_index ++;
+        }
+        address ++;
+    }
+    
+    tx_data[0] = rx_data[0];
+    tx_data[1] = rx_data[1];
+    
+    modbus_rtu_disp_succ(modbus, sizeof(uint16_t) * 2);
+    
+    return E_NO_ERROR;
+}
+
+static err_t modbus_rtu_disp_write_regs(modbus_rtu_t* modbus)
+{
+    if(modbus->write_holding_reg_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    const size_t header_size = (sizeof(uint16_t) * 2 + 1);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) < header_size)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint16_t* tx_data = (uint16_t*)modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t count = ntohs(rx_data[1]);
+    uint8_t bytes_count = *((uint8_t*)&rx_data[2]);
+    
+    if((count > (MODBUS_RTU_DATA_SIZE_MAX - header_size) / 2) || (count > bytes_count / 2))
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    uint16_t* regs_values = (uint16_t*)(modbus_rtu_message_data(modbus->rx_message) + header_size);
+    
+    uint16_t i = 0;
+    for(; i < count; i ++){
+        
+        modbus_err = modbus->write_holding_reg_callback(address, ntohs(regs_values[i]));
+        
+        if(modbus_err != MODBUS_RTU_ERROR_NONE)
+            return modbus_rtu_disp_fail(modbus, modbus_err);
+        
+        address ++;
+    }
+    
+    tx_data[0] = rx_data[0];
+    tx_data[1] = rx_data[1];
+    
+    modbus_rtu_disp_succ(modbus, sizeof(uint16_t) * 2);
+    
+    return E_NO_ERROR;
+}
+
+static err_t modbus_rtu_disp_change_reg(modbus_rtu_t* modbus)
+{
+    if(modbus->change_holding_reg_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) != sizeof(uint16_t) * 3)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint16_t* rx_data = (uint16_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint16_t* tx_data = (uint16_t*)modbus_rtu_message_data(modbus->tx_message);
+    
+    uint16_t address = ntohs(rx_data[0]);
+    uint16_t and_mask = ntohs(rx_data[1]);
+    uint16_t or_mask = ntohs(rx_data[2]);
+
+    modbus_err = modbus->change_holding_reg_callback(address, and_mask, or_mask);
+
+    if(modbus_err != MODBUS_RTU_ERROR_NONE)
+        return modbus_rtu_disp_fail(modbus, modbus_err);
+    
+    tx_data[0] = rx_data[0];
+    tx_data[1] = rx_data[1];
+    tx_data[2] = rx_data[2];
+    
+    modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
+    
+    return E_NO_ERROR;
+}
+
+err_t modbus_rtu_dispatch(modbus_rtu_t* modbus)
+{
+    switch(modbus->rx_message->adu.func){
+        default:
+            return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+        case MODBUS_RTU_FUNC_READ_COILS_STATUS:
+            return modbus_rtu_disp_read_coils(modbus);
+        case MODBUS_RTU_FUNC_READ_DISCR_INPUTS:
+            return modbus_rtu_disp_read_dins(modbus);
+        case MODBUS_RTU_FUNC_READ_HOLDING_REGS:
+            return modbus_rtu_disp_read_holding_regs(modbus);
+        case MODBUS_RTU_FUNC_READ_INPUT_REGS:
+            return modbus_rtu_disp_read_input_regs(modbus);
+        case MODBUS_RTU_FUNC_WRITE_SINGLE_COIL:
+            return modbus_rtu_disp_write_coil(modbus);
+        case MODBUS_RTU_FUNC_WRITE_SINGLE_REG:
+            return modbus_rtu_disp_write_reg(modbus);
+        case MODBUS_RTU_FUNC_WRITE_MULTIPLE_COILS:
+            return modbus_rtu_disp_write_coils(modbus);
+        case MODBUS_RTU_FUNC_WRITE_MULTIPLE_REGS:
+            return modbus_rtu_disp_write_regs(modbus);
+        case MODBUS_RTU_FUNC_CHANGE_REG:
+            return modbus_rtu_disp_change_reg(modbus);
+    }
+    
+    return E_NO_ERROR;
 }

@@ -124,6 +124,22 @@ typedef enum _Modbus_Rtu_Data_Type {
 } modbus_rtu_data_type_t;
 
 
+//! Тип значения регистров флагов.
+typedef enum _Modbus_Rtu_Coil_Value {
+    MODBUS_RTU_COIL_OFF = 0, //!< Выключен.
+    MODBUS_RTU_COIL_ON = 1 //!< Включен.
+} modbus_rtu_coil_value_t;
+
+//! Тип значения дискретныйх входов.
+typedef enum _Modbus_Rtu_Din_Value {
+    MODBUS_RTU_DIN_OFF = 0, //!< Выключен.
+    MODBUS_RTU_DIN_ON = 1 //!< Включен.
+} modbus_rtu_din_value_t;
+
+
+//! Широковещательный адрес.
+#define MODBUS_RTU_ADDRESS_BROADCAST 0
+
 
 //! Максимальный размер пакета протокола Modbus RTU.
 #define MODBUS_RTU_PACKET_SIZE_MAX 256
@@ -173,6 +189,27 @@ typedef void (*modbus_rtu_msg_recv_callback_t)(void);
 //! Каллбэк передачи сообщения.
 typedef void (*modbus_rtu_msg_sent_callback_t)(void);
 
+//! Каллбэк чтения регистра флагов.
+typedef modbus_rtu_error_t (*modbus_rtu_read_coil_callback_t)(uint16_t address, modbus_rtu_coil_value_t* value);
+
+//! Каллбэк чтения цифрового входа.
+typedef modbus_rtu_error_t (*modbus_rtu_read_din_callback_t)(uint16_t address, modbus_rtu_din_value_t* value);
+
+//! Каллбэк чтения регистра хранения.
+typedef modbus_rtu_error_t (*modbus_rtu_read_holding_reg_callback_t)(uint16_t address, uint16_t* value);
+
+//! Каллбэк чтения регистра ввода.
+typedef modbus_rtu_error_t (*modbus_rtu_read_input_reg_callback_t)(uint16_t address, uint16_t* value);
+
+//! Каллбэк записи регистра флагов.
+typedef modbus_rtu_error_t (*modbus_rtu_write_coil_callback_t)(uint16_t address, modbus_rtu_coil_value_t value);
+
+//! Каллбэк записи регистра хранения.
+typedef modbus_rtu_error_t (*modbus_rtu_write_holding_reg_callback_t)(uint16_t address, uint16_t value);
+
+//! Каллбэк изменения регистра хранения.
+typedef modbus_rtu_error_t (*modbus_rtu_change_holding_reg_callback_t)(uint16_t address, uint16_t and_mask, uint16_t or_mask);
+
 
 //! Тип протокола Modbus RTU.
 typedef struct _Modbus_Rtu {
@@ -183,6 +220,13 @@ typedef struct _Modbus_Rtu {
     modbus_rtu_message_t* tx_message; //!< Сообщение для передачи.
     modbus_rtu_msg_recv_callback_t recv_callback; //!< Каллбэк приёма сообщения.
     modbus_rtu_msg_sent_callback_t sent_callback; //!< Каллбэк передачи сообщения.
+    modbus_rtu_read_coil_callback_t read_coil_callback; //!< Каллбэк чтения регистра флагов.
+    modbus_rtu_read_din_callback_t read_din_callback; //!< Каллбэк чтения цифрового входа.
+    modbus_rtu_read_holding_reg_callback_t read_holding_reg_callback; //!< Каллбэк чтения регистра хранения.
+    modbus_rtu_read_input_reg_callback_t read_input_reg_callback; //!< Каллбэк чтения регистра ввода.
+    modbus_rtu_write_coil_callback_t write_coil_callback; //!< Каллбэк записи регистра флагов.
+    modbus_rtu_write_holding_reg_callback_t write_holding_reg_callback; //!< Каллбэк записи регистра хранения.
+    modbus_rtu_change_holding_reg_callback_t change_holding_reg_callback; //!< Каллбэк изменения регистра хранения.
 } modbus_rtu_t;
 
 
@@ -204,6 +248,21 @@ typedef struct _Modbus_Rtu_Init {
  * @return Код ошибки.
  */
 extern err_t modbus_rtu_init(modbus_rtu_t* modbus, modbus_rtu_init_t* modbus_is);
+
+/**
+ * Получает адрес протокола Modbus RTU.
+ * @param modbus Протокол Modbus RTU.
+ * @return Адрес протокола Modbus RTU.
+ */
+extern modbus_rtu_address_t modbus_rtu_address(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает адрес протокола Modbus RTU.
+ * @param modbus Протокол Modbus RTU.
+ * @param address Адрес протокола Modbus RTU.
+ * @return Код ошибки.
+ */
+extern err_t modbus_rtu_set_address(modbus_rtu_t* modbus, modbus_rtu_address_t address);
 
 /**
  * Отправляет сообщение протокола Modbus RTU.
@@ -390,5 +449,110 @@ extern uint16_t modbus_rtu_message_crc(modbus_rtu_message_t* message);
  * @return Значение контрольной суммы сообщения протокола Modbus RTU.
  */
 extern uint16_t modbus_rtu_message_calc_crc(modbus_rtu_message_t* message);
+
+/**
+ * Получает каллбэк чтения регистра флагов.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк чтения регистра флагов.
+ */
+extern modbus_rtu_read_coil_callback_t modbus_rtu_read_coil_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк чтения регистра флагов.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк чтения регистра флагов.
+ */
+extern void modbus_rtu_set_read_coil_callback(modbus_rtu_t* modbus, modbus_rtu_read_coil_callback_t callback);
+
+/**
+ * Получает каллбэк чтения цифрового входа.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк чтения цифрового входа.
+ */
+extern modbus_rtu_read_din_callback_t modbus_rtu_read_din_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк чтения цифрового входа.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк чтения цифрового входа.
+ */
+extern void modbus_rtu_set_read_din_callback(modbus_rtu_t* modbus, modbus_rtu_read_din_callback_t callback);
+
+/**
+ * Получает каллбэк чтения регистра хранения.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк чтения регистра хранения.
+ */
+extern modbus_rtu_read_holding_reg_callback_t modbus_rtu_read_holding_reg_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк чтения регистра хранения.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк чтения регистра хранения.
+ */
+extern void modbus_rtu_set_read_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_read_holding_reg_callback_t callback);
+
+/**
+ * Получает каллбэк чтения регистра ввода.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк чтения регистра ввода.
+ */
+extern modbus_rtu_read_input_reg_callback_t modbus_rtu_read_input_reg_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк чтения регистра ввода.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк чтения регистра ввода.
+ */
+extern void modbus_rtu_set_read_input_reg_callback(modbus_rtu_t* modbus, modbus_rtu_read_input_reg_callback_t callback);
+
+/**
+ * Получает каллбэк записи регистра флагов.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк записи регистра флагов.
+ */
+extern modbus_rtu_write_coil_callback_t modbus_rtu_write_coil_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк записи регистра флагов.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк записи регистра флагов.
+ */
+extern void modbus_rtu_set_write_coil_callback(modbus_rtu_t* modbus, modbus_rtu_write_coil_callback_t callback);
+
+/**
+ * Получает каллбэк записи регистра хранения.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк записи регистра хранения.
+ */
+extern modbus_rtu_write_holding_reg_callback_t modbus_rtu_write_holding_reg_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк записи регистра хранения.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк записи регистра хранения.
+ */
+extern void modbus_rtu_set_write_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_write_holding_reg_callback_t callback);
+
+/**
+ * Получает каллбэк изменения регистра хранения.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк изменения регистра хранения.
+ */
+extern modbus_rtu_change_holding_reg_callback_t modbus_rtu_change_holding_reg_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк изменения регистра хранения.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк изменения регистра хранения.
+ */
+extern void modbus_rtu_set_change_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_change_holding_reg_callback_t callback);
+
+/**
+ * Обрабатывает сообщение протокола Modbus RTU.
+ * @param modbus Протокол Modbus RTU.
+ * @return Код ошибки.
+ */
+extern err_t modbus_rtu_dispatch(modbus_rtu_t* modbus);
 
 #endif /* MODBUS_RTU_H */

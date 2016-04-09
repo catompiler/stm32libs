@@ -60,9 +60,9 @@ static uint16_t modbus_rtu_calc_crc(const void* data, size_t size)
     size_t index = 0;
     
     for(; size != 0; size --){
-        index = crc_hi ^ *(uint8_t*)data ++;
-        crc_hi = crc_lo ^ table_crc_hi[index];
-        crc_lo = table_crc_lo[index];
+        index = crc_lo ^ *(uint8_t*)data ++;
+        crc_lo = crc_hi ^ table_crc_hi[index];
+        crc_hi = table_crc_lo[index];
     }
     return ((uint16_t)crc_hi << 8) | crc_lo;
 }

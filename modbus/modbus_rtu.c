@@ -383,6 +383,16 @@ void modbus_rtu_set_change_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu
     modbus->change_holding_reg_callback = callback;
 }
 
+modbus_rtu_report_slave_id_callback_t modbus_rtu_report_slave_id_callback(modbus_rtu_t* modbus)
+{
+    return modbus->report_slave_id_callback;
+}
+
+void modbus_rtu_set_report_slave_id_callback(modbus_rtu_t* modbus, modbus_rtu_report_slave_id_callback_t callback)
+{
+    modbus->report_slave_id_callback = callback;
+}
+
 static err_t modbus_rtu_disp_fail(modbus_rtu_t* modbus, modbus_rtu_error_t error)
 {
     if(modbus_rtu_message_address(modbus->rx_message) == MODBUS_RTU_ADDRESS_BROADCAST &&
@@ -786,6 +796,61 @@ static err_t modbus_rtu_disp_change_reg(modbus_rtu_t* modbus)
     return E_NO_ERROR;
 }
 
+static err_t modbus_rtu_disp_report_slave_id(modbus_rtu_t* modbus)
+{
+    if(modbus->report_slave_id_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) != 0)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint8_t* tx_data = modbus_rtu_message_data(modbus->tx_message);
+    
+    const size_t max_slave_id_size = MODBUS_RTU_DATA_SIZE_MAX - 2;
+    
+    modbus_rtu_slave_id_t slave_id;
+    slave_id.id = NULL;
+    slave_id.id_size = 0;
+    slave_id.data = NULL;
+    slave_id.data_size = 0;
+    slave_id.status = MODBUS_RTU_RUN_STATUS_OFF;
+    
+    modbus_err = modbus->report_slave_id_callback(&slave_id);
+
+    if(modbus_err != MODBUS_RTU_ERROR_NONE)
+        return modbus_rtu_disp_fail(modbus, modbus_err);
+    
+    if(slave_id.id_size + slave_id.data_size > max_slave_id_size)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    if(slave_id.id == NULL) slave_id.id_size = 0;
+    if(slave_id.data == NULL) slave_id.data_size = 0;
+    
+    size_t offset = 0;
+    
+    tx_data[0] = (uint8_t) (slave_id.id_size + slave_id.data_size + 1);
+    offset ++;
+    
+    if(slave_id.id){
+        memcpy(&tx_data[offset], slave_id.id, slave_id.id_size);
+        offset += slave_id.id_size;
+    }
+    
+    tx_data[offset] = (slave_id.status == MODBUS_RTU_RUN_STATUS_OFF) ? 0x0 : 0xff;
+    offset ++;
+    
+    if(slave_id.data){
+        memcpy(&tx_data[offset], slave_id.data, slave_id.data_size);
+    }
+    
+    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
+    
+    return E_NO_ERROR;
+}
+
+
 err_t modbus_rtu_dispatch(modbus_rtu_t* modbus)
 {
     switch(modbus->rx_message->adu.func){
@@ -809,6 +874,8 @@ err_t modbus_rtu_dispatch(modbus_rtu_t* modbus)
             return modbus_rtu_disp_write_regs(modbus);
         case MODBUS_RTU_FUNC_CHANGE_REG:
             return modbus_rtu_disp_change_reg(modbus);
+        case MODBUS_RTU_FUNC_READ_SLAVE_ID:
+            return modbus_rtu_disp_report_slave_id(modbus);
     }
     
     return E_NO_ERROR;

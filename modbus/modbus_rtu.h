@@ -136,6 +136,21 @@ typedef enum _Modbus_Rtu_Din_Value {
     MODBUS_RTU_DIN_ON = 1 //!< Включен.
 } modbus_rtu_din_value_t;
 
+//! Тип состояния выполнения.
+typedef enum _Modbus_Rtu_Run_Status {
+    MODBUS_RTU_RUN_STATUS_OFF = 0, //!< Выключен.
+    MODBUS_RTU_RUN_STATUS_ON = 1 //!< Включен.
+} modbus_rtu_run_status_t;
+
+//! Тип структуры идентификации ведомого.
+typedef struct _Modbus_Rtu_Slave_Id {
+    const void* id; //!< Идентификатор ведомого.
+    size_t id_size; //!< Размер идентификатора ведомого.
+    modbus_rtu_run_status_t status; //!< Статус ведомого
+    const void* data; //!< Дополнительные данные.
+    size_t data_size; //!< Размер дополнительных данных.
+} modbus_rtu_slave_id_t;
+
 
 //! Широковещательный адрес.
 #define MODBUS_RTU_ADDRESS_BROADCAST 0
@@ -210,6 +225,8 @@ typedef modbus_rtu_error_t (*modbus_rtu_write_holding_reg_callback_t)(uint16_t a
 //! Каллбэк изменения регистра хранения.
 typedef modbus_rtu_error_t (*modbus_rtu_change_holding_reg_callback_t)(uint16_t address, uint16_t and_mask, uint16_t or_mask);
 
+//! Каллбэк получения идентификатора ведомого устройства.
+typedef modbus_rtu_error_t (*modbus_rtu_report_slave_id_callback_t)(modbus_rtu_slave_id_t* slave_id);
 
 //! Тип протокола Modbus RTU.
 typedef struct _Modbus_Rtu {
@@ -227,6 +244,7 @@ typedef struct _Modbus_Rtu {
     modbus_rtu_write_coil_callback_t write_coil_callback; //!< Каллбэк записи регистра флагов.
     modbus_rtu_write_holding_reg_callback_t write_holding_reg_callback; //!< Каллбэк записи регистра хранения.
     modbus_rtu_change_holding_reg_callback_t change_holding_reg_callback; //!< Каллбэк изменения регистра хранения.
+    modbus_rtu_report_slave_id_callback_t report_slave_id_callback; //!< Каллбэк получения идентификатора ведомого устройства.
 } modbus_rtu_t;
 
 
@@ -547,6 +565,22 @@ extern modbus_rtu_change_holding_reg_callback_t modbus_rtu_change_holding_reg_ca
  * @param callback Каллбэк изменения регистра хранения.
  */
 extern void modbus_rtu_set_change_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_change_holding_reg_callback_t callback);
+
+
+/**
+ * Получает каллбэк получения идентификатора ведомого устройства.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк получения идентификатора ведомого устройства.
+ */
+extern modbus_rtu_report_slave_id_callback_t modbus_rtu_report_slave_id_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк получения идентификатора ведомого устройства.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк получения идентификатора ведомого устройства.
+ */
+extern void modbus_rtu_set_report_slave_id_callback(modbus_rtu_t* modbus, modbus_rtu_report_slave_id_callback_t callback);
+
 
 /**
  * Обрабатывает сообщение протокола Modbus RTU.

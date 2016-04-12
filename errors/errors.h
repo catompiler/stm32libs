@@ -27,6 +27,8 @@ typedef uint8_t err_t;
 #define E_OUT_OF_MEMORY 6
 //! Нереализованный функционал.
 #define E_NOT_IMPLEMENTED 7
+//! Ошибка контрольной суммы.
+#define E_CRC 8
 
 //! Начальный код для пользовательских ошибок.
 #define E_USER 100

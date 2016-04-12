@@ -1,4 +1,4 @@
-#include "usart.h"
+#include "usart_buf.h"
 #include "utils/utils.h"
 #include "defs/defs.h"
 

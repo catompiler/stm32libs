@@ -121,6 +121,20 @@ extern i2c_address_t pca9555_i2c_address(const pca9555_t* ioport);
 extern void pca9555_set_i2c_address(pca9555_t* ioport, i2c_address_t address);
 
 /**
+ * Получает шину i2c.
+ * @param ioport Порт ввода-вывода.
+ * @return Шина i2c.
+ */
+extern i2c_bus_t* pca9555_i2c_bus(const pca9555_t* ioport);
+
+/**
+ * Устанавливает шину i2c.
+ * @param ioport Порт ввода-вывода.
+ * @param i2c Шина i2c.
+ */
+extern void pca9555_set_i2c_bus(pca9555_t* ioport, i2c_bus_t* i2c);
+
+/**
  * Каллбэк i2c.
  * @param ioport Порт ввода-вывода.
  * @return true, если событие обработано, иначе false.

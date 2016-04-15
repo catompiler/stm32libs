@@ -138,6 +138,16 @@ void pca9555_set_i2c_address(pca9555_t* ioport, i2c_address_t address)
     ioport->i2c_messages[PCA9555_I2C_MESSAGE_DATA].address = address;
 }
 
+i2c_bus_t* pca9555_i2c_bus(const pca9555_t* ioport)
+{
+    return ioport->i2c;
+}
+
+void pca9555_set_i2c_bus(pca9555_t* ioport, i2c_bus_t* i2c)
+{
+    ioport->i2c = i2c;
+}
+
 bool pca9555_busy(pca9555_t* ioport)
 {
     return future_running(&ioport->future);

@@ -35,12 +35,19 @@
  */
 static bool pca9555_wait_current_op(pca9555_t* ioport)
 {
-    // Если шина занята не нами - возврат ошибки занятости.
-    if(i2c_bus_busy(ioport->i2c) && (i2c_bus_transfer_id(ioport->i2c) != ioport->transfer_id)) return false;
-    // Подождём выполнения предыдущей операции.
-    future_wait(&ioport->future);
-    // Подождём шину i2c.
-    i2c_bus_wait(ioport->i2c);
+    // Если шина занята.
+    if(i2c_bus_busy(ioport->i2c)){
+        // Если не нами - возврат ошибки занятости.
+        if(i2c_bus_transfer_id(ioport->i2c) != ioport->transfer_id) return false;
+        // Подождём выполнения предыдущей операции.
+        future_wait(&ioport->future);
+        // Подождём шину i2c.
+        i2c_bus_wait(ioport->i2c);
+    } // Иначе если будущее выполняется при не занятой шине - ошибка.
+    else if(future_running(&ioport->future)){
+        // Завершим будущее.
+        future_finish(&ioport->future, int_to_pvoid(E_IO_ERROR));
+    }
     return true;
 }
 

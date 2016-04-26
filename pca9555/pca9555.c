@@ -155,6 +155,11 @@ void pca9555_set_i2c_bus(pca9555_t* ioport, i2c_bus_t* i2c)
     ioport->i2c = i2c;
 }
 
+void pca9555_reset(pca9555_t* ioport)
+{
+    pca9555_end(ioport, E_NO_ERROR);
+}
+
 bool pca9555_busy(pca9555_t* ioport)
 {
     return future_running(&ioport->future);

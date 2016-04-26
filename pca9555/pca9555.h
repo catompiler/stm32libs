@@ -142,6 +142,12 @@ extern void pca9555_set_i2c_bus(pca9555_t* ioport, i2c_bus_t* i2c);
 extern bool pca9555_i2c_callback(pca9555_t* ioport);
 
 /**
+ * Сбрасывает состояние порта ввода-вывода.
+ * @param ioport Порт ввода-вывода.
+ */
+extern void pca9555_reset(pca9555_t* ioport);
+
+/**
  * Получает флаг процесса выполнения операции.
  * @param ioport Порт ввода-вывода.
  * @return Флаг процесса выполнения операции.

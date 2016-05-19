@@ -393,6 +393,16 @@ void modbus_rtu_set_report_slave_id_callback(modbus_rtu_t* modbus, modbus_rtu_re
     modbus->report_slave_id_callback = callback;
 }
 
+modbus_rtu_custom_function_callback_t modbus_rtu_custom_function_callback(modbus_rtu_t* modbus)
+{
+    return modbus->custom_function_callback;
+}
+
+void modbus_rtu_set_custom_function_callback(modbus_rtu_t* modbus, modbus_rtu_custom_function_callback_t callback)
+{
+    modbus->custom_function_callback = callback;
+}
+
 static err_t modbus_rtu_disp_fail(modbus_rtu_t* modbus, modbus_rtu_error_t error)
 {
     if(modbus_rtu_message_address(modbus->rx_message) == MODBUS_RTU_ADDRESS_BROADCAST &&
@@ -850,12 +860,38 @@ static err_t modbus_rtu_disp_report_slave_id(modbus_rtu_t* modbus)
     return E_NO_ERROR;
 }
 
+static err_t modbus_rtu_disp_custom(modbus_rtu_t* modbus)
+{
+    if(modbus->custom_function_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    void* rx_data = modbus_rtu_message_data(modbus->rx_message);
+    void* tx_data = modbus_rtu_message_data(modbus->tx_message);
+    
+    size_t rx_size = modbus_rtu_message_data_size(modbus->rx_message);
+    size_t tx_size = 0;
+    
+    modbus_err = modbus->custom_function_callback(rx_data, rx_size, tx_data, &tx_size);
+    
+    if(modbus_err != MODBUS_RTU_ERROR_NONE)
+        return modbus_rtu_disp_fail(modbus, modbus_err);
+
+    if(tx_size > MODBUS_RTU_DATA_SIZE_MAX)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    modbus_rtu_disp_succ(modbus, tx_size);
+    
+    return E_NO_ERROR;
+}
+
 
 err_t modbus_rtu_dispatch(modbus_rtu_t* modbus)
 {
     switch(modbus->rx_message->adu.func){
         default:
-            return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+            return modbus_rtu_disp_custom(modbus);
         case MODBUS_RTU_FUNC_READ_COILS_STATUS:
             return modbus_rtu_disp_read_coils(modbus);
         case MODBUS_RTU_FUNC_READ_DISCR_INPUTS:

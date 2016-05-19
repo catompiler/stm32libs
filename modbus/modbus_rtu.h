@@ -228,6 +228,17 @@ typedef modbus_rtu_error_t (*modbus_rtu_change_holding_reg_callback_t)(uint16_t 
 //! Каллбэк получения идентификатора ведомого устройства.
 typedef modbus_rtu_error_t (*modbus_rtu_report_slave_id_callback_t)(modbus_rtu_slave_id_t* slave_id);
 
+/**
+ * Каллбэк обработки пользовательской функции.
+ * @param rx_data Принятые данные.
+ * @param rx_size Размер принятых данных.
+ * @param tx_data Буфер данных для передачи.
+ * @param tx_size Размер данных для передачи.
+ * @return Код ошибки протокола Modbus RTU.
+ */
+typedef modbus_rtu_error_t (*modbus_rtu_custom_function_callback_t)(const void* rx_data, size_t rx_size, void* tx_data, size_t* tx_size);
+
+
 //! Тип протокола Modbus RTU.
 typedef struct _Modbus_Rtu {
     usart_bus_t* usart; //!< Шина USART.
@@ -245,6 +256,7 @@ typedef struct _Modbus_Rtu {
     modbus_rtu_write_holding_reg_callback_t write_holding_reg_callback; //!< Каллбэк записи регистра хранения.
     modbus_rtu_change_holding_reg_callback_t change_holding_reg_callback; //!< Каллбэк изменения регистра хранения.
     modbus_rtu_report_slave_id_callback_t report_slave_id_callback; //!< Каллбэк получения идентификатора ведомого устройства.
+    modbus_rtu_custom_function_callback_t custom_function_callback; //!< Каллбэк обработки пользовательской функции.
 } modbus_rtu_t;
 
 
@@ -566,7 +578,6 @@ extern modbus_rtu_change_holding_reg_callback_t modbus_rtu_change_holding_reg_ca
  */
 extern void modbus_rtu_set_change_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_change_holding_reg_callback_t callback);
 
-
 /**
  * Получает каллбэк получения идентификатора ведомого устройства.
  * @param modbus Протокол Modbus RTU.
@@ -580,6 +591,20 @@ extern modbus_rtu_report_slave_id_callback_t modbus_rtu_report_slave_id_callback
  * @param callback Каллбэк получения идентификатора ведомого устройства.
  */
 extern void modbus_rtu_set_report_slave_id_callback(modbus_rtu_t* modbus, modbus_rtu_report_slave_id_callback_t callback);
+
+/**
+ * Получает каллбэк обработки пользовательской функции.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк обработки пользовательской функции.
+ */
+extern modbus_rtu_custom_function_callback_t modbus_rtu_custom_function_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк обработки пользовательской функции.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк обработки пользовательской функции.
+ */
+extern void modbus_rtu_set_custom_function_callback(modbus_rtu_t* modbus, modbus_rtu_custom_function_callback_t callback);
 
 
 /**

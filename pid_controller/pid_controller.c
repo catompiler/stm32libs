@@ -36,6 +36,10 @@ bool pid_controller_calculate(pid_controller_t* controller, fixed32_t e, fixed32
     // D = Kd * (e(t) - e(t-1) / dt;
     fixed32_t d = ((int64_t)controller->kd * (e - controller->prev_e)) / dt;
     
+    p = CLAMP(p, -controller->clamp_max, controller->clamp_max);
+    i = CLAMP(i, -controller->clamp_max, controller->clamp_max);
+    d = CLAMP(d, -controller->clamp_max, controller->clamp_max);
+    
     controller->prev_e = e;
     controller->prev_i = i;
     

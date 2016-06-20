@@ -7,6 +7,7 @@ OBJECTS   = main.o
 # Собственные библиотеки в исходниках.
 SRC_LIBS += 
 
+
 # Стандартные драйвера периферии.
 # STD_PERIPH_DRIVERS += misc
 # STD_PERIPH_DRIVERS += stm32f10x_adc
@@ -39,7 +40,7 @@ LIBS     += c
 OPTIMIZE  = s
 
 # Флаги отладки.
-DEBUG     =
+DEBUG     = 
 
 # МК.
 # Имя МК.
@@ -59,6 +60,7 @@ MCU_RAM_SIZE     = 0x5000
 MCU_FAMILY_UPPER = $(shell echo $(MCU_FAMILY) | tr '[:lower:]' '[:upper:]')
 
 # Макросы.
+DEFINES	  += 
 # Макрос семейства МК.
 DEFINES   += STM32F10X_$(MCU_FAMILY_UPPER)
 # Использование стандартной библиотеки периферии.
@@ -67,7 +69,8 @@ DEFINES   += USE_STDPERIPH_DRIVER
 DEFINES   += __thumb2__=1
 
 # Программа st-flash.
-STFLASH    = /usr/bin/st-flash
+STFLASH    = "/usr/bin/st-flash"
+STFLASH_WIN = "C:\Program Files\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe"
 # Устройство stlink.
 STLINK_DEV = /dev/stlinkv2_4
 
@@ -140,6 +143,9 @@ OBJECTS += $(addsuffix .o, $(STD_PERIPH_DRIVERS))
 OBJECTS += $(patsubst %.s, %.o, $(CMSIS_STARTUP))
 # Собственные библиотеки в исходниках.
 OBJECTS += $(addsuffix .o, $(SRC_LIBS))
+
+# Ассемблер листинги.
+ASM     += $(patsubst %.o, %.s, $(OBJECTS))
 
 # Флаги компилятора С.
 # Использование каналов.
@@ -223,6 +229,10 @@ hex: $(TARGET)
 bin: $(TARGET)
 	$(OBJCOPY) -O binary $(TARGET) $(TARGET_BIN)
 
+asm: $(ASM)
+
+#$(TARGET_BIN): all
+
 $(TARGET): $(OBJECTS)
 	$(LD) -o $@ $(LDFLAGS) $^
 
@@ -232,8 +242,12 @@ $(TARGET): $(OBJECTS)
 %.o: %.s
 	$(AS) -c -o $@ $(ASFLAGS) $<
 
+%.s: %.c
+	$(CC) -S -o $@ $(CFLAGS) $<
+
 clean:
 	$(RM) $(OBJECTS)
+	$(RM) $(ASM)
 
 clean_all: clean
 	$(RM) $(TARGET)
@@ -244,4 +258,9 @@ clean_all: clean
 burn: $(TARGET_BIN)
 	$(STFLASH) erase
 	$(STFLASH) write $(TARGET_BIN) $(MCU_FLASH_ORIGIN)
+
+burn_win: $(TARGET_BIN)
+	$(STFLASH_WIN) -Q -ME
+	$(STFLASH_WIN) -Q -P $(TARGET_BIN) $(MCU_FLASH_ORIGIN)
+	$(STFLASH_WIN) -Q -Rst
 

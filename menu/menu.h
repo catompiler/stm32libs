@@ -64,6 +64,8 @@ typedef struct _MenuValue {
 typedef uint32_t menu_id_t;
 //! Тип флагов меню.
 typedef uint32_t menu_flags_t;
+//! Тип пользовательских данных меню.
+typedef void* menu_user_data_t;
 
 //! Предварительная декларация типа элемента меню.
 struct _MenuItem;
@@ -87,6 +89,8 @@ typedef struct _MenuItem {
     menu_value_t* value; //!< Значение.
     
     menu_flags_t flags; //!< Флаги.
+    
+    menu_user_data_t user_data; //!< Пользовательские данные.
 } menu_item_t;
 
 
@@ -203,41 +207,43 @@ typedef struct _MenuItem {
 
 //! Инициализирует элемент меню.
 #define MAKE_MENU_ITEM(arg_id, arg_parent, arg_child, arg_prev, arg_next,\
-                       arg_text, arg_value, arg_flags)\
+                       arg_text, arg_value, arg_flags, arg_user_data)\
                       { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = (menu_item_t*)arg_child,\
                         .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                        .value = (menu_value_t*)arg_value, .flags = arg_flags }
+                        .value = (menu_value_t*)arg_value, .flags = arg_flags .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент меню.
 #define MENU_ITEM(name, arg_id, arg_parent, arg_child, arg_prev, arg_next,\
-                  arg_text, arg_value, arg_flags)\
+                  arg_text, arg_value, arg_flags, arg_user_data)\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = (menu_item_t*)arg_child,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                                    .value = (menu_value_t*)arg_value, .flags = arg_flags }
+                                    .value = (menu_value_t*)arg_value, .flags = arg_flags, .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент подменю.
-#define SUBMENU(name, arg_id, arg_parent, arg_child, arg_prev, arg_next, arg_text, arg_flags)\
+#define SUBMENU(name, arg_id, arg_parent, arg_child, arg_prev, arg_next, arg_text, arg_flags, arg_user_data)\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = (menu_item_t*)arg_child,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                                    .value = NULL, .flags = arg_flags }
+                                    .value = NULL, .flags = arg_flags, .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент подменю со значением.
 #define SUBITEM(name, arg_id, arg_parent, arg_child, arg_prev, arg_next,\
-                  arg_text, arg_flags, arg_value)\
+                arg_text, arg_flags, arg_user_data, arg_value)\
         DECLARE_MENU_VALUE(CONCAT(name, MENU_VALUE_NAME_POSTFIX)) = arg_value;\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = (menu_item_t*)arg_child,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                                    .value = (menu_value_t*)&CONCAT(name, MENU_VALUE_NAME_POSTFIX), .flags = arg_flags }
+                                    .value = (menu_value_t*)&CONCAT(name, MENU_VALUE_NAME_POSTFIX), .flags = arg_flags,\
+                                    .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент меню со значением.
 #define MENUITEM(name, arg_id, arg_parent, arg_prev, arg_next,\
-                  arg_text, arg_flags, arg_value)\
+                 arg_text, arg_flags, arg_user_data, arg_value)\
         DECLARE_MENU_VALUE(CONCAT(name, MENU_VALUE_NAME_POSTFIX)) = arg_value;\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = NULL,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                                    .value = (menu_value_t*)&CONCAT(name, MENU_VALUE_NAME_POSTFIX), .flags = arg_flags }
+                                    .value = (menu_value_t*)&CONCAT(name, MENU_VALUE_NAME_POSTFIX), .flags = arg_flags,\
+                                    .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент меню без значения.
 #define MENUACTION(name, arg_id, arg_parent, arg_prev, arg_next,\
-                  arg_text, arg_flags)\
+                   arg_text, arg_flags, arg_user_data)\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = NULL,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                                    .value = NULL, .flags = arg_flags }
+                                    .value = NULL, .flags = arg_flags, .user_data = arg_user_data }
 
 
 /**
@@ -384,6 +390,26 @@ ALWAYS_INLINE static menu_flags_t menu_item_flags(menu_item_t* item)
 ALWAYS_INLINE static void menu_item_set_flags(menu_item_t* item, menu_flags_t flags)
 {
     item->flags = flags;
+}
+
+/**
+ * Получает пользовательские данные элемента меню.
+ * @param item Элемент меню.
+ * @return Пользовательские данные элемента меню.
+ */
+ALWAYS_INLINE static menu_user_data_t menu_item_user_data(menu_item_t* item)
+{
+    return item->user_data;
+}
+
+/**
+ * Устанавливает пользовательские данные элемента меню.
+ * @param item Элемент меню.
+ * @param user_data Пользовательские данные элемента меню.
+ */
+ALWAYS_INLINE static void menu_item_set_user_data(menu_item_t* item, menu_user_data_t user_data)
+{
+    item->user_data = user_data;
 }
 
 /**
@@ -600,7 +626,7 @@ ALWAYS_INLINE static void menu_value_set_bool(menu_value_t* value, menu_value_bo
 /**
  * Получает значениче с фиксированной запятой элемента меню.
  * @param value Значение элемента меню.
- * @return значение с фиксированной запятой элемента меню.
+ * @return Значение с фиксированной запятой элемента меню.
  */
 ALWAYS_INLINE static menu_value_fixed_t menu_value_fixed(menu_value_t* value)
 {
@@ -616,6 +642,27 @@ ALWAYS_INLINE static void menu_value_set_fixed(menu_value_t* value, menu_value_f
 {
     value->type = MENU_VALUE_TYPE_FIXED;
     value->value_fixed = val;
+}
+
+/**
+ * Получает пользовательское значениче элемента меню.
+ * @param value Значение элемента меню.
+ * @return Пользовательское значениче элемента меню.
+ */
+ALWAYS_INLINE static menu_value_custom_t menu_value_custom(menu_value_t* value)
+{
+    return value->value_custom;
+}
+
+/**
+ * Устанавливает пользовательское значениче элемента меню.
+ * @param value Значение элемента меню.
+ * @param val Пользовательское значениче.
+ */
+ALWAYS_INLINE static void menu_value_set_custom(menu_value_t* value, menu_value_custom_t val)
+{
+    value->type = MENU_VALUE_TYPE_CUSTOM;
+    value->value_custom = val;
 }
 
 /**
@@ -721,16 +768,16 @@ MENU_VALUES(menu_values_en_dis, MAKE_MENU_VALUE_STRING("Enabled"), MAKE_MENU_VAL
 
 // Создание самого меню.
 
-//        Имя  ID  Предок  Предыдущий Следующий Текст      Флаги Значения
-MENUITEM(item1, 0, NULL,   NULL,      &item2,   "Menu0_0", 0,    MAKE_MENU_VALUE_STRING("Text"));
-MENUITEM(item2, 0, NULL,   &item1,    &item3,   "Menu0_1", 0,    MAKE_MENU_VALUE_INT(123));
+//        Имя  ID  Предок  Предыдущий Следующий Текст      Флаги Польз.данные Значения
+MENUITEM(item1, 0, NULL,   NULL,      &item2,   "Menu0_0", 0,    0,           MAKE_MENU_VALUE_STRING("Text"));
+MENUITEM(item2, 0, NULL,   &item1,    &item3,   "Menu0_1", 0,    0,           MAKE_MENU_VALUE_INT(123));
 
-//         Имя  ID  Предок  Потомок Предыдущий Следующий    Текст      Флаги
-SUBMENU (item3, 0,  NULL,   &item4, &item2,    NULL,        "Menu0_2", 0);
+//         Имя  ID  Предок  Потомок Предыдущий Следующий    Текст      Флаги Польз.данные
+SUBMENU (item3, 0,  NULL,   &item4, &item2,    NULL,        "Menu0_2", 0,    0);
 
-//         Имя  ID Предок  Предыдущий Следующий Текст      Флаги Значения
-MENUITEM(item4, 0, &item3, NULL,      &item5,   "Menu1_0", 0,    MAKE_MENU_VALUE_BOOL(true));
-MENUITEM(item5, 0, &item3, &item4,    NULL,     "Menu1_1", 0,    MAKE_MENU_VALUE_ENUM(0, 2, menu_values_en_dis));
+//         Имя  ID Предок  Предыдущий Следующий Текст      Флаги Польз.данные Значения
+MENUITEM(item4, 0, &item3, NULL,      &item5,   "Menu1_0", 0,    0,           MAKE_MENU_VALUE_BOOL(true));
+MENUITEM(item5, 0, &item3, &item4,    NULL,     "Menu1_1", 0,    0,           MAKE_MENU_VALUE_ENUM(0, 2, menu_values_en_dis));
 
 */
 

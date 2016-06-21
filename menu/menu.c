@@ -86,6 +86,7 @@ err_t menu_item_init(menu_item_t* item, const char* text)
     item->text = text;
     item->value = NULL;
     item->flags = 0;
+    item->user_data = NULL;
     
     return E_NO_ERROR;
 }

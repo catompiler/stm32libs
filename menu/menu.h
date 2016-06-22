@@ -94,6 +94,8 @@ typedef struct _MenuItem {
 } menu_item_t;
 
 
+#ifdef MENU_MACRO
+
 /**
  * Атрибут для переменной меню.
  */
@@ -245,6 +247,7 @@ typedef struct _MenuItem {
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
                                     .value = NULL, .flags = arg_flags, .user_data = arg_user_data }
 
+#endif //MENU_MACRO
 
 /**
  * Инициализирует меню.
@@ -512,6 +515,13 @@ extern menu_item_t* menu_item_last(menu_item_t* item);
  * @param next Следующий элемент меню.
  */
 extern void menu_item_link(menu_item_t* prev, menu_item_t* next);
+
+/**
+ * Связывает два элемента меню.
+ * @param parent Родительский элемент меню.
+ * @param child Дочерний элемент меню.
+ */
+extern void menu_item_link_parent(menu_item_t* parent, menu_item_t* child);
 
 /**
  * Получает значение элемента меню.

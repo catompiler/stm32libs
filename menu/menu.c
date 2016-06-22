@@ -109,6 +109,12 @@ void menu_item_link(menu_item_t* prev, menu_item_t* next)
     if(next) next->prev = prev;
 }
 
+void menu_item_link_parent(menu_item_t* parent, menu_item_t* child)
+{
+    if(parent) parent->child = child;
+    if(child)  child->parent = parent;
+}
+
 err_t menu_value_init(menu_value_t* value)
 {
     value->type = MENU_VALUE_TYPE_NONE;

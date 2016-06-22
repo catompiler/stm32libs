@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "utils/utils.h"
 
 
 
@@ -8,6 +9,77 @@ err_t menu_init(menu_t* menu, menu_item_t* root)
     
     menu->root = root;
     menu->current = root;
+    
+    return E_NO_ERROR;
+}
+
+err_t menu_make_from_descrs(menu_t* menu, menu_item_t* items, size_t items_count,
+                                    const menu_descr_t* descrs, size_t descrs_count)
+{
+    if(descrs == NULL) return E_NULL_POINTER;
+    if(items == NULL) return E_NULL_POINTER;
+    if(descrs_count == 0) return E_INVALID_VALUE;
+    if(items_count == 0) return E_INVALID_VALUE;
+    
+    if(descrs_count > items_count) descrs_count = items_count;
+    
+    menu_depth_t cur_depth = 0;
+    menu_item_t* item = NULL;
+    const menu_descr_t* descr = NULL;
+    
+    size_t index = 0;
+    
+    // Цикл по все дескрипторам.
+    for(; index < descrs_count; index ++){
+        // Текущий элемент меню.
+        item = &items[index];
+        // Текущий дескриптор.
+        descr = &descrs[index];
+        // Инициализирует элемент меню.
+        RETURN_ERR_IF_FAIL(menu_item_init_from_descr(item, descr));
+        // Если не начальный элемент (меню не пустое).
+        if(index != 0){
+            // Если текущая глубина не меняется (элементы одного уровня).
+            if(cur_depth == descr->depth){
+                // Соединим предыдущий элемент со следующим.
+                menu_item_link(menu_current(menu), item);
+                // Установим родителя для нового элемента.
+                menu_item_set_parent(item, menu_item_parent(menu_current(menu)));
+                // Перейдём на новый элемент.
+                menu_next(menu);
+            }else if(cur_depth < descr->depth){ // Если требуется пройти вглубь меню.
+                // Добавим потомка в меню.
+                menu_item_link_parent(menu_current(menu), item);
+                // Пройдём вглубь меню.
+                menu_down(menu);
+                // Сохраним текущую глубину.
+                cur_depth = descr->depth;
+            }else{ // cur_depth > descr->depth - требуется пойти наружу меню.
+                // Пройдём наружу до нужного уровня.
+                for(;;){
+                    // Если более невозможно подняться - прекращаем.
+                    if(!menu_up(menu)) break;
+                    // Если дошли до нужного уровня - прекращаем.
+                    if(-- cur_depth <= descr->depth) break;
+                }
+                // Сохраним текущую глубину.
+                cur_depth = descr->depth;
+                // Дойдём до последнего элемента в списке.
+                while(menu_next(menu));
+                // Добавим новый элемент.
+                menu_item_link(menu_current(menu), item);
+                // Установим родителя для нового элемента.
+                menu_item_set_parent(item, menu_item_parent(menu_current(menu)));
+                // Перейдём на новый элемент.
+                menu_next(menu);
+            }
+        }else{ // Если меню требуется инициализировать.
+            // Инициализируем меню.
+            RETURN_ERR_IF_FAIL(menu_init(menu, item));
+            // Сохраним текущую глубину.
+            cur_depth = descr->depth;
+        }
+    }
     
     return E_NO_ERROR;
 }
@@ -87,6 +159,23 @@ err_t menu_item_init(menu_item_t* item, const char* text)
     item->value = NULL;
     item->flags = 0;
     item->user_data = NULL;
+    
+    return E_NO_ERROR;
+}
+
+err_t menu_item_init_from_descr(menu_item_t* item, const menu_descr_t* descr)
+{
+    if(descr == NULL) return E_NULL_POINTER;
+    
+    item->id = descr->id;
+    item->parent = NULL;
+    item->child = NULL;
+    item->prev = NULL;
+    item->next = NULL;
+    item->text = descr->text;
+    item->value = descr->value;
+    item->flags = descr->flags;
+    item->user_data = descr->user_data;
     
     return E_NO_ERROR;
 }

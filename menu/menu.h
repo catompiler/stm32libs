@@ -61,7 +61,7 @@ typedef struct _MenuValue {
 
 
 //! Тип идентификатора меню.
-typedef uint32_t menu_id_t;
+typedef uint16_t menu_id_t;
 //! Тип флагов меню.
 typedef uint32_t menu_flags_t;
 //! Тип пользовательских данных меню.
@@ -92,6 +92,20 @@ typedef struct _MenuItem {
     
     menu_user_data_t user_data; //!< Пользовательские данные.
 } menu_item_t;
+
+
+//! Тип глубины элемента меню.
+typedef uint8_t menu_depth_t;
+
+//! Тип структуры дескриптора элемента меню.
+typedef struct _MenuDescr {
+    menu_depth_t depth; //!< Глубина элемента меню.
+    menu_id_t id; //!< Идентификатор элемента меню.
+    const char* text; //!< Текст элемента меню.
+    menu_flags_t flags; //!< Флаги элемента меню.
+    menu_user_data_t user_data; //!< Пользовательские данные элемента меню.
+    menu_value_t* value; //!< Значение элемента меню.
+} menu_descr_t;
 
 
 #ifdef MENU_MACRO
@@ -249,6 +263,44 @@ typedef struct _MenuItem {
 
 #endif //MENU_MACRO
 
+
+#ifdef MENU_DESCR_MACRO
+
+/**
+ * Атрибут для переменной массива дескрипторов элемента меню.
+ */
+#ifndef MENU_DESCRS_ATTRIBS
+#define MENU_DESCRS_ATTRIBS
+#endif
+
+/**
+ * Атрибут для переменной массива элементов меню.
+ */
+#ifndef MENU_ITEMS_ATTRIBS
+#define MENU_ITEMS_ATTRIBS
+#endif
+
+//! Инициализирует дескриптор элемента меню по месту объявления.
+#define MENU_DESCR(arg_depth, arg_id, arg_text, arg_flags, arg_user_data, arg_value)\
+        { arg_depth, arg_id, arg_text, arg_flags, arg_user_data, (menu_value_t*)arg_value }
+
+//! Объявляет массив дескрипторов элементов меню.
+#define MENU_DESCRS(arg_name)\
+        MENU_DESCRS_ATTRIBS menu_descr_t arg_name[] = 
+
+//! Вычисляет число дескрипторов элементов меню в массиве.
+#define MENU_DESCRS_COUNT(arg_name) (sizeof(arg_name) / sizeof(menu_descr_t))
+
+//! Объявляет массив элементов меню согласно числу дескрипторов элементов меню.
+#define MENU_ITEMS(arg_name, arg_menu_descrs)\
+        MENU_ITEMS_ATTRIBS menu_item_t arg_name[MENU_DESCRS_COUNT(arg_menu_descrs)]
+
+//! Вычисляет число элементов меню в массиве.
+#define MENU_ITEMS_COUNT(arg_name) (sizeof(arg_name) / sizeof(menu_item_t))
+
+#endif //MENU_DESCR_MACRO
+
+
 /**
  * Инициализирует меню.
  * @param menu Меню.
@@ -256,6 +308,18 @@ typedef struct _MenuItem {
  * @return Код ошибки.
  */
 extern err_t menu_init(menu_t* menu, menu_item_t* root);
+
+/**
+ * Формирует меню из массива дескрипторов.
+ * @param menu Меню.
+ * @param items Элементы меню.
+ * @param items_count Число элементов меню.
+ * @param descrs Дескрипторы.
+ * @param descrs_count Число дескрипторов элементов меню.
+ * @return Код ошибки.
+ */
+extern err_t menu_make_from_descrs(menu_t* menu, menu_item_t* items, size_t items_count,
+                                           const menu_descr_t* descrs, size_t descrs_count);
 
 /**
  * Получает корневой элемент меню.
@@ -334,6 +398,14 @@ extern bool menu_prev(menu_t* menu);
  * @return Код ошибки.
  */
 extern err_t menu_item_init(menu_item_t* item, const char* text);
+
+/**
+ * Инициализирует элемент меню по дескриптору элемента меню.
+ * @param item Элемент меню.
+ * @param descr Дескриптор элемента меню.
+ * @return Код ошибки.
+ */
+extern err_t menu_item_init_from_descr(menu_item_t* item, const menu_descr_t* descr);
 
 /**
  * Получает идентификатор элемента меню.
@@ -790,5 +862,35 @@ MENUITEM(item4, 0, &item3, NULL,      &item5,   "Menu1_0", 0,    0,           MA
 MENUITEM(item5, 0, &item3, &item4,    NULL,     "Menu1_1", 0,    0,           MAKE_MENU_VALUE_ENUM(0, 2, menu_values_en_dis));
 
 */
+
+/*
+ * Пример 2.
+ * 
+ * Создание вышеприведённого меню используя дескрипторы.
+ * 
+
+// Объявление меню.
+menu_t test_menu;
+
+// Объявление массива дескрипторов.
+MENU_DESCRS(test_menu_descrs) {
+    //         Уровень ID Текст      Флаги Польз.данные Значения
+    MENU_DESCR(0,      0, "Menu0_0", 0,    0,           0),
+    MENU_DESCR(0,      0, "Menu0_1", 0,    0,           0),
+    MENU_DESCR(0,      0, "Menu0_2", 0,    0,           0),
+        MENU_DESCR(1,  0, "Menu1_0", 0,    0,           0),
+        MENU_DESCR(1,  0, "Menu1_1", 0,    0,           0)
+};
+
+// Объявление массива элементов меню.
+MENU_ITEMS(test_menu_items, test_menu_descrs);
+
+// В функции инициализации меню менобходимо сформировать
+// меню посредством вызова соответствующей функции.
+
+menu_make_from_descrs(&test_menu, test_menu_items, MENU_ITEMS_COUNT(test_menu_items),
+                                  test_menu_descrs, MENU_DESCRS_COUNT(test_menu_descrs));
+
+ */
 
 #endif	/* MENU_H */

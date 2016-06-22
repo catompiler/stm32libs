@@ -180,6 +180,45 @@ err_t menu_item_init_from_descr(menu_item_t* item, const menu_descr_t* descr)
     return E_NO_ERROR;
 }
 
+size_t menu_item_childs_count(menu_item_t *item)
+{
+    size_t childs_count = 0;
+
+    while(item->child){
+        item = item->child;
+        childs_count ++;
+    }
+
+    return childs_count;
+}
+
+menu_item_t* menu_item_child_at(menu_item_t* item, size_t index)
+{
+    return menu_item_next_at(item->child, index);
+}
+
+menu_item_t* menu_item_next_at(menu_item_t* item, size_t index)
+{
+    while(index > 0 && item){
+        item = item->next;
+        index --;
+    }
+
+    return item;
+}
+
+size_t menu_item_pos(menu_item_t* item)
+{
+    size_t pos = 0;
+
+    while(item->prev){
+        item = item->prev;
+        pos ++;
+    }
+
+    return pos;
+}
+
 menu_item_t* menu_item_first(menu_item_t* item)
 {
     while(item->prev) item = item->prev;

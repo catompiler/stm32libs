@@ -408,6 +408,36 @@ extern err_t menu_item_init(menu_item_t* item, const char* text);
 extern err_t menu_item_init_from_descr(menu_item_t* item, const menu_descr_t* descr);
 
 /**
+ * @brief Получает число дочерних элементов элемента меню.
+ * @param item Элемент меню.
+ * @return Число дочерних элементов элемента меню.
+ */
+extern size_t menu_item_childs_count(menu_item_t* item);
+
+/**
+ * @brief Получает дочерний элемент элемента меню с заданным индексом.
+ * @param item Элемент меню.
+ * @param index Индекс элемента меню.
+ * @return Дочерний элемент элемента меню с заданным индексом.
+ */
+extern menu_item_t* menu_item_child_at(menu_item_t* item, size_t index);
+
+/**
+ * @brief Получает следующий элемент элемента меню с заданным индексом.
+ * @param item Элемент меню.
+ * @param index Индекс элемента меню.
+ * @return Следующий элемент элемента меню с заданным индексом.
+ */
+extern menu_item_t* menu_item_next_at(menu_item_t* item, size_t index);
+
+/**
+ * @brief Получает позицию элемента меню в списке дочерних элементов.
+ * @param item Элемент меню.
+ * @return Позиция элемента меню в списке дочерних элементов.
+ */
+extern size_t menu_item_pos(menu_item_t* item);
+
+/**
  * Получает идентификатор элемента меню.
  * @param item Элемент меню.
  * @return Идентификатор элемента меню.

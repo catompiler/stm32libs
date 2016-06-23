@@ -102,7 +102,7 @@ struct _Gui_Anim_Bitmap {
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_anim_bitmap_init(gui_anim_bitmap_t* anim_bitmap, gui_t* gui);
+EXTERN err_t gui_anim_bitmap_init(gui_anim_bitmap_t* anim_bitmap, gui_t* gui);
 
 /**
  * Инициализирует анимированный битмап как потомок заданного родителя.
@@ -111,7 +111,7 @@ extern err_t gui_anim_bitmap_init(gui_anim_bitmap_t* anim_bitmap, gui_t* gui);
  * @param parent Родитель.
  * @return Код ошибки.
  */
-extern err_t gui_anim_bitmap_init_parent(gui_anim_bitmap_t* anim_bitmap, gui_t* gui, gui_widget_t* parent);
+EXTERN err_t gui_anim_bitmap_init_parent(gui_anim_bitmap_t* anim_bitmap, gui_t* gui, gui_widget_t* parent);
 
 /**
  * Получает битмап анимированного битмапа.
@@ -128,7 +128,7 @@ ALWAYS_INLINE static graphics_t* gui_anim_bitmap_bitmap(gui_anim_bitmap_t* anim_
  * @param anim_bitmap Анимированный битмап.
  * @param bitmap Битмап анимированного битмапа.
  */
-extern void gui_anim_bitmap_set_bitmap(gui_anim_bitmap_t* anim_bitmap, graphics_t* bitmap);
+EXTERN void gui_anim_bitmap_set_bitmap(gui_anim_bitmap_t* anim_bitmap, graphics_t* bitmap);
 
 /**
  * Получает целевой битмап анимированного битмапа.
@@ -167,7 +167,7 @@ ALWAYS_INLINE static gui_anim_bitmap_item_t* gui_anim_bitmap_anim_items(gui_anim
  * @param count Число анимированных элементов.
  * @return Код ошибки.
  */
-extern err_t gui_anim_bitmap_set_anim_items(gui_anim_bitmap_t* anim_bitmap, gui_anim_bitmap_item_t* anim_items, size_t count);
+EXTERN err_t gui_anim_bitmap_set_anim_items(gui_anim_bitmap_t* anim_bitmap, gui_anim_bitmap_item_t* anim_items, size_t count);
 
 /**
  * Получает эффект добавления элемента анимированного битмапа.
@@ -224,7 +224,7 @@ ALWAYS_INLINE static graphics_color_t gui_anim_bitmap_front_color(gui_anim_bitma
  * @param anim_bitmap Анимированный битмап.
  * @param front_color Цвет элементов анимированного битмапа.
  */
-extern void gui_anim_bitmap_set_front_color(gui_anim_bitmap_t* anim_bitmap, graphics_color_t front_color);
+EXTERN void gui_anim_bitmap_set_front_color(gui_anim_bitmap_t* anim_bitmap, graphics_color_t front_color);
 
 /**
  * Получает цвет фона анимированного битмапа.
@@ -281,28 +281,28 @@ ALWAYS_INLINE static graphics_size_t gui_anim_bitmap_margin(gui_anim_bitmap_t* a
  * @param anim_bitmap Анимированный битмап.
  * @param margin Отступ анимированного битмапа.
  */
-extern void gui_anim_bitmap_set_margin(gui_anim_bitmap_t* anim_bitmap, graphics_size_t margin);
+EXTERN void gui_anim_bitmap_set_margin(gui_anim_bitmap_t* anim_bitmap, graphics_size_t margin);
 
 /**
  * Начинает анимацию анимированного битмапа.
  * @param anim_bitmap Анимированный битмап.
  * @return Флаг завершения анимации.
  */
-extern bool gui_anim_bitmap_animation_start(gui_anim_bitmap_t* anim_bitmap);
+EXTERN bool gui_anim_bitmap_animation_start(gui_anim_bitmap_t* anim_bitmap);
 
 /**
  * Продолжает анимацию анимированного битмапа.
  * @param anim_bitmap Анимированный битмап.
  * @return Флаг завершения анимации.
  */
-extern bool gui_anim_bitmap_animation_step(gui_anim_bitmap_t* anim_bitmap);
+EXTERN bool gui_anim_bitmap_animation_step(gui_anim_bitmap_t* anim_bitmap);
 
 /**
  * Завершает анимацию анимированного битмапа.
  * @param anim_bitmap Анимированный битмап.
  * @return Флаг завершения анимации.
  */
-extern bool gui_anim_bitmap_animation_flush(gui_anim_bitmap_t* anim_bitmap);
+EXTERN bool gui_anim_bitmap_animation_flush(gui_anim_bitmap_t* anim_bitmap);
 
 /**
  * Получает флаг завершения анимации анимированного битмапа.
@@ -319,7 +319,7 @@ ALWAYS_INLINE static bool gui_anim_bitmap_animation_done(gui_anim_bitmap_t* anim
  * @param anim_bitmap Анимированный битмап.
  * @param rect Область перерисовки.
  */
-extern void gui_anim_bitmap_on_repaint(gui_anim_bitmap_t* anim_bitmap, const rect_t* rect);
+EXTERN void gui_anim_bitmap_on_repaint(gui_anim_bitmap_t* anim_bitmap, const rect_t* rect);
 
 /**
  * Обработчик изменения размера.
@@ -327,7 +327,7 @@ extern void gui_anim_bitmap_on_repaint(gui_anim_bitmap_t* anim_bitmap, const rec
  * @param width Ширина.
  * @param height Высота.
  */
-extern void gui_anim_bitmap_on_resize(gui_anim_bitmap_t* anim_bitmap, graphics_size_t width, graphics_size_t height);
+EXTERN void gui_anim_bitmap_on_resize(gui_anim_bitmap_t* anim_bitmap, graphics_size_t width, graphics_size_t height);
 
 #endif	/* GUI_ANIM_BITMAP_H */
 

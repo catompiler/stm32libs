@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "defs/defs.h"
 
 //! Размер экрана.
 //! Ширина.
@@ -82,35 +83,35 @@ typedef struct _Lcd12864_Init {
  * @param lcd_init Структура инициализации LCD.
  * @return Код ошибки.
  */
-extern err_t lcd12864_init(lcd12864_t* lcd, lcd12864_init_t* lcd_init);
+EXTERN err_t lcd12864_init(lcd12864_t* lcd, lcd12864_init_t* lcd_init);
 
 /**
  * Сбрасывает LCD.
  * @param lcd LCD.
  * @return Код ошибки.
  */
-extern err_t lcd12864_reset(lcd12864_t* lcd);
+EXTERN err_t lcd12864_reset(lcd12864_t* lcd);
 
 /**
  * Проверяет занятость LCD.
  * @param lcd LCD.
  * @return флаг занятости LCD.
  */
-extern bool lcd12864_busy(lcd12864_t* lcd);
+EXTERN bool lcd12864_busy(lcd12864_t* lcd);
 
 /**
  * Ждёт сброса флага занятости LCD.
  * @param lcd LCD.
  * @return флаг освобождения LCD.
  */
-extern bool lcd12864_wait(lcd12864_t* lcd);
+EXTERN bool lcd12864_wait(lcd12864_t* lcd);
 
 /**
  * Устанавливает включенность дисплея, курсора и мигания курсора.
  * @param lcd LCD.
  * @param display_on флаг включения дисплея.
  */
-extern err_t lcd12864_control(lcd12864_t* lcd, bool display_on);
+EXTERN err_t lcd12864_control(lcd12864_t* lcd, bool display_on);
 
 /**
  * Устанавливает стартовую линию LCD.
@@ -118,14 +119,14 @@ extern err_t lcd12864_control(lcd12864_t* lcd, bool display_on);
  * @param start_line стартовая линия.
  * @return Код ошибки.
  */
-extern err_t lcd12864_set_start_line(lcd12864_t* lcd, uint8_t start_line);
+EXTERN err_t lcd12864_set_start_line(lcd12864_t* lcd, uint8_t start_line);
 
 /**
  * Очищает LCD.
  * @param lcd LCD.
  * @return Код ошибки.
  */
-extern err_t lcd12864_clear(lcd12864_t* lcd);
+EXTERN err_t lcd12864_clear(lcd12864_t* lcd);
 
 /**
  * Записывает данные в LCD.
@@ -134,7 +135,7 @@ extern err_t lcd12864_clear(lcd12864_t* lcd);
  * @param count Размер данных.
  * @return Код ошибки.
  */
-extern err_t lcd12864_write(lcd12864_t* lcd, const uint8_t* data, size_t count);
+EXTERN err_t lcd12864_write(lcd12864_t* lcd, const uint8_t* data, size_t count);
 
 #endif	/* LCD12864_H */
 

@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include "graphics/rect.h"
 #include "input/key_input.h"
+#include "defs/defs.h"
 
 typedef enum _Gui_Event_Type {
     GUI_EVENT_TYPE_NONE = 0, //!< Отсутствующее событие.

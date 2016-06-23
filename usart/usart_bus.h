@@ -99,21 +99,21 @@ typedef struct _UsartBus {
  * @param usart Устройство USART.
  * @return Флаг разрешённости передатчика USART.
  */
-extern FunctionalState usart_bus_transmitter_state(USART_TypeDef* usart);
+EXTERN FunctionalState usart_bus_transmitter_state(USART_TypeDef* usart);
 
 /**
  * Получает флаг разрешённости приёмника USART.
  * @param usart Устройство USART.
  * @return Флаг разрешённости приёмника USART.
  */
-extern FunctionalState usart_bus_receiver_state(USART_TypeDef* usart);
+EXTERN FunctionalState usart_bus_receiver_state(USART_TypeDef* usart);
 
 /**
  * Получает флаг полудуплексного режима USART.
  * @param usart Устройство USART.
  * @return Флаг полудуплексного режима USART.
  */
-extern FunctionalState usart_bus_halfduplex_state(USART_TypeDef* usart);
+EXTERN FunctionalState usart_bus_halfduplex_state(USART_TypeDef* usart);
 
 /**
  * Инициализирует шину USART.
@@ -122,99 +122,99 @@ extern FunctionalState usart_bus_halfduplex_state(USART_TypeDef* usart);
  * @param usart_bus_init Структура инициализации USART.
  * @return Код ошибки.
  */
-extern err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is);
+EXTERN err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is);
 
 /**
  * Функция для обработки прерывания USART.
  * Должна вызываться из обработчика прерывания USART.
  * @param usart Шина USART.
  */
-extern void usart_bus_irq_handler(usart_bus_t* usart);
+EXTERN void usart_bus_irq_handler(usart_bus_t* usart);
 
 /**
  * Обработчик прерывания канала передачи DMA.
  * @param usart Шина USART.
  * @return true, если канал использовался шиной usart, иначе false.
  */
-extern bool usart_bus_dma_rx_channel_irq_handler(usart_bus_t* usart);
+EXTERN bool usart_bus_dma_rx_channel_irq_handler(usart_bus_t* usart);
 
 /**
  * Обработчик прерывания канала приёма DMA.
  * @param usart Шина USART.
  * @return true, если канал использовался шиной usart, иначе false.
  */
-extern bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart);
+EXTERN bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart);
 
 /**
  * Получает флаг включения приёмника.
  * @param usart Шина USART.
  * @return true, если приёмник включен, иначе false.
  */
-extern bool usart_bus_receiver_enabled(usart_bus_t* usart);
+EXTERN bool usart_bus_receiver_enabled(usart_bus_t* usart);
 
 /**
  * Включает приёмник.
  * @param usart Шина USART.
  */
-extern void usart_bus_receiver_enable(usart_bus_t* usart);
+EXTERN void usart_bus_receiver_enable(usart_bus_t* usart);
 
 /**
  * Выключает приёмник.
  * @param usart Шина USART.
  */
-extern void usart_bus_receiver_disable(usart_bus_t* usart);
+EXTERN void usart_bus_receiver_disable(usart_bus_t* usart);
 
 /**
  * Получает флаг включения передатчика.
  * @param usart Шина USART.
  * @return true, если передатчик включен, иначе false.
  */
-extern bool usart_bus_transmitter_enabled(usart_bus_t* usart);
+EXTERN bool usart_bus_transmitter_enabled(usart_bus_t* usart);
 
 /**
  * Включает передатчик.
  * @param usart Шина USART.
  */
-extern void usart_bus_transmitter_enable(usart_bus_t* usart);
+EXTERN void usart_bus_transmitter_enable(usart_bus_t* usart);
 
 /**
  * Выключает передатчик.
  * @param usart Шина USART.
  */
-extern void usart_bus_transmitter_disable(usart_bus_t* usart);
+EXTERN void usart_bus_transmitter_disable(usart_bus_t* usart);
 
 /**
  * Получает флаг занятости шины usart на приём.
  * @param usart Шина usart.
  * @return Флаг занятости шины usart.
  */
-extern bool usart_bus_rx_busy(usart_bus_t* usart);
+EXTERN bool usart_bus_rx_busy(usart_bus_t* usart);
 
 /**
  * Получает флаг занятости шины usart на передачу.
  * @param usart Шина usart.
  * @return Флаг занятости шины usart.
  */
-extern bool usart_bus_tx_busy(usart_bus_t* usart);
+EXTERN bool usart_bus_tx_busy(usart_bus_t* usart);
 
 /**
  * Ждёт завершения текущей операции usart на приём.
  * @param usart Шина USART.
  */
-extern void usart_bus_rx_wait(usart_bus_t* usart);
+EXTERN void usart_bus_rx_wait(usart_bus_t* usart);
 
 /**
  * Ждёт завершения текущей операции usart на передачу.
  * @param usart Шина USART.
  */
-extern void usart_bus_tx_wait(usart_bus_t* usart);
+EXTERN void usart_bus_tx_wait(usart_bus_t* usart);
 
 /**
  * Получает идентификатор приёма.
  * @param usart Шина USART.
  * @return Идентификатор передачи.
  */
-extern usart_transfer_id_t usart_bus_rx_transfer_id(usart_bus_t* usart);
+EXTERN usart_transfer_id_t usart_bus_rx_transfer_id(usart_bus_t* usart);
 
 /**
  * Устанавливает идентификатор приёма.
@@ -222,14 +222,14 @@ extern usart_transfer_id_t usart_bus_rx_transfer_id(usart_bus_t* usart);
  * @param id Идентификатор передачи.
  * @return true, если идентификатор передачи установлен, иначе false (шина занята).
  */
-extern bool usart_bus_set_rx_transfer_id(usart_bus_t* usart, usart_transfer_id_t id);
+EXTERN bool usart_bus_set_rx_transfer_id(usart_bus_t* usart, usart_transfer_id_t id);
 
 /**
  * Получает идентификатор передачи.
  * @param usart Шина USART.
  * @return Идентификатор передачи.
  */
-extern usart_transfer_id_t usart_bus_tx_transfer_id(usart_bus_t* usart);
+EXTERN usart_transfer_id_t usart_bus_tx_transfer_id(usart_bus_t* usart);
 
 /**
  * Устанавливает идентификатор передачи.
@@ -237,77 +237,77 @@ extern usart_transfer_id_t usart_bus_tx_transfer_id(usart_bus_t* usart);
  * @param id Идентификатор передачи.
  * @return true, если идентификатор передачи установлен, иначе false (шина занята).
  */
-extern bool usart_bus_set_tx_transfer_id(usart_bus_t* usart, usart_transfer_id_t id);
+EXTERN bool usart_bus_set_tx_transfer_id(usart_bus_t* usart, usart_transfer_id_t id);
 
 /**
  * Получает каллбэк приёма байта шины USART.
  * @param usart Шина USART.
  * @return Каллбэк приёма байта.
  */
-extern usart_bus_rx_byte_callback_t usart_bus_rx_byte_callback(usart_bus_t* usart);
+EXTERN usart_bus_rx_byte_callback_t usart_bus_rx_byte_callback(usart_bus_t* usart);
 
 /**
  * Устанавливает каллбэк приёма байта шины USART.
  * @param usart Шина USART.
  * @param callback Каллбэк приёма байта.
  */
-extern void usart_bus_set_rx_byte_callback(usart_bus_t* usart, usart_bus_rx_byte_callback_t callback);
+EXTERN void usart_bus_set_rx_byte_callback(usart_bus_t* usart, usart_bus_rx_byte_callback_t callback);
 
 /**
  * Получает каллбэк событий приёма данных шины USART.
  * @param usart Шина USART.
  * @return Каллбэк приёма байта.
  */
-extern usart_bus_callback_t usart_bus_rx_callback(usart_bus_t* usart);
+EXTERN usart_bus_callback_t usart_bus_rx_callback(usart_bus_t* usart);
 
 /**
  * Устанавливает каллбэк событий приёма данных шины USART.
  * @param usart Шина USART.
  * @param callback Каллбэк приёма байта.
  */
-extern void usart_bus_set_rx_callback(usart_bus_t* usart, usart_bus_callback_t callback);
+EXTERN void usart_bus_set_rx_callback(usart_bus_t* usart, usart_bus_callback_t callback);
 
 /**
  * Получает каллбэк событий передачи данных шины USART.
  * @param usart Шина USART.
  * @return Каллбэк.
  */
-extern usart_bus_callback_t usart_bus_tx_callback(usart_bus_t* usart);
+EXTERN usart_bus_callback_t usart_bus_tx_callback(usart_bus_t* usart);
 
 /**
  * Устанавливает каллбэк событий передачи данных шины USART.
  * @param usart Шина USART.
  * @param callback Каллбэк.
  */
-extern void usart_bus_set_tx_callback(usart_bus_t* usart, usart_bus_callback_t callback);
+EXTERN void usart_bus_set_tx_callback(usart_bus_t* usart, usart_bus_callback_t callback);
 
 /**
  * Получает состояние канала приёма шины USART.
  * @param usart Шина USART.
  * @return Состояние канала приёма.
  */
-extern usart_status_t usart_bus_rx_status(usart_bus_t* usart);
+EXTERN usart_status_t usart_bus_rx_status(usart_bus_t* usart);
 
 /**
  * Получает состояние канала передачи шины USART.
  * @param usart Шина USART.
  * @return Состояние канала передачи.
  */
-extern usart_status_t usart_bus_tx_status(usart_bus_t* usart);
+EXTERN usart_status_t usart_bus_tx_status(usart_bus_t* usart);
 
 /**
  * Получает ошибку канала приёма шины USART.
  * @param usart Шина USART.
  * @return Ошибка канала приёма.
  */
-extern usart_error_t usart_bus_rx_error(usart_bus_t* usart);
+EXTERN usart_error_t usart_bus_rx_error(usart_bus_t* usart);
 
 /**
  * Получает ошибку канала передачи шины USART.
  * @param usart Шина USART.
  * @return Ошибка канала передачи.
  */
-extern usart_error_t usart_bus_tx_error(usart_bus_t* usart);
+EXTERN usart_error_t usart_bus_tx_error(usart_bus_t* usart);
 
 /**
  * Получает число полученных
@@ -315,7 +315,7 @@ extern usart_error_t usart_bus_tx_error(usart_bus_t* usart);
  * @param usart Шина USART.
  * @return Число полученных байт данных.
  */
-extern size_t usart_bus_bytes_received(usart_bus_t* usart);
+EXTERN size_t usart_bus_bytes_received(usart_bus_t* usart);
 
 /**
  * Получает число переданных
@@ -323,35 +323,35 @@ extern size_t usart_bus_bytes_received(usart_bus_t* usart);
  * @param usart Шина USART.
  * @return Число переданных байт данных.
  */
-extern size_t usart_bus_bytes_transmitted(usart_bus_t* usart);
+EXTERN size_t usart_bus_bytes_transmitted(usart_bus_t* usart);
 
 /**
  * Получает вид реакции на IDLE при приёме.
  * @param usart Шина USART.
  * @return Вид реакции на IDLE.
  */
-extern usart_idle_mode_t usart_bus_idle_mode(usart_bus_t* usart);
+EXTERN usart_idle_mode_t usart_bus_idle_mode(usart_bus_t* usart);
 
 /**
  * Устанавливает вид реакции на IDLE при приёме.
  * @param usart Шина USART.
  * @param mode Вид реакции на IDLE.
  */
-extern void usart_bus_set_idle_mode(usart_bus_t* usart, usart_idle_mode_t mode);
+EXTERN void usart_bus_set_idle_mode(usart_bus_t* usart, usart_idle_mode_t mode);
 
 /**
  * Пропускает текущий поток данных
  * до метки IDLE.
  * @param usart Шина USART.
  */
-extern void usart_bus_sleep(usart_bus_t* usart);
+EXTERN void usart_bus_sleep(usart_bus_t* usart);
 
 /**
  * Начинает принимать данные текущего потока
  * без ожидания метки IDLE.
  * @param usart Шина USART.
  */
-extern void usart_bus_wake(usart_bus_t* usart);
+EXTERN void usart_bus_wake(usart_bus_t* usart);
 
 /**
  * Передаёт данные по шине USART.
@@ -361,7 +361,7 @@ extern void usart_bus_wake(usart_bus_t* usart);
  * @param size Размер данных.
  * @return Код ошибки.
  */
-extern err_t usart_bus_send(usart_bus_t* usart, const void* data, size_t size);
+EXTERN err_t usart_bus_send(usart_bus_t* usart, const void* data, size_t size);
 
 /**
  * Направляет все последующие
@@ -372,6 +372,6 @@ extern err_t usart_bus_send(usart_bus_t* usart, const void* data, size_t size);
  * @param size Размер буфера.
  * @return Код ошибки.
  */
-extern err_t usart_bus_recv(usart_bus_t* usart, void* data, size_t size);
+EXTERN err_t usart_bus_recv(usart_bus_t* usart, void* data, size_t size);
 
 #endif	/* USART_BUS_H */

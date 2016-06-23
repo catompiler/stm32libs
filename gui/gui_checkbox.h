@@ -39,7 +39,7 @@ typedef void (*gui_checkbox_on_toggled_t)(gui_checkbox_t*, bool);
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_checkbox_init(gui_checkbox_t* checkbox, gui_t* gui);
+EXTERN err_t gui_checkbox_init(gui_checkbox_t* checkbox, gui_t* gui);
 
 /**
  * Инициализирует флажок как потомок заданного родителя.
@@ -48,7 +48,7 @@ extern err_t gui_checkbox_init(gui_checkbox_t* checkbox, gui_t* gui);
  * @param parent Родитель.
  * @return Код ошибки.
  */
-extern err_t gui_checkbox_init_parent(gui_checkbox_t* checkbox, gui_t* gui, gui_widget_t* parent);
+EXTERN err_t gui_checkbox_init_parent(gui_checkbox_t* checkbox, gui_t* gui, gui_widget_t* parent);
 
 /**
  * Получает текст флажка.
@@ -65,7 +65,7 @@ ALWAYS_INLINE static const char* gui_checkbox_text(gui_checkbox_t* checkbox)
  * @param checkbox Флажок.
  * @param text Текст флажка.
  */
-extern void gui_checkbox_set_text(gui_checkbox_t* checkbox, const char* text);
+EXTERN void gui_checkbox_set_text(gui_checkbox_t* checkbox, const char* text);
 
 /**
  * Получает установленность флажка.
@@ -82,7 +82,7 @@ ALWAYS_INLINE static bool gui_checkbox_checked(gui_checkbox_t* checkbox)
  * @param checkbox Флажок.
  * @param checked Установленность флажка.
  */
-extern void gui_checkbox_set_checked(gui_checkbox_t* checkbox, bool checked);
+EXTERN void gui_checkbox_set_checked(gui_checkbox_t* checkbox, bool checked);
 
 /**
  * Получает каллбэк изменения флага.
@@ -119,21 +119,21 @@ ALWAYS_INLINE static size_t gui_checkbox_check_size(gui_checkbox_t* checkbox)
  * @param checkbox Флажок.
  * @param size Размер флажка.
  */
-extern void gui_checkbox_set_check_size(gui_checkbox_t* checkbox, size_t size);
+EXTERN void gui_checkbox_set_check_size(gui_checkbox_t* checkbox, size_t size);
 
 /**
  * Обработчик перерисовки.
  * @param checkbox Флажок.
  * @param rect Область перерисовки.
  */
-extern void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect);
+EXTERN void gui_checkbox_on_repaint(gui_checkbox_t* checkbox, const rect_t* rect);
 
 /**
  * Обработчик нажатия клавиши.
  * @param checkbox Флажок.
  * @param key Код клавиши.
  */
-extern void gui_checkbox_on_key_press(gui_checkbox_t* checkbox, keycode_t key);
+EXTERN void gui_checkbox_on_key_press(gui_checkbox_t* checkbox, keycode_t key);
 
 #endif	/* GUI_CHECKBOX_H */
 

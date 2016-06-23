@@ -71,7 +71,7 @@ typedef struct _Font {
  * @param format Формат битовой карты.
  * @return Код ошибки.
  */
-extern err_t font_bitmap_init(font_bitmap_t* font_bitmap, font_char_t first_char, font_char_t last_char,
+EXTERN err_t font_bitmap_init(font_bitmap_t* font_bitmap, font_char_t first_char, font_char_t last_char,
                               const uint8_t* data, graphics_size_t width, graphics_size_t height, graphics_format_t format);
 
 /**
@@ -115,7 +115,7 @@ static ALWAYS_INLINE const graphics_t* font_bitmap_graphics(const font_bitmap_t*
  * @param vspace Расстояние между символами в тексте по вертикали.
  * @return Код ошибки.
  */
-extern err_t font_init(font_t* font, const font_bitmap_t* bitmaps, size_t bitmaps_count,
+EXTERN err_t font_init(font_t* font, const font_bitmap_t* bitmaps, size_t bitmaps_count,
                        graphics_size_t char_width, graphics_size_t char_height, graphics_pos_t hspace, graphics_pos_t vspace);
 
 /**
@@ -125,7 +125,7 @@ extern err_t font_init(font_t* font, const font_bitmap_t* bitmaps, size_t bitmap
  * @return Битовую карту, либо NULL, если
  * ни одна битовая карта не содержит заданный символ.
  */
-extern const font_bitmap_t* font_bitmap_by_char(const font_t* font, font_char_t c);
+EXTERN const font_bitmap_t* font_bitmap_by_char(const font_t* font, font_char_t c);
 
 /**
  * Получает координаты символа в битовой карте.
@@ -136,7 +136,7 @@ extern const font_bitmap_t* font_bitmap_by_char(const font_t* font, font_char_t 
  * @param y Координата Y.
  * @return true в случае успеха, иначе false.
  */
-extern bool font_bitmap_get_char_coords(const font_t* font, const font_bitmap_t* font_bitmap, font_char_t c, graphics_pos_t* x, graphics_pos_t* y);
+EXTERN bool font_bitmap_get_char_coords(const font_t* font, const font_bitmap_t* font_bitmap, font_char_t c, graphics_pos_t* x, graphics_pos_t* y);
 
 /**
  * Получает ширину символа шрифта.
@@ -203,7 +203,7 @@ static ALWAYS_INLINE graphics_pos_t font_vspace(const font_t* font)
  * @param c Символ ютф8.
  * @return Размер символа utf8.
  */
-extern size_t font_utf8_size(const char* c);
+EXTERN size_t font_utf8_size(const char* c);
 
 /**
  * Декодирует символ utf8.
@@ -211,7 +211,7 @@ extern size_t font_utf8_size(const char* c);
  * @param c_size Получаемый размер символа. Может быть NULL, если размер не нужен.
  * @return Декодированный символ utf8.
  */
-extern font_char_t font_utf8_decode(const char* c, size_t* c_size);
+EXTERN font_char_t font_utf8_decode(const char* c, size_t* c_size);
 
 #endif	/* FONT_H */
 

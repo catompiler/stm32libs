@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include "stm32f10x.h"
+#include "defs/defs.h"
 
 
 /**
@@ -49,7 +50,7 @@ static inline void delay_cycles(uint32_t cycles_count)
 #undef _DELAY_CYCLES_GETTING_LATENCY
 }
 #else
-extern void delay_cycles(uint32_t cycles_count);
+EXTERN void delay_cycles(uint32_t cycles_count);
 #endif
 
 /**
@@ -71,7 +72,7 @@ static inline void delay_ns(uint32_t ns)
 #undef _DELAY_NS_CALCULATING_CYCLES
 }
 #else
-extern void delay_ns(uint32_t ns);
+EXTERN void delay_ns(uint32_t ns);
 #endif
 
 /**
@@ -93,7 +94,7 @@ static inline void delay_us(uint32_t us)
 #undef _DELAY_US_CALCULATING_CYCLES
 }
 #else
-extern void delay_us(uint32_t us);
+EXTERN void delay_us(uint32_t us);
 #endif
 
 /**
@@ -115,7 +116,7 @@ static inline void delay_ms(uint32_t ms)
 #undef _DELAY_MS_CALCULATING_CYCLES
 }
 #else
-extern void delay_ms(uint32_t ms);
+EXTERN void delay_ms(uint32_t ms);
 #endif
 
 #endif	/* DELAY_H */

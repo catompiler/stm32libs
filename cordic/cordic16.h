@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "fixed/fixed16.h"
+#include "defs/defs.h"
 
 // Углы.
 #define CORDIC16_ANGLE_90 23040
@@ -20,7 +21,7 @@
  * @param angle Результат - угол, может быть передан NULL.
  * @param hyp Результат - радиус, может быть передан NULL.
  */
-void cordic16_atan2_hyp(fixed16_t x, fixed16_t y, fixed16_t* angle, fixed16_t* hyp);
+EXTERN void cordic16_atan2_hyp(fixed16_t x, fixed16_t y, fixed16_t* angle, fixed16_t* hyp);
 
 /**
  * Вычисляет синус и косинус угла.
@@ -28,7 +29,7 @@ void cordic16_atan2_hyp(fixed16_t x, fixed16_t y, fixed16_t* angle, fixed16_t* h
  * @param sin Результат: синус угла, может быть передан NULL.
  * @param cos Результат: косинус угла, может быть передан NULL.
  */
-void cordic16_sincos(fixed16_t angle, fixed16_t* sin, fixed16_t* cos);
+EXTERN void cordic16_sincos(fixed16_t angle, fixed16_t* sin, fixed16_t* cos);
 
 #endif	/* CORDIC16_H */
 

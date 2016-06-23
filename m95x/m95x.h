@@ -11,6 +11,7 @@
 #include "errors/errors.h"
 #include "future/future.h"
 #include "spi/spi.h"
+#include "defs/defs.h"
 
 //! Идентификатор передачи по-умолчанию.
 #define M95X_DEFAULT_TRANSFER_ID 95
@@ -88,7 +89,7 @@ typedef struct _M95X_Status {
  * Каллбэк SPI.
  * @return true, если событие обработано, иначе false.
  */
-extern bool m95x_spi_callback(m95x_t* eeprom);
+EXTERN bool m95x_spi_callback(m95x_t* eeprom);
 
 /**
  * Инициализирует EEPROM.
@@ -96,35 +97,35 @@ extern bool m95x_spi_callback(m95x_t* eeprom);
  * @param eeprom_init Структура инициализации.
  * @return Код ошибки.
  */
-extern err_t m95x_init(m95x_t* eeprom, m95x_init_t* eeprom_init);
+EXTERN err_t m95x_init(m95x_t* eeprom, m95x_init_t* eeprom_init);
 
 /**
  * Получает флаг занятости EEPROM.
  * @param eeprom EEPROM.
  * @return Флаг занятости EEPROM.
  */
-extern bool m95x_busy(m95x_t* eeprom);
+EXTERN bool m95x_busy(m95x_t* eeprom);
 
 /**
  * Получает код ошибки асинхронно выполненой операции.
  * @param eeprom EEPROM.
  * @return Код ошибки асинхронно выполненой операции.
  */
-extern err_t m95x_error(m95x_t* eeprom);
+EXTERN err_t m95x_error(m95x_t* eeprom);
 
 /**
  * Ожидает завершения операции с EEPROM.
  * @param eeprom EEPROM.
  * @return Код ошибки операции.
  */
-extern err_t m95x_wait(m95x_t* eeprom);
+EXTERN err_t m95x_wait(m95x_t* eeprom);
 
 /**
  * Получает размер страницы памяти в байтах.
  * @param eeprom EEPROM.
  * @return Размер страницы памяти в байтах.
  */
-extern size_t m95x_page_size(m95x_t* eeprom);
+EXTERN size_t m95x_page_size(m95x_t* eeprom);
 
 /**
  * Считывает регистр статуса.
@@ -133,7 +134,7 @@ extern size_t m95x_page_size(m95x_t* eeprom);
  * @param status Статус.
  * @return Код ошибки.
  */
-extern err_t m95x_read_status(m95x_t* eeprom, m95x_status_t* status);
+EXTERN err_t m95x_read_status(m95x_t* eeprom, m95x_status_t* status);
 
 /**
  * Записывает регистр статуса.
@@ -142,7 +143,7 @@ extern err_t m95x_read_status(m95x_t* eeprom, m95x_status_t* status);
  * @param status Статус.
  * @return Код ошибки.
  */
-extern err_t m95x_write_status(m95x_t* eeprom, m95x_status_t* status);
+EXTERN err_t m95x_write_status(m95x_t* eeprom, m95x_status_t* status);
 
 /**
  * Получает размер данных до конца страницы.
@@ -150,7 +151,7 @@ extern err_t m95x_write_status(m95x_t* eeprom, m95x_status_t* status);
  * @param address Адрес.
  * @return Размер данных до конца старницы.
  */
-extern size_t m95x_avail_data_size(m95x_t* eeprom, m95x_address_t address);
+EXTERN size_t m95x_avail_data_size(m95x_t* eeprom, m95x_address_t address);
 
 /**
  * Читает память EEPROM.

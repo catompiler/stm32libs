@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "fixed/fixed32.h"
+#include "defs/defs.h"
 
 // Углы.
 #define CORDIC32_ANGLE_90  5898240
@@ -23,7 +24,7 @@
  * @param angle Результат - угол, может быть передан NULL.
  * @param hyp Результат - радиус, может быть передан NULL.
  */
-void cordic32_atan2_hyp(fixed32_t x, fixed32_t y, fixed32_t* angle, fixed32_t* hyp);
+EXTERN void cordic32_atan2_hyp(fixed32_t x, fixed32_t y, fixed32_t* angle, fixed32_t* hyp);
 
 /**
  * Вычисляет синус и косинус угла.
@@ -31,6 +32,6 @@ void cordic32_atan2_hyp(fixed32_t x, fixed32_t y, fixed32_t* angle, fixed32_t* h
  * @param sin Результат: синус угла, может быть передан NULL.
  * @param cos Результат: косинус угла, может быть передан NULL.
  */
-void cordic32_sincos(fixed32_t angle, fixed32_t* sin, fixed32_t* cos);
+EXTERN void cordic32_sincos(fixed32_t angle, fixed32_t* sin, fixed32_t* cos);
 
 #endif	/* CORDIC32_H */

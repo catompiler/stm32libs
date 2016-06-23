@@ -11,6 +11,7 @@
 #include "errors/errors.h"
 #include "fixed/fixed16.h"
 #include "bits/bits.h"
+#include "defs/defs.h"
 
 #ifndef DS18X20_READ_SCRATCHPAD_FULLY
 #define DS18X20_READ_SCRATCHPAD_FULLY 1
@@ -50,14 +51,14 @@ typedef struct _Ds18x20 {
  * на шине одно и можно игнорировать идентификатор.
  * @return Код ошибки.
  */
-extern err_t ds18x20_init(ds18x20_t* sensor, one_wire_t* ow, one_wire_rom_id_t* rom);
+EXTERN err_t ds18x20_init(ds18x20_t* sensor, one_wire_t* ow, one_wire_rom_id_t* rom);
 
 /**
  * Выбирает сенсор.
  * @param sensor Сенсор.
  * @return Код ошибки.
  */
-extern err_t ds18x20_select(ds18x20_t* sensor);
+EXTERN err_t ds18x20_select(ds18x20_t* sensor);
 
 /**
  * Конфигурирует сенсор.
@@ -66,7 +67,7 @@ extern err_t ds18x20_select(ds18x20_t* sensor);
  * @param alarm_temp_hi Верхнее сигнализируемое значение температуры.
  * @return Код ошибки.
  */
-extern err_t ds18x20_configure(ds18x20_t* sensor, uint8_t resolution,
+EXTERN err_t ds18x20_configure(ds18x20_t* sensor, uint8_t resolution,
                               int8_t alarm_temp_lo, int8_t alarm_temp_hi);
 
 /**
@@ -74,14 +75,14 @@ extern err_t ds18x20_configure(ds18x20_t* sensor, uint8_t resolution,
  * @param sensor Сенсор.
  * @return Код ошибки.
  */
-extern err_t ds18x20_start_conversion(ds18x20_t* sensor);
+EXTERN err_t ds18x20_start_conversion(ds18x20_t* sensor);
 
 /**
  * Проверяет статус конвертирования температуры.
  * @param sensor Сенсор.
  * @return true если конвертирование окончено или не начиналось, иначе false.
  */
-extern bool ds18x20_conversion_done(ds18x20_t* sensor);
+EXTERN bool ds18x20_conversion_done(ds18x20_t* sensor);
 
 /**
  * Считывает температуру.
@@ -89,7 +90,7 @@ extern bool ds18x20_conversion_done(ds18x20_t* sensor);
  * @param temp указатель на переменную для возвращения температуры.
  * @return Код ошибки.
  */
-extern err_t ds18x20_read_temp(ds18x20_t* sensor, fixed16_t* temp);
+EXTERN err_t ds18x20_read_temp(ds18x20_t* sensor, fixed16_t* temp);
 
 #endif	/* DS18X20_H */
 

@@ -29,7 +29,7 @@ struct _Gui_Label {
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_label_init(gui_label_t* label, gui_t* gui);
+EXTERN err_t gui_label_init(gui_label_t* label, gui_t* gui);
 
 /**
  * Инициализирует метку как потомок заданного родителя.
@@ -38,7 +38,7 @@ extern err_t gui_label_init(gui_label_t* label, gui_t* gui);
  * @param parent Родитель.
  * @return Код ошибки.
  */
-extern err_t gui_label_init_parent(gui_label_t* label, gui_t* gui, gui_widget_t* parent);
+EXTERN err_t gui_label_init_parent(gui_label_t* label, gui_t* gui, gui_widget_t* parent);
 
 /**
  * Получает текст метки.
@@ -55,13 +55,13 @@ ALWAYS_INLINE static const char* gui_label_text(gui_label_t* label)
  * @param label Метка.
  * @param text Текст метки.
  */
-extern void gui_label_set_text(gui_label_t* label, const char* text);
+EXTERN void gui_label_set_text(gui_label_t* label, const char* text);
 
 /**
  * Обработчик перерисовки.
  * @param label Метка.
  * @param rect Область перерисовки.
  */
-extern void gui_label_on_repaint(gui_label_t* label, const rect_t* rect);
+EXTERN void gui_label_on_repaint(gui_label_t* label, const rect_t* rect);
 
 #endif	/* GUI_LABEL_H */

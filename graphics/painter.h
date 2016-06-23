@@ -131,7 +131,7 @@ err_t painter_init(painter_t* painter, graphics_t* graphics);
  * @param graphics Холст.
  * @return true, если холст установлен, false в случае ошибки.
  */
-extern bool painter_set_graphics(painter_t* painter, graphics_t* graphics);
+EXTERN bool painter_set_graphics(painter_t* painter, graphics_t* graphics);
 
 /**
  * Получает холст.
@@ -554,13 +554,13 @@ static ALWAYS_INLINE graphics_color_t painter_get_pixel(const painter_t* painter
  * @param painter Рисовальщик.
  * @return true в случае успеха, иначе false.
  */
-extern bool painter_flush(painter_t* painter);
+EXTERN bool painter_flush(painter_t* painter);
 
 /**
  * Заполняет изображение.
  * @param painter Рисовальщик.
  */
-extern void painter_fill(painter_t* painter);
+EXTERN void painter_fill(painter_t* painter);
 
 /**
  * Рисует точку.
@@ -568,7 +568,7 @@ extern void painter_fill(painter_t* painter);
  * @param x Координата X.
  * @param y Координата Y.
  */
-extern void painter_draw_point(painter_t* painter, graphics_pos_t x, graphics_pos_t y);
+EXTERN void painter_draw_point(painter_t* painter, graphics_pos_t x, graphics_pos_t y);
 
 /**
  * Рисует вертикальную линию.
@@ -577,7 +577,7 @@ extern void painter_draw_point(painter_t* painter, graphics_pos_t x, graphics_po
  * @param y0 Начальная координата Y.
  * @param y1 Конечная координата Y.
  */
-extern void painter_draw_vline(painter_t* painter, graphics_pos_t x, graphics_pos_t y0, graphics_pos_t y1);
+EXTERN void painter_draw_vline(painter_t* painter, graphics_pos_t x, graphics_pos_t y0, graphics_pos_t y1);
 
 /**
  * Рисует горизонтальную линию.
@@ -586,7 +586,7 @@ extern void painter_draw_vline(painter_t* painter, graphics_pos_t x, graphics_po
  * @param x0 Начальная координата X.
  * @param x1 Конечная координата X.
  */
-extern void painter_draw_hline(painter_t* painter, graphics_pos_t y, graphics_pos_t x0, graphics_pos_t x1);
+EXTERN void painter_draw_hline(painter_t* painter, graphics_pos_t y, graphics_pos_t x0, graphics_pos_t x1);
 
 /**
  * Рисует линию.
@@ -596,7 +596,7 @@ extern void painter_draw_hline(painter_t* painter, graphics_pos_t y, graphics_po
  * @param x1 Конечная координата X.
  * @param y1 Конечная координата Y.
  */
-extern void painter_draw_line(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1);
+EXTERN void painter_draw_line(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1);
 
 /**
  * Рисует прямоугольник.
@@ -606,7 +606,7 @@ extern void painter_draw_line(painter_t* painter, graphics_pos_t x0, graphics_po
  * @param right Право.
  * @param bottom Низ.
  */
-extern void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom);
+EXTERN void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom);
 
 /**
  * Рисует прямоугольник без границ.
@@ -616,7 +616,7 @@ extern void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_
  * @param right Право.
  * @param bottom Низ.
  */
-extern void painter_draw_fillrect(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom);
+EXTERN void painter_draw_fillrect(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom);
 
 /**
  * Рисует окружность.
@@ -625,7 +625,7 @@ extern void painter_draw_fillrect(painter_t* painter, graphics_pos_t left, graph
  * @param center_y Координата центра Y.
  * @param radius Радиус.
  */
-extern void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t radius);
+EXTERN void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t radius);
 
 /**
  * Рисует окружность.
@@ -635,7 +635,7 @@ extern void painter_draw_circle(painter_t* painter, graphics_pos_t center_x, gra
  * @param a Большая полуось.
  * @param b Малая полуось.
  */
-extern void painter_draw_ellipse(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t a, graphics_pos_t b);
+EXTERN void painter_draw_ellipse(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y, graphics_pos_t a, graphics_pos_t b);
 
 /**
  * Рисует треугольник.
@@ -647,7 +647,7 @@ extern void painter_draw_ellipse(painter_t* painter, graphics_pos_t center_x, gr
  * @param x2 Координата X третьей точки треугольника.
  * @param y2 Координата Y третьей точки треугольника.
  */
-extern void painter_draw_triangle(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0,
+EXTERN void painter_draw_triangle(painter_t* painter, graphics_pos_t x0, graphics_pos_t y0,
                                                       graphics_pos_t x1, graphics_pos_t y1,
                                                       graphics_pos_t x2, graphics_pos_t y2);
 
@@ -662,7 +662,7 @@ extern void painter_draw_triangle(painter_t* painter, graphics_pos_t x0, graphic
  * @param src_width Ширина источника.
  * @param src_height Высота источника.
  */
-extern void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_pos_t dst_y,
+EXTERN void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_pos_t dst_y,
                            const graphics_t* src_graphics, graphics_pos_t src_x, graphics_pos_t src_y,
                            graphics_size_t src_width, graphics_size_t src_height);
 
@@ -671,21 +671,21 @@ extern void painter_bitblt(painter_t* painter, graphics_pos_t dst_x, graphics_po
  * @param angle Угол.
  * @return Нормализованный угол.
  */
-extern int32_t painter_normalize_angle(int32_t angle);
+EXTERN int32_t painter_normalize_angle(int32_t angle);
 
 /**
  * Получает табличное значение синуса угла.
  * @param angle Угол.
  * @return Синус угла.
  */
-extern fixed32_t painter_sin(int32_t angle);
+EXTERN fixed32_t painter_sin(int32_t angle);
 
 /**
  * Получает табличное значение косинуса угла.
  * @param angle Угол.
  * @return Косинус угла.
  */
-extern fixed32_t painter_cos(int32_t angle);
+EXTERN fixed32_t painter_cos(int32_t angle);
 
 /**
  * Поворачивает координату X.
@@ -694,7 +694,7 @@ extern fixed32_t painter_cos(int32_t angle);
  * @param angle Угол поворота.
  * @return Повёрнутая координата.
  */
-extern graphics_pos_t painter_rotate_x(graphics_pos_t x, int32_t angle);
+EXTERN graphics_pos_t painter_rotate_x(graphics_pos_t x, int32_t angle);
 
 /**
  * Поворачивает координату Y.
@@ -703,7 +703,7 @@ extern graphics_pos_t painter_rotate_x(graphics_pos_t x, int32_t angle);
  * @param angle Угол поворота.
  * @return Повёрнутая координата.
  */
-extern graphics_pos_t painter_rotate_y(graphics_pos_t y, int32_t angle);
+EXTERN graphics_pos_t painter_rotate_y(graphics_pos_t y, int32_t angle);
 
 /**
  * Выполняет вращение вектора (x, y) на угол angle.
@@ -711,7 +711,7 @@ extern graphics_pos_t painter_rotate_y(graphics_pos_t y, int32_t angle);
  * @param y Координата Y вектора.
  * @param angle Угол поворота.
  */
-extern void painter_rotate(graphics_pos_t* x, graphics_pos_t* y, int32_t angle);
+EXTERN void painter_rotate(graphics_pos_t* x, graphics_pos_t* y, int32_t angle);
 
 /**
  * Рисует дугу окружности.
@@ -722,7 +722,7 @@ extern void painter_rotate(graphics_pos_t* x, graphics_pos_t* y, int32_t angle);
  * @param from_angle Начальный угол дуги.
  * @param to_angle Конечный угол дуги.
  */
-extern void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
+EXTERN void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
                              graphics_pos_t radius, int32_t from_angle, int32_t to_angle);
 
 /**
@@ -735,7 +735,7 @@ extern void painter_draw_arc(painter_t* painter, graphics_pos_t center_x, graphi
  * @param from_angle Начальный угол дуги.
  * @param to_angle Конечный угол дуги.
  */
-extern void painter_draw_ellipse_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
+EXTERN void painter_draw_ellipse_arc(painter_t* painter, graphics_pos_t center_x, graphics_pos_t center_y,
                              graphics_pos_t a, graphics_pos_t b, int32_t from_angle, int32_t to_angle);
 
 /**
@@ -747,7 +747,7 @@ extern void painter_draw_ellipse_arc(painter_t* painter, graphics_pos_t center_x
  * @param x Координата X.
  * @param y Координата Y.
  */
-extern void painter_flood_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y);
+EXTERN void painter_flood_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y);
 
 /**
  * Отрисовывает символ.
@@ -757,7 +757,7 @@ extern void painter_flood_fill(painter_t* painter, graphics_pos_t x, graphics_po
  * @param y Ордината.
  * @param c Символ.
  */
-extern void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c);
+EXTERN void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c);
 
 /**
  * Отрисовывает строку символов.
@@ -767,7 +767,7 @@ extern void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos
  * @param y Ордината.
  * @param s Строка символов.
  */
-extern void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s);
+EXTERN void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s);
 
 /**
  * Вычисляет размер отрисованной строки символов.
@@ -776,6 +776,6 @@ extern void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_p
  * @param width Ширина отрисованной строки символов.
  * @param height Высота отрисованной строки символов.
  */
-extern void painter_string_size(painter_t* painter, const char* s, graphics_size_t* width, graphics_size_t* height);
+EXTERN void painter_string_size(painter_t* painter, const char* s, graphics_size_t* width, graphics_size_t* height);
 
 #endif  //_PAINTER_H_

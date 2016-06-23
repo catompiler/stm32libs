@@ -12,6 +12,7 @@
 #include "future/future.h"
 #include "errors/errors.h"
 #include "list/list.h"
+#include "defs/defs.h"
 
 
 //! Ошибочный идентификатор задачи.
@@ -58,13 +59,13 @@ typedef struct _Task_Descr_t {
  * @param count Число дескрипторов.
  * @return Код ошибки.
  */
-extern err_t scheduler_init(task_descr_t* buffer, size_t count);
+EXTERN err_t scheduler_init(task_descr_t* buffer, size_t count);
 
 /**
  * Получает идентификатор текущей задачи.
  * @return Идентификатор текущей задачи.
  */
-extern task_id_t scheduler_current_task_id(void);
+EXTERN task_id_t scheduler_current_task_id(void);
 
 /**
  * Добавляет задачу.
@@ -73,20 +74,20 @@ extern task_id_t scheduler_current_task_id(void);
  * @param arg Аргумент задачи.
  * @return Идентификатор задачи, при ошибке возвращает INVALID_TASK_ID.
  */
-extern task_id_t scheduler_add_task(task_proc_t proc, task_priority_t priority, void* arg, task_flags_t flags, future_t* future);
+EXTERN task_id_t scheduler_add_task(task_proc_t proc, task_priority_t priority, void* arg, task_flags_t flags, future_t* future);
 
 /**
  * Удаляет задачу.
  * @param tid Идентификатор задачи.
  * @return Флаг удаления задачи.
  */
-extern bool scheduler_remove_task(task_id_t tid);
+EXTERN bool scheduler_remove_task(task_id_t tid);
 
 /**
  * Главный цикл планеровщика.
  * Запускает очередную задачу.
  * @return Флаг запуска задачи, false если задач нет.
  */
-extern bool scheduler_process(void);
+EXTERN bool scheduler_process(void);
 
 #endif /* SCHEDULER_H */

@@ -105,78 +105,78 @@ typedef struct _SPI_Bus_Init{
  * @param device Периферия spi.
  * @return Код ошибки.
  */
-extern err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init);
+EXTERN err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init);
 
 /**
  * Обработчик прерывания spi.
  * @param spi Шина spi.
  */
-extern void spi_bus_irq_handler(spi_bus_t* spi);
+EXTERN void spi_bus_irq_handler(spi_bus_t* spi);
 
 /**
  * Обработчик прерывания канала передачи DMA.
  * @param spi Шина spi.
  * @return true, если канал использовался шиной spi, иначе false.
  */
-extern bool spi_bus_dma_rx_channel_irq_handler(spi_bus_t* spi);
+EXTERN bool spi_bus_dma_rx_channel_irq_handler(spi_bus_t* spi);
 
 /**
  * Обработчик прерывания канала приёма DMA.
  * @param spi Шина spi.
  * @return true, если канал использовался шиной spi, иначе false.
  */
-extern bool spi_bus_dma_tx_channel_irq_handler(spi_bus_t* spi);
+EXTERN bool spi_bus_dma_tx_channel_irq_handler(spi_bus_t* spi);
 
 /**
  * Получает флаг занятости шины spi.
  * @param spi Шина spi.
  * @return Флаг занятости шины spi.
  */
-extern bool spi_bus_busy(spi_bus_t* spi);
+EXTERN bool spi_bus_busy(spi_bus_t* spi);
 
 /**
  * Ждёт завершения текущей операции spi.
  */
-extern void spi_bus_wait(spi_bus_t* spi);
+EXTERN void spi_bus_wait(spi_bus_t* spi);
 
 /**
  * Получает функцию обратного вызова.
  * @return Функция обратного вызова.
  */
-extern spi_callback_t spi_bus_callback(spi_bus_t* spi);
+EXTERN spi_callback_t spi_bus_callback(spi_bus_t* spi);
 
 /**
  * Устанавливает функцию обратного вызова.
  * @param callback Функция обратного вызова.
  */
-extern void spi_bus_set_callback(spi_bus_t* spi, spi_callback_t callback);
+EXTERN void spi_bus_set_callback(spi_bus_t* spi, spi_callback_t callback);
 
 /**
  * Получает идентификатор передачи.
  * @return Идентификатор передачи.
  */
-extern spi_transfer_id_t spi_bus_transfer_id(spi_bus_t* spi);
+EXTERN spi_transfer_id_t spi_bus_transfer_id(spi_bus_t* spi);
 
 /**
  * Устанавливает идентификатор передачи.
  * @param id Идентификатор передачи.
  * @return true, если идентификатор передачи установлен, иначе false (шина занята).
  */
-extern bool spi_bus_set_transfer_id(spi_bus_t* spi, spi_transfer_id_t id);
+EXTERN bool spi_bus_set_transfer_id(spi_bus_t* spi, spi_transfer_id_t id);
 
 /**
  * Получает состояние шины spi.
  * @param spi Шина spi.
  * @return Состояние шины spi.
  */
-extern spi_status_t spi_bus_status(spi_bus_t* spi);
+EXTERN spi_status_t spi_bus_status(spi_bus_t* spi);
 
 /**
  * Получает ошибку шины spi.
  * @param spi Шина spi.
  * @return Ошибку шины spi.
  */
-extern spi_error_t spi_bus_error(spi_bus_t* spi);
+EXTERN spi_error_t spi_bus_error(spi_bus_t* spi);
 
 /**
  * Инициализирует сообщение.
@@ -188,7 +188,7 @@ extern spi_error_t spi_bus_error(spi_bus_t* spi);
  * @param data_size Размер буфера для приёма данных.
  * @return Код ошибки.
  */
-extern err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const void* tx_data, void* rx_data, size_t data_size);
+EXTERN err_t spi_message_init(spi_message_t* message, spi_direction_t direction, const void* tx_data, void* rx_data, size_t data_size);
 
 /**
  * Инициализирует сообщение.
@@ -255,7 +255,7 @@ ALWAYS_INLINE static void spi_message_set_sender_data(spi_message_t* message, vo
  * @param messages_count Число сообщений.
  * @return Код ошибки.
  */
-extern err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_count);
+EXTERN err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_count);
 
 #endif	/* SPI_H */
 

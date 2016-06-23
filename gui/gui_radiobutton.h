@@ -39,7 +39,7 @@ typedef void (*gui_radiobutton_on_toggled_t)(gui_radiobutton_t*, bool);
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_radiobutton_init(gui_radiobutton_t* radiobutton, gui_t* gui);
+EXTERN err_t gui_radiobutton_init(gui_radiobutton_t* radiobutton, gui_t* gui);
 
 /**
  * Инициализирует переключатель как потомок заданного родителя.
@@ -48,7 +48,7 @@ extern err_t gui_radiobutton_init(gui_radiobutton_t* radiobutton, gui_t* gui);
  * @param parent Родитель.
  * @return Код ошибки.
  */
-extern err_t gui_radiobutton_init_parent(gui_radiobutton_t* radiobutton, gui_t* gui, gui_widget_t* parent);
+EXTERN err_t gui_radiobutton_init_parent(gui_radiobutton_t* radiobutton, gui_t* gui, gui_widget_t* parent);
 
 /**
  * Получает текст переключателя.
@@ -65,7 +65,7 @@ ALWAYS_INLINE static const char* gui_radiobutton_text(gui_radiobutton_t* radiobu
  * @param radiobutton Переключатель.
  * @param text Текст переключателя.
  */
-extern void gui_radiobutton_set_text(gui_radiobutton_t* radiobutton, const char* text);
+EXTERN void gui_radiobutton_set_text(gui_radiobutton_t* radiobutton, const char* text);
 
 /**
  * Получает установленность переключателя.
@@ -82,7 +82,7 @@ ALWAYS_INLINE static bool gui_radiobutton_checked(gui_radiobutton_t* radiobutton
  * @param radiobutton Переключатель.
  * @param checked Установленность переключателя.
  */
-extern void gui_radiobutton_set_checked(gui_radiobutton_t* radiobutton, bool checked);
+EXTERN void gui_radiobutton_set_checked(gui_radiobutton_t* radiobutton, bool checked);
 
 /**
  * Получает каллбэк изменения флага.
@@ -119,21 +119,21 @@ ALWAYS_INLINE static size_t gui_radiobutton_radio_size(gui_radiobutton_t* radiob
  * @param radiobutton Переключатель.
  * @param size Размер переключателя.
  */
-extern void gui_radiobutton_set_radio_size(gui_radiobutton_t* radiobutton, size_t size);
+EXTERN void gui_radiobutton_set_radio_size(gui_radiobutton_t* radiobutton, size_t size);
 
 /**
  * Обработчик перерисовки.
  * @param radiobutton Переключатель.
  * @param rect Область перерисовки.
  */
-extern void gui_radiobutton_on_repaint(gui_radiobutton_t* radiobutton, const rect_t* rect);
+EXTERN void gui_radiobutton_on_repaint(gui_radiobutton_t* radiobutton, const rect_t* rect);
 
 /**
  * Обработчик нажатия клавиши.
  * @param radiobutton Переключатель.
  * @param key Код клавиши.
  */
-extern void gui_radiobutton_on_key_press(gui_radiobutton_t* radiobutton, keycode_t key);
+EXTERN void gui_radiobutton_on_key_press(gui_radiobutton_t* radiobutton, keycode_t key);
 
 #endif	/* GUI_RADIOBUTTON_H */
 

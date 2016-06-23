@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "defs/defs.h"
 
 
 /**
@@ -29,41 +30,41 @@ typedef struct _CircularBuffer {
  * @param ptr Указатель на память для буфера.
  * @param size Размер буфера.
  */
-extern void circular_buffer_init(circular_buffer_t* buffer, uint8_t* ptr, size_t size);
+EXTERN void circular_buffer_init(circular_buffer_t* buffer, uint8_t* ptr, size_t size);
 
 /**
  * Сбрасывает кольцевой буфер.
  * @param buffer Кольцевой буфер.
  */
-extern void circular_buffer_reset(circular_buffer_t* buffer);
+EXTERN void circular_buffer_reset(circular_buffer_t* buffer);
 
 /**
  * Получает флаг валидности кольцевого буфера.
  * @param buffer Кольцевой буфер.
  * @return Флаг валидности кольцевого буфера.
  */
-extern bool circular_buffer_valid(circular_buffer_t* buffer);
+EXTERN bool circular_buffer_valid(circular_buffer_t* buffer);
 
 /**
  * Получает размер кольцевого буфера.
  * @param buffer Кольцевой буфер.
  * @return Размер кольцевого буфера.
  */
-extern size_t circular_buffer_size(circular_buffer_t* buffer);
+EXTERN size_t circular_buffer_size(circular_buffer_t* buffer);
 
 /**
  * Получает свободное место в кольцевом буфере.
  * @param buffer Кольцевой буфер.
  * @return Свободное место в кольцевом буфере.
  */
-extern size_t circular_buffer_free_size(circular_buffer_t* buffer);
+EXTERN size_t circular_buffer_free_size(circular_buffer_t* buffer);
 
 /**
  * Получает размер данных в кольцевом буфере.
  * @param buffer Кольцевой буфер.
  * @return Размер данных в кольцевом буфере.
  */
-extern size_t circular_buffer_avail_size(circular_buffer_t* buffer);
+EXTERN size_t circular_buffer_avail_size(circular_buffer_t* buffer);
 
 /**
  * Помещает байт данных в кольцевой буфер.
@@ -71,7 +72,7 @@ extern size_t circular_buffer_avail_size(circular_buffer_t* buffer);
  * @param data Байт данных.
  * @return Число помещённых данных в кольцевой буфер (ноль если места недостаточно).
  */
-extern size_t circular_buffer_put(circular_buffer_t* buffer, uint8_t data);
+EXTERN size_t circular_buffer_put(circular_buffer_t* buffer, uint8_t data);
 
 /**
  * Получает байт данных из кольцевого буфера.
@@ -79,7 +80,7 @@ extern size_t circular_buffer_put(circular_buffer_t* buffer, uint8_t data);
  * @param data Указатель на байт данных.
  * @return  Число полученных данных из кольцевого буфера (ноль если нет данных).
  */
-extern size_t circular_buffer_get(circular_buffer_t* buffer, uint8_t* data);
+EXTERN size_t circular_buffer_get(circular_buffer_t* buffer, uint8_t* data);
 
 /**
  * Получает байт данных из кольцевого буфера без извлечения из буфера.
@@ -87,7 +88,7 @@ extern size_t circular_buffer_get(circular_buffer_t* buffer, uint8_t* data);
  * @param data Указатель на байт данных.
  * @return  Число полученных данных из кольцевого буфера (ноль если нет данных).
  */
-extern size_t circular_buffer_peek(circular_buffer_t* buffer, uint8_t* data);
+EXTERN size_t circular_buffer_peek(circular_buffer_t* buffer, uint8_t* data);
 
 /**
  * Помещает данные в кольцевой буфер.
@@ -96,7 +97,7 @@ extern size_t circular_buffer_peek(circular_buffer_t* buffer, uint8_t* data);
  * @param size Размер данных.
  * @return Число помещённых данных в кольцевой буфер (ноль если места недостаточно).
  */
-extern size_t circular_buffer_write(circular_buffer_t* buffer, const uint8_t* data, size_t size);
+EXTERN size_t circular_buffer_write(circular_buffer_t* buffer, const uint8_t* data, size_t size);
 
 /**
  * Получает данные из кольцевого буфера.
@@ -105,7 +106,7 @@ extern size_t circular_buffer_write(circular_buffer_t* buffer, const uint8_t* da
  * @param size Размер данных.
  * @return  Число полученных данных из кольцевого буфера (ноль если нет данных).
  */
-extern size_t circular_buffer_read(circular_buffer_t* buffer, uint8_t* data, size_t size);
+EXTERN size_t circular_buffer_read(circular_buffer_t* buffer, uint8_t* data, size_t size);
 
 #endif	/* CIRCULAR_BUFFER_H */
 

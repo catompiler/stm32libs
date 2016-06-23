@@ -67,41 +67,41 @@ typedef struct _KeyLayout {
  * Инициализирует клавиатурный ввод.
  * @return Код ошибки.
  */
-extern err_t key_input_init(void);
+EXTERN err_t key_input_init(void);
 
 /**
  * Обработчик нажатия клавиши.
  * @param key Код клавиши.
  * @return Код ошибки.
  */
-extern err_t key_input_pressed(keycode_t key);
+EXTERN err_t key_input_pressed(keycode_t key);
 
 /**
  * Обработчик отпускания клавиши.
  * @param key Код клавиши.
  * @return Код ошибки.
  */
-extern err_t key_input_released(keycode_t key);
+EXTERN err_t key_input_released(keycode_t key);
 
 /**
  * Получает состояние клавиши.
  * @param key Код клавиши.
  * @return Состояние клавиши.
  */
-extern key_state_t key_input_key_state(keycode_t key);
+EXTERN key_state_t key_input_key_state(keycode_t key);
 
 /**
  * Получает состояние модификатора.
  * @param mod Код модификатора.
  * @return Состояние модификаторы.
  */
-extern key_state_t key_input_mod_state(keymod_t mod);
+EXTERN key_state_t key_input_mod_state(keymod_t mod);
 
 /**
  * Получает состояние модификаторов.
  * @return Состояние модификаторов.
  */
-extern keymods_t key_input_mods(void);
+EXTERN keymods_t key_input_mods(void);
 
 /**
  * Устанавливает раскладки клавиатуры.
@@ -109,20 +109,20 @@ extern keymods_t key_input_mods(void);
  * @param count Число раскладок.
  * @return Код ошибки.
  */
-extern err_t key_input_set_layouts(const key_layout_t** layouts, size_t count);
+EXTERN err_t key_input_set_layouts(const key_layout_t** layouts, size_t count);
 
 /**
  * Получает текущую раскладку клавиатуры.
  * @return Текущая раскладка клавиатуры.
  */
-extern const key_layout_t* key_input_current_layout(void);
+EXTERN const key_layout_t* key_input_current_layout(void);
 
 /**
  * Получает текущую раскладку клавиатуры по индексу.
  * @param index Индекс раскладки.
  * @return Текущая раскладка клавиатуры.
  */
-extern const key_layout_t* key_input_layout_by_index(size_t index);
+EXTERN const key_layout_t* key_input_layout_by_index(size_t index);
 
 /**
  * Получает имя раскладки клавиатуры.
@@ -168,70 +168,70 @@ ALWAYS_INLINE static const wchar_t* key_layout_map_shifted(const key_layout_t* l
  * Получает индекс текущей раскладки клавиатуры.
  * @return Индекс текущей раскладки клавиатуры.
  */
-extern size_t key_input_current_layout_index(void);
+EXTERN size_t key_input_current_layout_index(void);
 
 /**
  * Устанавливает текущую раскладку по индексу.
  * @param index Индекс раскладки.
  * @return Код ошибки.
  */
-extern err_t key_input_set_layout_by_index(size_t index);
+EXTERN err_t key_input_set_layout_by_index(size_t index);
 
 /**
  * Устанавливает текущую раскладку по идентификатору.
  * @param id Идентификатор раскладки.
  * @return Код ошибки.
  */
-extern err_t key_input_set_layout_by_id(key_layout_id_t id);
+EXTERN err_t key_input_set_layout_by_id(key_layout_id_t id);
 
 /**
  * Устанавливает текущую раскладку по имени.
  * @param name Имя раскладки.
  * @return Код ошибки.
  */
-extern err_t key_input_set_layout_by_name(const char* name);
+EXTERN err_t key_input_set_layout_by_name(const char* name);
 
 /**
  * Устанавливает следующую раскладку.
  * @return Код ошибки.
  */
-extern err_t key_input_next_layout(void);
+EXTERN err_t key_input_next_layout(void);
 
 /**
  * Устанавливает предыдущую раскладку.
  * @return Код ошибки.
  */
-extern err_t key_input_prev_layout(void);
+EXTERN err_t key_input_prev_layout(void);
 
 /**
  * Получает символ по коду клавиши.
  * @param key Код клавиши.
  * @return Символ, 0 при ошибке.
  */
-extern wchar_t key_input_key_to_char(keycode_t key);
+EXTERN wchar_t key_input_key_to_char(keycode_t key);
 
 /**
  * Получает каллбэк нажатия клавиши.
  * @return Каллбэк нажатия клавиши.
  */
-extern key_input_on_pressed_callback_t key_input_on_pressed_callback(void);
+EXTERN key_input_on_pressed_callback_t key_input_on_pressed_callback(void);
 
 /**
  * Устанавливает каллбэк нажатия клавиши.
  * @return Каллбэк нажатия клавиши.
  */
-extern void key_input_set_on_pressed_callback(key_input_on_pressed_callback_t callback);
+EXTERN void key_input_set_on_pressed_callback(key_input_on_pressed_callback_t callback);
 
 /**
  * Получает каллбэк отпускания клавиши.
  * @return Каллбэк отпускания клавиши.
  */
-extern key_input_on_released_callback_t key_input_on_released_callback(void);
+EXTERN key_input_on_released_callback_t key_input_on_released_callback(void);
 
 /**
  * Устанавливает каллбэк отпускания клавиши.
  * @return Каллбэк отпускания клавиши.
  */
-extern void key_input_set_on_released_callback(key_input_on_released_callback_t callback);
+EXTERN void key_input_set_on_released_callback(key_input_on_released_callback_t callback);
 
 #endif	/* KEY_INPUT_H */

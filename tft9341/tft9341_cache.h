@@ -60,7 +60,7 @@ typedef struct _Tft9341_Cache {
  * @param size Размер данных.
  * @return Код ошибки.
  */
-extern err_t tft9341_cache_buffer_init(tft9341_cache_buffer_t* buffer, void* data, size_t size);
+EXTERN err_t tft9341_cache_buffer_init(tft9341_cache_buffer_t* buffer, void* data, size_t size);
 
 /**
  * Инициализирует кэш.
@@ -71,7 +71,7 @@ extern err_t tft9341_cache_buffer_init(tft9341_cache_buffer_t* buffer, void* dat
  * @param buffers_count Число буферов.
  * @return Код ошибки.
  */
-extern err_t tft9341_cache_init(tft9341_cache_t* cache, tft9341_t* tft, size_t pixel_size,
+EXTERN err_t tft9341_cache_init(tft9341_cache_t* cache, tft9341_t* tft, size_t pixel_size,
                                 tft9341_cache_buffer_t* buffers, size_t buffers_count,
                                 tft9341_row_col_exchange_t row_col_exchange);
 
@@ -104,14 +104,14 @@ ALWAYS_INLINE static void tft9341_cache_set_tft_row_col_exchange(tft9341_cache_t
  * @param color Цвет.
  * @return Код ошибки.
  */
-extern err_t tft9341_cache_set_pixel(tft9341_cache_t* cache, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+EXTERN err_t tft9341_cache_set_pixel(tft9341_cache_t* cache, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
 
 /**
  * Сбрасывает кэш в экран.
  * @param cache Кэш.
  * @return Код ошибки.
  */
-extern err_t tft9341_cache_flush(tft9341_cache_t* cache);
+EXTERN err_t tft9341_cache_flush(tft9341_cache_t* cache);
 
 /**
  * Заливает TFT заданным цветом.
@@ -119,7 +119,7 @@ extern err_t tft9341_cache_flush(tft9341_cache_t* cache);
  * @param color Цвет.
  * @return Код ошибки.
  */
-extern err_t tft9341_cache_fill(tft9341_cache_t* cache, graphics_color_t color);
+EXTERN err_t tft9341_cache_fill(tft9341_cache_t* cache, graphics_color_t color);
 
 /**
  * Заливает регион TFT заданным цветом.
@@ -131,6 +131,6 @@ extern err_t tft9341_cache_fill(tft9341_cache_t* cache, graphics_color_t color);
  * @param color Цвет.
  * @return Код ошибки.
  */
-extern err_t tft9341_cache_fill_region(tft9341_cache_t* cache, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1, graphics_color_t color);
+EXTERN err_t tft9341_cache_fill_region(tft9341_cache_t* cache, graphics_pos_t x0, graphics_pos_t y0, graphics_pos_t x1, graphics_pos_t y1, graphics_color_t color);
 
 #endif	//TFT9341_CACHE_H

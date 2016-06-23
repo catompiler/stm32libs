@@ -182,14 +182,21 @@ err_t menu_item_init_from_descr(menu_item_t* item, const menu_descr_t* descr)
 
 size_t menu_item_childs_count(menu_item_t *item)
 {
-    size_t childs_count = 0;
+    if(item->child == NULL) return 0;
 
-    while(item->child){
-        item = item->child;
-        childs_count ++;
-    }
+    return menu_item_count(item->child);
+}
 
-    return childs_count;
+size_t menu_item_count(menu_item_t *item)
+{
+    size_t count = menu_item_pos(item);
+
+    do{
+        count ++;
+        item = item->next;
+    }while(item);
+
+    return count;
 }
 
 menu_item_t* menu_item_child_at(menu_item_t* item, size_t index)

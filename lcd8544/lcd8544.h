@@ -13,6 +13,7 @@
 #include "spi/spi.h"
 #include "errors/errors.h"
 #include "future/future.h"
+#include "defs/defs.h"
 
 /**
  * Тип структуры дисплея.
@@ -132,7 +133,7 @@ typedef uint8_t lcd8544_bias_system_t;
  * Каллбэк SPI.
  * @return true, если событие обработано, иначе false.
  */
-extern bool lcd8544_spi_callback(lcd8544_t* lcd);
+EXTERN bool lcd8544_spi_callback(lcd8544_t* lcd);
 
 /**
  * Инициализирует LCD.
@@ -146,34 +147,34 @@ extern bool lcd8544_spi_callback(lcd8544_t* lcd);
  * @param transfer_id Идентификатор передачи SPI.
  * @return Код ошибки.
  */
-extern err_t lcd8544_init(lcd8544_t* lcd, lcd8544_init_t* lcd_init);
+EXTERN err_t lcd8544_init(lcd8544_t* lcd, lcd8544_init_t* lcd_init);
 
 /**
  * Получает флаг занятости LCD.
  * @param lcd LCD.
  * @return Флаг занятости LCD.
  */
-extern bool lcd8544_busy(lcd8544_t* lcd);
+EXTERN bool lcd8544_busy(lcd8544_t* lcd);
 
 /**
  * Получает код ошибки асинхронно выполненой операции.
  * @param lcd LCD.
  * @return Код ошибки асинхронно выполненой операции.
  */
-extern err_t lcd8544_error(lcd8544_t* lcd);
+EXTERN err_t lcd8544_error(lcd8544_t* lcd);
 
 /**
  * Ожидает завершения операции с LCD.
  * @param lcd LCD.
  * @return Код ошибки операции.
  */
-extern err_t lcd8544_wait(lcd8544_t* lcd);
+EXTERN err_t lcd8544_wait(lcd8544_t* lcd);
 
 /**
  * Сбрасывает LCD.
  * @param lcd LCD.
  */
-extern void lcd8544_reset(lcd8544_t* lcd);
+EXTERN void lcd8544_reset(lcd8544_t* lcd);
 
 /**
  * Устанавливает функционал LCD.
@@ -183,7 +184,7 @@ extern void lcd8544_reset(lcd8544_t* lcd);
  * @param instruction_set Набор инструкций.
  * @return Код ошибки.
  */
-extern err_t lcd8544_function_set(lcd8544_t* lcd, bool power_on,
+EXTERN err_t lcd8544_function_set(lcd8544_t* lcd, bool power_on,
                                   lcd8544_addressing_mode_t addressing_mode,
                                   lcd8544_instruction_set_t instruction_set);
 
@@ -193,7 +194,7 @@ extern err_t lcd8544_function_set(lcd8544_t* lcd, bool power_on,
  * @param data Данные.
  * @return Код ошибки.
  */
-extern err_t lcd8544_write_data(lcd8544_t* lcd, uint8_t data);
+EXTERN err_t lcd8544_write_data(lcd8544_t* lcd, uint8_t data);
 
 /**
  * Записывает данные в LCD.
@@ -202,7 +203,7 @@ extern err_t lcd8544_write_data(lcd8544_t* lcd, uint8_t data);
  * @param data_size Размер данных.
  * @return Код ошибки.
  */
-extern err_t lcd8544_write(lcd8544_t* lcd, const uint8_t* data, size_t data_size);
+EXTERN err_t lcd8544_write(lcd8544_t* lcd, const uint8_t* data, size_t data_size);
 
 /**
  * Устанавливает режим отображения.
@@ -210,7 +211,7 @@ extern err_t lcd8544_write(lcd8544_t* lcd, const uint8_t* data, size_t data_size
  * @param mode Режим отображения.
  * @return Код ошибки.
  */
-extern err_t lcd8544_set_display_mode(lcd8544_t* lcd, lcd8544_display_mode_t mode);
+EXTERN err_t lcd8544_set_display_mode(lcd8544_t* lcd, lcd8544_display_mode_t mode);
 
 /**
  * Устанавливает Y адрес в памяти LCD.
@@ -218,7 +219,7 @@ extern err_t lcd8544_set_display_mode(lcd8544_t* lcd, lcd8544_display_mode_t mod
  * @param address Адрес.
  * @return Код ошибки.
  */
-extern err_t lcd8544_set_y_address(lcd8544_t* lcd, uint8_t address);
+EXTERN err_t lcd8544_set_y_address(lcd8544_t* lcd, uint8_t address);
 
 /**
  * Устанавливает X адрес в памяти LCD.
@@ -226,7 +227,7 @@ extern err_t lcd8544_set_y_address(lcd8544_t* lcd, uint8_t address);
  * @param address Адрес.
  * @return Код ошибки.
  */
-extern err_t lcd8544_set_x_address(lcd8544_t* lcd, uint8_t address);
+EXTERN err_t lcd8544_set_x_address(lcd8544_t* lcd, uint8_t address);
 
 /**
  * Устанавливает значение температурного коэффициента.
@@ -234,7 +235,7 @@ extern err_t lcd8544_set_x_address(lcd8544_t* lcd, uint8_t address);
  * @param coef Температурный коэффициент.
  * @return Код ошибки.
  */
-extern err_t lcd8544_set_temp_coef(lcd8544_t* lcd, lcd8544_temp_coef_t coef);
+EXTERN err_t lcd8544_set_temp_coef(lcd8544_t* lcd, lcd8544_temp_coef_t coef);
 
 /**
  * Устанавливает значение отклонения системного напряжения (?).
@@ -242,7 +243,7 @@ extern err_t lcd8544_set_temp_coef(lcd8544_t* lcd, lcd8544_temp_coef_t coef);
  * @param bias Отклонение.
  * @return Код ошибки.
  */
-extern err_t lcd8544_set_bias_system(lcd8544_t* lcd, lcd8544_bias_system_t bias);
+EXTERN err_t lcd8544_set_bias_system(lcd8544_t* lcd, lcd8544_bias_system_t bias);
 
 /**
  * Устанавливает значение напряжения.
@@ -250,7 +251,7 @@ extern err_t lcd8544_set_bias_system(lcd8544_t* lcd, lcd8544_bias_system_t bias)
  * @param mV Напряжение, милливольт.
  * @return Код ошибки.
  */
-extern err_t lcd8544_set_voltage(lcd8544_t* lcd, uint16_t mV);
+EXTERN err_t lcd8544_set_voltage(lcd8544_t* lcd, uint16_t mV);
 
 /*
 Инициализация:

@@ -52,27 +52,27 @@ typedef struct _Orientation {
  * Инициализирует ориентацию.
  * @param orientation Ориентация.
  */
-extern void orientation_init(orientation_t* orientation, const gyro6050_t* gyro, const hmc5883l_t* compass);
+EXTERN void orientation_init(orientation_t* orientation, const gyro6050_t* gyro, const hmc5883l_t* compass);
 
 /**
  * Получает вес угла по данным акселерометра.
  * @param orientation Ориентация.
  * @return Вес угла по данным акселерометра.
  */
-extern uint8_t orientation_accel_angle_weight(orientation_t* orientation);
+EXTERN uint8_t orientation_accel_angle_weight(orientation_t* orientation);
 
 /**
  * Устанавливает вес угла по данным акселерометра.
  * @param orientation Ориентация.
  * @param weight Вес, значение осекается в промежуток от 0 до 100.
  */
-extern void orientation_set_accel_angle_weight(orientation_t* orientation, uint8_t weight);
+EXTERN void orientation_set_accel_angle_weight(orientation_t* orientation, uint8_t weight);
 
 /**
  * Вычисляет ориентацию.
  * @param orientation Ориентация.
  */
-extern void orientation_calculate(orientation_t* orientation);
+EXTERN void orientation_calculate(orientation_t* orientation);
 
 /**
  * Получает угол по оси X.

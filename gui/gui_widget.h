@@ -90,21 +90,21 @@ struct _Gui_Widget {
  * @param widget Виджет.
  * @param event Событие изменения размера.
  */
-extern void gui_widget_resize_event(gui_widget_t* widget, gui_resize_event_t* event);
+EXTERN void gui_widget_resize_event(gui_widget_t* widget, gui_resize_event_t* event);
 
 /**
  * Обработчик события перерисовки.
  * @param widget Виджет.
  * @param event Событие перерисовки.
  */
-extern void gui_widget_repaint_event(gui_widget_t* widget, gui_repaint_event_t* event);
+EXTERN void gui_widget_repaint_event(gui_widget_t* widget, gui_repaint_event_t* event);
 
 /**
  * Обработчик события клавиатуры.
  * @param widget Виджет.
  * @param event Событие клавиатуры.
  */
-extern void gui_widget_key_event(gui_widget_t* widget, gui_key_event_t* event);
+EXTERN void gui_widget_key_event(gui_widget_t* widget, gui_key_event_t* event);
 
 /**
  * Инициализирует виджет.
@@ -112,7 +112,7 @@ extern void gui_widget_key_event(gui_widget_t* widget, gui_key_event_t* event);
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_widget_init(gui_widget_t* widget, gui_t* gui);
+EXTERN err_t gui_widget_init(gui_widget_t* widget, gui_t* gui);
 
 /**
  * Инициализируют виджет как потомок заданного родителя.
@@ -121,7 +121,7 @@ extern err_t gui_widget_init(gui_widget_t* widget, gui_t* gui);
  * @param parent Родитель.
  * @return Код ошибки.
  */
-extern err_t gui_widget_init_parent(gui_widget_t* widget, gui_t* gui, gui_widget_t* parent);
+EXTERN err_t gui_widget_init_parent(gui_widget_t* widget, gui_t* gui, gui_widget_t* parent);
 
 /**
  * Получает идентификатор виджета.
@@ -168,7 +168,7 @@ ALWAYS_INLINE static gui_border_t gui_widget_border(gui_widget_t* widget)
  * @param widget Виджет.
  * @param border Тип границы виджета.
  */
-extern void gui_widget_set_border(gui_widget_t* widget, gui_border_t border);
+EXTERN void gui_widget_set_border(gui_widget_t* widget, gui_border_t border);
 
 /**
  * Получает цвет фона виджета.
@@ -185,7 +185,7 @@ ALWAYS_INLINE static graphics_color_t gui_widget_back_color(gui_widget_t* widget
  * @param widget Виджет.
  * @param back_color Цвет фона виджета.
  */
-extern void gui_widget_set_back_color(gui_widget_t* widget, graphics_color_t back_color);
+EXTERN void gui_widget_set_back_color(gui_widget_t* widget, graphics_color_t back_color);
 
 /**
  * Получает флаг видимости виджета.
@@ -202,14 +202,14 @@ ALWAYS_INLINE static bool gui_widget_visible(gui_widget_t* widget)
  * @param widget Виджет.
  * @return Флаг видимости виджета.
  */
-extern bool gui_widget_visible_parents(gui_widget_t* widget);
+EXTERN bool gui_widget_visible_parents(gui_widget_t* widget);
 
 /**
  * Устанавливает флаг видимости виджета.
  * @param widget Виджет.
  * @param Флаг видимости виджета.
  */
-extern void gui_widget_set_visible(gui_widget_t* widget, bool visible);
+EXTERN void gui_widget_set_visible(gui_widget_t* widget, bool visible);
 
 /**
  * Получает флаг фокусируемости виджета.
@@ -245,7 +245,7 @@ ALWAYS_INLINE static bool gui_widget_has_focus(gui_widget_t* widget)
  * Переводит фокус на виджет.
  * @param widget Виджет.
  */
-extern void gui_widget_set_focus(gui_widget_t* widget);
+EXTERN void gui_widget_set_focus(gui_widget_t* widget);
 
 /**
  * Получает координату X виджета.
@@ -272,14 +272,14 @@ ALWAYS_INLINE static graphics_pos_t gui_widget_y(gui_widget_t* widget)
  * @param widget Виджет.
  * @param x Координата X виджета.
  */
-extern void gui_widget_set_x(gui_widget_t* widget, graphics_pos_t x);
+EXTERN void gui_widget_set_x(gui_widget_t* widget, graphics_pos_t x);
 
 /**
  * Устанавливает координату Y виджета.
  * @param widget Виджет.
  * @param y Координата Y виджета.
  */
-extern void gui_widget_set_y(gui_widget_t* widget, graphics_pos_t y);
+EXTERN void gui_widget_set_y(gui_widget_t* widget, graphics_pos_t y);
 
 /**
  * Получает ширину виджета.
@@ -306,14 +306,14 @@ ALWAYS_INLINE static graphics_size_t gui_widget_height(gui_widget_t* widget)
  * @param widget Виджет.
  * @param width Ширина виджета.
  */
-extern void gui_widget_set_width(gui_widget_t* widget, graphics_size_t width);
+EXTERN void gui_widget_set_width(gui_widget_t* widget, graphics_size_t width);
 
 /**
  * Устанавливает высоту виджета.
  * @param widget Виджет.
  * @param height Высота виджета.
  */
-extern void gui_widget_set_height(gui_widget_t* widget, graphics_size_t height);
+EXTERN void gui_widget_set_height(gui_widget_t* widget, graphics_size_t height);
 
 /**
  * Получает координаты виджета.
@@ -341,28 +341,28 @@ ALWAYS_INLINE static void gui_widget_rect(gui_widget_t* widget, rect_t* rect)
  * @param widget Виджет.
  * @return Координату X виджета на экране.
  */
-extern graphics_pos_t gui_widget_screen_x(gui_widget_t* widget);
+EXTERN graphics_pos_t gui_widget_screen_x(gui_widget_t* widget);
 
 /**
  * Получает координату Y виджета на экране с учётом позиции родителей.
  * @param widget Виджет.
  * @return Координату Y виджета на экране.
  */
-extern graphics_pos_t gui_widget_screen_y(gui_widget_t* widget);
+EXTERN graphics_pos_t gui_widget_screen_y(gui_widget_t* widget);
 
 /**
  * Получает координаты виджета на экране с учётом позиции родителей.
  * @param widget Виджет.
  * @param point Координаты виджета на экране.
  */
-extern void gui_widget_screen_position(gui_widget_t* widget, point_t* point);
+EXTERN void gui_widget_screen_position(gui_widget_t* widget, point_t* point);
 
 /**
  * Получает прямоугольную область виджета на экране с учётом позиции родителей.
  * @param widget Виджет.
  * @param rect Прямоугольная область.
  */
-extern void gui_widget_screen_rect(gui_widget_t* widget, rect_t* rect);
+EXTERN void gui_widget_screen_rect(gui_widget_t* widget, rect_t* rect);
 
 /**
  * Получает видимое положение виджета на экране с учётом позиции родителей.
@@ -370,7 +370,7 @@ extern void gui_widget_screen_rect(gui_widget_t* widget, rect_t* rect);
  * @param point Положение виджета на экране.
  * @param rect Видимая на экране прямоугольная область виджета.
  */
-extern void gui_widget_screen_visible_position(gui_widget_t* widget, point_t* point, rect_t* rect);
+EXTERN void gui_widget_screen_visible_position(gui_widget_t* widget, point_t* point, rect_t* rect);
 
 /**
  * Перемещает виджет.
@@ -378,7 +378,7 @@ extern void gui_widget_screen_visible_position(gui_widget_t* widget, point_t* po
  * @param x Координата X виджета.
  * @param y Координата Y виджета.
  */
-extern void gui_widget_move(gui_widget_t* widget, graphics_pos_t x, graphics_pos_t y);
+EXTERN void gui_widget_move(gui_widget_t* widget, graphics_pos_t x, graphics_pos_t y);
 
 /**
  * Изменяет размер виджета.
@@ -386,14 +386,14 @@ extern void gui_widget_move(gui_widget_t* widget, graphics_pos_t x, graphics_pos
  * @param width Ширина виджета.
  * @param height Высота виджета.
  */
-extern void gui_widget_resize(gui_widget_t* widget, graphics_size_t width, graphics_size_t height);
+EXTERN void gui_widget_resize(gui_widget_t* widget, graphics_size_t width, graphics_size_t height);
 
 /**
  * Перерисовывает виджет.
  * @param widget Виджет.
  * @param rect Область перерисовки.
  */
-extern void gui_widget_repaint(gui_widget_t* widget, const rect_t* rect);
+EXTERN void gui_widget_repaint(gui_widget_t* widget, const rect_t* rect);
 
 /**
  * Начинает перерисовку виджета и инициализирует заданный рисовальщик.
@@ -402,7 +402,7 @@ extern void gui_widget_repaint(gui_widget_t* widget, const rect_t* rect);
  * @param rect Область перерисовки, может быть NULL.
  * @return Код ошибки.
  */
-extern err_t gui_widget_begin_paint(gui_widget_t* widget, painter_t* painter, const rect_t* rect);
+EXTERN err_t gui_widget_begin_paint(gui_widget_t* widget, painter_t* painter, const rect_t* rect);
 
 /**
  * Завершает перерисовку виджета.
@@ -410,7 +410,7 @@ extern err_t gui_widget_begin_paint(gui_widget_t* widget, painter_t* painter, co
  * @param painter Рисовальщик.
  * @return Код ошибки.
  */
-extern err_t gui_widget_end_paint(gui_widget_t* widget, painter_t* painter);
+EXTERN err_t gui_widget_end_paint(gui_widget_t* widget, painter_t* painter);
 
 /**
  * Обработчик изменения размера.
@@ -418,28 +418,28 @@ extern err_t gui_widget_end_paint(gui_widget_t* widget, painter_t* painter);
  * @param width Ширина виджета.
  * @param height Высота виджета.
  */
-extern void gui_widget_on_resize(gui_widget_t* widget, graphics_size_t width, graphics_size_t height);
+EXTERN void gui_widget_on_resize(gui_widget_t* widget, graphics_size_t width, graphics_size_t height);
 
 /**
  * Обработчик перерисовки.
  * @param widget Виджет.
  * @param rect Область перерисовки.
  */
-extern void gui_widget_on_repaint(gui_widget_t* widget, const rect_t* rect);
+EXTERN void gui_widget_on_repaint(gui_widget_t* widget, const rect_t* rect);
 
 /**
  * Обработчик нажатия клавиши.
  * @param widget Виджет.
  * @param key Код клавиши.
  */
-extern void gui_widget_on_key_press(gui_widget_t* widget, keycode_t key);
+EXTERN void gui_widget_on_key_press(gui_widget_t* widget, keycode_t key);
 
 /**
  * Обработчик отпускания клавиши.
  * @param widget Виджет.
  * @param key Код клавиши.
  */
-extern void gui_widget_on_key_release(gui_widget_t* widget, keycode_t key);
+EXTERN void gui_widget_on_key_release(gui_widget_t* widget, keycode_t key);
 
 /**
  * Получает графический интерфейс виджета.

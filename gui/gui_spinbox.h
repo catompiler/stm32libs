@@ -45,7 +45,7 @@ typedef void (*gui_spinbox_on_value_changed_t)(gui_spinbox_t*, int);
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_spinbox_init(gui_spinbox_t* spinbox, gui_t* gui);
+EXTERN err_t gui_spinbox_init(gui_spinbox_t* spinbox, gui_t* gui);
 
 /**
  * Инициализирует спинбокс как потомок заданного родителя.
@@ -54,7 +54,7 @@ extern err_t gui_spinbox_init(gui_spinbox_t* spinbox, gui_t* gui);
  * @param parent Родитель.
  * @return Код ошибки.
  */
-extern err_t gui_spinbox_init_parent(gui_spinbox_t* spinbox, gui_t* gui, gui_widget_t* parent);
+EXTERN err_t gui_spinbox_init_parent(gui_spinbox_t* spinbox, gui_t* gui, gui_widget_t* parent);
 
 /**
  * Получает значение спинбокса.
@@ -71,19 +71,19 @@ ALWAYS_INLINE static int gui_spinbox_value(gui_spinbox_t* spinbox)
  * @param spinbox Спинбокс.
  * @param value Значение спинбокса.
  */
-extern void gui_spinbox_set_value(gui_spinbox_t* spinbox, int value);
+EXTERN void gui_spinbox_set_value(gui_spinbox_t* spinbox, int value);
 
 /**
  * Увеличивает значение на значение инкремента.
  * @param spinbox Спинбокс.
  */
-extern void gui_spinbox_inc_value(gui_spinbox_t* spinbox);
+EXTERN void gui_spinbox_inc_value(gui_spinbox_t* spinbox);
 
 /**
  * Уменьшает значение на значение инкремента.
  * @param spinbox Спинбокс.
  */
-extern void gui_spinbox_dec_value(gui_spinbox_t* spinbox);
+EXTERN void gui_spinbox_dec_value(gui_spinbox_t* spinbox);
 
 /**
  * Получает значение инкремента спинбокса.
@@ -120,7 +120,7 @@ ALWAYS_INLINE static int gui_spinbox_maximum(gui_spinbox_t* spinbox)
  * @param spinbox Спинбокс.
  * @param maximum Максимальное значение спинбокса.
  */
-extern void gui_spinbox_set_maximum(gui_spinbox_t* spinbox, int maximum);
+EXTERN void gui_spinbox_set_maximum(gui_spinbox_t* spinbox, int maximum);
 
 /**
  * Получает минимальное значение спинбокса.
@@ -137,7 +137,7 @@ ALWAYS_INLINE static int gui_spinbox_minimum(gui_spinbox_t* spinbox)
  * @param spinbox Спинбокс.
  * @param minimum Минимальное значение спинбокса.
  */
-extern void gui_spinbox_set_minimum(gui_spinbox_t* spinbox, int minimum);
+EXTERN void gui_spinbox_set_minimum(gui_spinbox_t* spinbox, int minimum);
 
 /**
  * Устанавливает минимальное и минимальное значение спинбокса.
@@ -145,7 +145,7 @@ extern void gui_spinbox_set_minimum(gui_spinbox_t* spinbox, int minimum);
  * @param minimum Минимальное значение.
  * @param maximum Максимальное значение.
  */
-extern void gui_spinbox_set_range(gui_spinbox_t* spinbox, int minimum, int maximum);
+EXTERN void gui_spinbox_set_range(gui_spinbox_t* spinbox, int minimum, int maximum);
 
 /**
  * Получает формат числа спинбокса.
@@ -162,7 +162,7 @@ ALWAYS_INLINE static gui_number_label_format_t gui_spinbox_format(gui_spinbox_t*
  * @param spinbox Спинбокс.
  * @param format Формат числа спинбокса.
  */
-extern void gui_spinbox_set_format(gui_spinbox_t* spinbox, gui_number_label_format_t format);
+EXTERN void gui_spinbox_set_format(gui_spinbox_t* spinbox, gui_number_label_format_t format);
 
 /**
  * Получает каллбэк изменения значения.
@@ -199,27 +199,27 @@ ALWAYS_INLINE static size_t gui_spinbox_spin_size(gui_spinbox_t* spinbox)
  * @param spinbox Спинбокс.
  * @param size Размер кнопок инкремента / декремента.
  */
-extern void gui_spinbox_set_spin_size(gui_spinbox_t* spinbox, size_t size);
+EXTERN void gui_spinbox_set_spin_size(gui_spinbox_t* spinbox, size_t size);
 
 /**
  * Обработчик перерисовки.
  * @param spinbox Спинбокс.
  * @param rect Область перерисовки.
  */
-extern void gui_spinbox_on_repaint(gui_spinbox_t* spinbox, const rect_t* rect);
+EXTERN void gui_spinbox_on_repaint(gui_spinbox_t* spinbox, const rect_t* rect);
 
 /**
  * Обработчик нажатия клавиши.
  * @param spinbox Спинбокс.
  * @param key Код клавиши.
  */
-extern void gui_spinbox_on_key_press(gui_spinbox_t* spinbox, keycode_t key);
+EXTERN void gui_spinbox_on_key_press(gui_spinbox_t* spinbox, keycode_t key);
 
 /**
  * Обработчик отпускания клавиши.
  * @param spinbox Спинбокс.
  * @param key Код клавиши.
  */
-extern void gui_spinbox_on_key_release(gui_spinbox_t* spinbox, keycode_t key);
+EXTERN void gui_spinbox_on_key_release(gui_spinbox_t* spinbox, keycode_t key);
 
 #endif	/* GUI_SPINBOX_H */

@@ -318,7 +318,7 @@ typedef struct _Graphics {
  * @param format Формат изображения.
  * @return Код ошибки.
  */
-extern err_t graphics_init(graphics_t* graphics, uint8_t* data, graphics_size_t width, graphics_size_t height, graphics_format_t format);
+EXTERN err_t graphics_init(graphics_t* graphics, uint8_t* data, graphics_size_t width, graphics_size_t height, graphics_format_t format);
 
 #ifdef USE_GRAPHICS_VIRTUAL_BUFFER
 /**
@@ -331,7 +331,7 @@ extern err_t graphics_init(graphics_t* graphics, uint8_t* data, graphics_size_t 
  * @param virtual_and_pixel Функция операции AND над пикселом.
  * @return Код ошибки.
  */
-extern err_t graphics_init_vbuf(graphics_vbuf_t* vbuf, graphics_get_pixel_proc_t virtual_get_pixel,
+EXTERN err_t graphics_init_vbuf(graphics_vbuf_t* vbuf, graphics_get_pixel_proc_t virtual_get_pixel,
                                 graphics_set_pixel_proc_t virtual_set_pixel, graphics_or_pixel_proc_t virtual_or_pixel,
                                 graphics_xor_pixel_proc_t virtual_xor_pixel, graphics_and_pixel_proc_t virtual_and_pixel);
 /**
@@ -343,7 +343,7 @@ extern err_t graphics_init_vbuf(graphics_vbuf_t* vbuf, graphics_get_pixel_proc_t
  * @param vbuf Виртуальный буфер.
  * @return Код ошибки.
  */
-extern err_t graphics_init_virtual(graphics_t* graphics, void* data, graphics_size_t width, graphics_size_t height, graphics_format_t format, graphics_vbuf_t* vbuf);
+EXTERN err_t graphics_init_virtual(graphics_t* graphics, void* data, graphics_size_t width, graphics_size_t height, graphics_format_t format, graphics_vbuf_t* vbuf);
 #endif
 
 /**
@@ -422,7 +422,7 @@ static ALWAYS_INLINE graphics_vbuf_t* graphics_virtual_buffer(graphics_t* graphi
  * @param graphics Изображение.
  * @return true в случае успеха, иначе false.
  */
-extern bool graphics_flush(graphics_t* graphics);
+EXTERN bool graphics_flush(graphics_t* graphics);
 
 /**
  * Быстро выводит залитый прямоугольник.
@@ -435,7 +435,7 @@ extern bool graphics_flush(graphics_t* graphics);
  * @return true в случае успеха, false в случае неудачи,
  * либо если функция быстрой заливки не поддерживается буферорм.
  */
-extern bool graphics_fast_fillrect(graphics_t* graphics, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom, graphics_color_t color);
+EXTERN bool graphics_fast_fillrect(graphics_t* graphics, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom, graphics_color_t color);
 #endif
 
 /**
@@ -443,20 +443,20 @@ extern bool graphics_fast_fillrect(graphics_t* graphics, graphics_pos_t left, gr
  * @param graphics Изображение.
  * @return Размер буфера изображения.
  */
-extern size_t graphics_data_size(const graphics_t* graphics);
+EXTERN size_t graphics_data_size(const graphics_t* graphics);
 
 /**
  * Очищает изображение.
  * @param graphics Изображение.
  */
-extern void graphics_clear(graphics_t* graphics);
+EXTERN void graphics_clear(graphics_t* graphics);
 
 /**
  * Заполняет буфер изображения заданным цветом.
  * @param graphics Изображение.
  * @param color Цвет.
  */
-extern void graphics_fill(graphics_t* graphics, graphics_color_t color);
+EXTERN void graphics_fill(graphics_t* graphics, graphics_color_t color);
 
 /**
  * Получает позицию пиксела в массиве байт.
@@ -467,7 +467,7 @@ extern void graphics_fill(graphics_t* graphics, graphics_color_t color);
  * @param bit Первый бит пиксела.
  * @return true в случае успеха, иначе false (например в случае выхода за границу массива).
  */
-extern bool graphics_get_pixel_pos(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_size_t* byte, graphics_size_t* bit);
+EXTERN bool graphics_get_pixel_pos(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_size_t* byte, graphics_size_t* bit);
 
 /**
  * Получает цвет пиксела.
@@ -476,7 +476,7 @@ extern bool graphics_get_pixel_pos(const graphics_t* graphics, graphics_pos_t x,
  * @param y Координата Y.
  * @return Цвет пиксела. Если координаты выходят за пределы изображения - возвращает 0.
  */
-extern graphics_color_t graphics_get_pixel(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y);
+EXTERN graphics_color_t graphics_get_pixel(const graphics_t* graphics, graphics_pos_t x, graphics_pos_t y);
 
 /**
  * Устанавливает цвет пиксела.
@@ -486,7 +486,7 @@ extern graphics_color_t graphics_get_pixel(const graphics_t* graphics, graphics_
  * @param color Цвет пиксела.
  * @return true в случае успеха, иначе false (например в случае выхода за пределы изображения).
  */
-extern bool graphics_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+EXTERN bool graphics_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
 
 /**
  * Меняет цвет пиксела как OR.
@@ -496,7 +496,7 @@ extern bool graphics_set_pixel(graphics_t* graphics, graphics_pos_t x, graphics_
  * @param color Цвет пиксела.
  * @return true в случае успеха, иначе false (например в случае выхода за пределы изображения).
  */
-extern bool graphics_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+EXTERN bool graphics_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
 
 /**
  * Меняет цвет пиксела как XOR.
@@ -506,7 +506,7 @@ extern bool graphics_or_pixel(graphics_t* graphics, graphics_pos_t x, graphics_p
  * @param color Цвет пиксела.
  * @return true в случае успеха, иначе false (например в случае выхода за пределы изображения).
  */
-extern bool graphics_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+EXTERN bool graphics_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
 
 /**
  * Меняет цвет пиксела как AND.
@@ -516,7 +516,7 @@ extern bool graphics_xor_pixel(graphics_t* graphics, graphics_pos_t x, graphics_
  * @param color Цвет пиксела.
  * @return true в случае успеха, иначе false (например в случае выхода за пределы изображения).
  */
-extern bool graphics_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
+EXTERN bool graphics_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_pos_t y, graphics_color_t color);
 
 /**
  * Преобразует значение цвета из одного формата в другой.
@@ -526,7 +526,7 @@ extern bool graphics_and_pixel(graphics_t* graphics, graphics_pos_t x, graphics_
  * @param color Значение цвета для преобразования.
  * @return Преобразованное значение цвета.
  */
-extern graphics_color_t graphics_convert_color(graphics_format_t to_format, graphics_format_t from_format, graphics_color_t color);
+EXTERN graphics_color_t graphics_convert_color(graphics_format_t to_format, graphics_format_t from_format, graphics_color_t color);
 
 /**
  * Применяет к цвету значение маски яркости.
@@ -536,6 +536,6 @@ extern graphics_color_t graphics_convert_color(graphics_format_t to_format, grap
  * @param mask Маска цвета.
  * @return Значение цвета с применённой маской.
  */
-extern graphics_color_t graphics_apply_mask(graphics_format_t color_format, graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask);
+EXTERN graphics_color_t graphics_apply_mask(graphics_format_t color_format, graphics_color_t color, graphics_format_t mask_format, graphics_color_t mask);
 
 #endif  //_GRAPHICS_H_

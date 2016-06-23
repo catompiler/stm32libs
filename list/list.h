@@ -28,7 +28,7 @@ typedef struct _List_Item {
  * @param list Список.
  * @return Код ошибки.
  */
-extern err_t list_init(list_t* list);
+EXTERN err_t list_init(list_t* list);
 
 /**
  * Получает первый элемент списка.
@@ -56,7 +56,7 @@ ALWAYS_INLINE static list_item_t* list_tail(list_t* list)
  * @param item Элемент списка.
  * @return Код ошибки.
  */
-extern err_t list_append(list_t* list, list_item_t* item);
+EXTERN err_t list_append(list_t* list, list_item_t* item);
 
 /**
  * Добавляет элемент в начало списка.
@@ -64,7 +64,7 @@ extern err_t list_append(list_t* list, list_item_t* item);
  * @param item Элемент списка.
  * @return Код ошибки.
  */
-extern err_t list_prepend(list_t* list, list_item_t* item);
+EXTERN err_t list_prepend(list_t* list, list_item_t* item);
 
 /**
  * Добавляет элемент в список после заданного элемента.
@@ -73,7 +73,7 @@ extern err_t list_prepend(list_t* list, list_item_t* item);
  * @param item Элемент списка.
  * @return Код ошибки.
  */
-extern err_t list_insert_after(list_t* list, list_item_t* ref, list_item_t* item);
+EXTERN err_t list_insert_after(list_t* list, list_item_t* ref, list_item_t* item);
 
 /**
  * Добавляет элемент в список перед заданным элементом.
@@ -82,7 +82,7 @@ extern err_t list_insert_after(list_t* list, list_item_t* ref, list_item_t* item
  * @param item Элемент списка.
  * @return Код ошибки.
  */
-extern err_t list_insert_before(list_t* list, list_item_t* ref, list_item_t* item);
+EXTERN err_t list_insert_before(list_t* list, list_item_t* ref, list_item_t* item);
 
 /**
  * Добавляет элемент в сортированный список.
@@ -91,7 +91,7 @@ extern err_t list_insert_before(list_t* list, list_item_t* ref, list_item_t* ite
  * @param compare Функция сравнения.
  * @return Код ошибки.
  */
-extern err_t list_insert_sorted(list_t* list, list_item_t* item, int (*compare)(const void*, const void*));
+EXTERN err_t list_insert_sorted(list_t* list, list_item_t* item, int (*compare)(const void*, const void*));
 
 /**
  * Удаляет элемент из списка.
@@ -99,7 +99,7 @@ extern err_t list_insert_sorted(list_t* list, list_item_t* item, int (*compare)(
  * @param item Элемент списка.
  * @return Код ошибки.
  */
-extern err_t list_remove(list_t* list, list_item_t* item);
+EXTERN err_t list_remove(list_t* list, list_item_t* item);
 
 /**
  * Создаёт новый элемент списка с заданными данными.
@@ -108,7 +108,7 @@ extern err_t list_remove(list_t* list, list_item_t* item);
  * @param data Данные элемента списка.
  * @return Новый элемент списка.
  */
-extern list_item_t* list_append_new(list_t* list, void* data);
+EXTERN list_item_t* list_append_new(list_t* list, void* data);
 
 /**
  * Создаёт новый элемент списка с заданными данными.
@@ -117,7 +117,7 @@ extern list_item_t* list_append_new(list_t* list, void* data);
  * @param data Данные элемента списка.
  * @return Новый элемент списка.
  */
-extern list_item_t* list_prepend_new(list_t* list, void* data);
+EXTERN list_item_t* list_prepend_new(list_t* list, void* data);
 
 /**
  * Создаёт новый элемент списока после заданного элемента.
@@ -126,7 +126,7 @@ extern list_item_t* list_prepend_new(list_t* list, void* data);
  * @param data Данные элемента списка.
  * @return Новый элемент списка.
  */
-extern list_item_t* list_insert_after_new(list_t* list, list_item_t* ref, void* data);
+EXTERN list_item_t* list_insert_after_new(list_t* list, list_item_t* ref, void* data);
 
 /**
  * Создаёт новый элемент списока перед заданным элементом.
@@ -135,7 +135,7 @@ extern list_item_t* list_insert_after_new(list_t* list, list_item_t* ref, void* 
  * @param data Данные элемента списка.
  * @return Новый элемент списка.
  */
-extern list_item_t* list_insert_before_new(list_t* list, list_item_t* ref, void* data);
+EXTERN list_item_t* list_insert_before_new(list_t* list, list_item_t* ref, void* data);
 
 /**
  * Создаёт новый элемент в сортированном списке.
@@ -144,7 +144,7 @@ extern list_item_t* list_insert_before_new(list_t* list, list_item_t* ref, void*
  * @param compare Функция сравнения.
  * @return Новый элемент списка.
  */
-extern list_item_t* list_insert_sorted_new(list_t* list, void* data, int (*compare)(const void*, const void*));
+EXTERN list_item_t* list_insert_sorted_new(list_t* list, void* data, int (*compare)(const void*, const void*));
 
 /**
  * Удаляет элемент из списка и уничтожает его.
@@ -152,7 +152,7 @@ extern list_item_t* list_insert_sorted_new(list_t* list, void* data, int (*compa
  * @param item Элемент списка.
  * @return Код ошибки.
  */
-extern err_t list_delete(list_t* list, list_item_t* item);
+EXTERN err_t list_delete(list_t* list, list_item_t* item);
 
 /**
  * Получает первый элемент списка.
@@ -200,7 +200,7 @@ ALWAYS_INLINE static list_item_t* list_prev(list_item_t* item)
  * @param data Данные списка.
  * @return Элемент списка.
  */
-extern list_item_t* list_find(list_t* list, void* data);
+EXTERN list_item_t* list_find(list_t* list, void* data);
 
 /**
  * Проверяет наличие элемента в списке.
@@ -208,22 +208,14 @@ extern list_item_t* list_find(list_t* list, void* data);
  * @param item Элемент списка.
  * @return true если элемент существует, иначе false.
  */
-extern bool list_contains(list_t* list, list_item_t* item);
+EXTERN bool list_contains(list_t* list, list_item_t* item);
 
 /**
  * Обходит список.
  * @param list Список.
  * @param proc Функция обработки элемента.
  */
-extern void list_foreach(list_t* list, void (*proc)(void* item_data));
-
-/**
- * Обходит список.
- * @param list Список.
- * @param proc Функция обработки элемента.
- * @param user_data Пользовательские данные.
- */
-extern void list_foreach2_first(list_t* list, void (*proc)(void* user_data, void* item_data), void* user_data);
+EXTERN void list_foreach(list_t* list, void (*proc)(void* item_data));
 
 /**
  * Обходит список.
@@ -231,14 +223,22 @@ extern void list_foreach2_first(list_t* list, void (*proc)(void* user_data, void
  * @param proc Функция обработки элемента.
  * @param user_data Пользовательские данные.
  */
-extern void list_foreach2_second(list_t* list, void (*proc)(void* item_data, void* user_data), void* user_data);
+EXTERN void list_foreach2_first(list_t* list, void (*proc)(void* user_data, void* item_data), void* user_data);
+
+/**
+ * Обходит список.
+ * @param list Список.
+ * @param proc Функция обработки элемента.
+ * @param user_data Пользовательские данные.
+ */
+EXTERN void list_foreach2_second(list_t* list, void (*proc)(void* item_data, void* user_data), void* user_data);
 
 /**
  * Реверсно обходит список.
  * @param list Список.
  * @param proc Функция обработки элемента.
  */
-extern void list_rforeach(list_t* list, void (*proc)(void* item_data));
+EXTERN void list_rforeach(list_t* list, void (*proc)(void* item_data));
 
 /**
  * Реверсно обходит список.
@@ -246,7 +246,7 @@ extern void list_rforeach(list_t* list, void (*proc)(void* item_data));
  * @param proc Функция обработки элемента.
  * @param user_data Пользовательские данные.
  */
-extern void list_rforeach2_first(list_t* list, void (*proc)(void* user_data, void* item_data), void* user_data);
+EXTERN void list_rforeach2_first(list_t* list, void (*proc)(void* user_data, void* item_data), void* user_data);
 
 /**
  * Реверсно обходит список.
@@ -254,14 +254,14 @@ extern void list_rforeach2_first(list_t* list, void (*proc)(void* user_data, voi
  * @param proc Функция обработки элемента.
  * @param user_data Пользовательские данные.
  */
-extern void list_rforeach2_second(list_t* list, void (*proc)(void* item_data, void* user_data), void* user_data);
+EXTERN void list_rforeach2_second(list_t* list, void (*proc)(void* item_data, void* user_data), void* user_data);
 
 /**
  * Получает размер списка.
  * @param list Список.
  * @return Размер списка.
  */
-extern size_t list_size(list_t* list);
+EXTERN size_t list_size(list_t* list);
 
 /**
  * Получает флаг пустоты списка.
@@ -278,7 +278,7 @@ ALWAYS_INLINE static bool list_empty(list_t* list)
  * @param item Элемент списка.
  * @return Код ошибки.
  */
-extern err_t list_item_init(list_item_t* item);
+EXTERN err_t list_item_init(list_item_t* item);
 
 /**
  * Инициализирует элемент списка с данными.
@@ -286,7 +286,7 @@ extern err_t list_item_init(list_item_t* item);
  * @param data Данные.
  * @return Код ошибки.
  */
-extern err_t list_item_init_data(list_item_t* item, void* data);
+EXTERN err_t list_item_init_data(list_item_t* item, void* data);
 
 /**
  * Получает данные элемента списка.

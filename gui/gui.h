@@ -67,7 +67,7 @@ typedef struct _Gui {
  * @param theme Тема графического интерфейса.
  * @return Код ошибки.
  */
-extern err_t gui_init(gui_t* gui, graphics_t* graphics, gui_theme_t* theme);
+EXTERN err_t gui_init(gui_t* gui, graphics_t* graphics, gui_theme_t* theme);
 
 /**
  * Получает графический буфер.
@@ -85,7 +85,7 @@ ALWAYS_INLINE static graphics_t* gui_graphics(gui_t* gui)
  * @param graphics
  * @return Код ошибки.
  */
-extern err_t gui_set_graphics(gui_t* gui, graphics_t* graphics);
+EXTERN err_t gui_set_graphics(gui_t* gui, graphics_t* graphics);
 
 /**
  * Получает тему оформления.
@@ -103,7 +103,7 @@ ALWAYS_INLINE static gui_theme_t* gui_theme(gui_t* gui)
  * @param theme Тема оформления.
  * @return Код ошибки.
  */
-extern err_t gui_set_theme(gui_t* gui, gui_theme_t* theme);
+EXTERN err_t gui_set_theme(gui_t* gui, gui_theme_t* theme);
 
 /**
  * Получает корневой виджет.
@@ -121,7 +121,7 @@ ALWAYS_INLINE static gui_widget_t* gui_root_widget(gui_t* gui)
  * @param widget Корневой виджет.
  * @return Код ошибки.
  */
-extern err_t gui_set_root_widget(gui_t* gui, gui_widget_t* widget);
+EXTERN err_t gui_set_root_widget(gui_t* gui, gui_widget_t* widget);
 
 /**
  * Получает виджет в фокусе.
@@ -149,7 +149,7 @@ ALWAYS_INLINE static bool gui_is_focus_widget(gui_t* gui, gui_widget_t* widget)
  * @param widget Виджет в фокусе, NULL для снятия фокуса.
  * @return true, если новый фокус установлен, иначе false.
  */
-extern bool gui_set_focus_widget(gui_t* gui, gui_widget_t* widget);
+EXTERN bool gui_set_focus_widget(gui_t* gui, gui_widget_t* widget);
 
 /**
  * Очищает фокус.
@@ -165,14 +165,14 @@ ALWAYS_INLINE static void gui_clear_focus_widget(gui_t* gui)
  * @param gui Графический интерфейс.
  * @return true, если новый фокус установлен, иначе false.
  */
-extern bool gui_focus_next_widget(gui_t* gui);
+EXTERN bool gui_focus_next_widget(gui_t* gui);
 
 /**
  * Устанавливает фокус на предыдущий виджет.
  * @param gui Графический интерфейс.
  * @return true, если новый фокус установлен, иначе false.
  */
-extern bool gui_focus_prev_widget(gui_t* gui);
+EXTERN bool gui_focus_prev_widget(gui_t* gui);
 
 /**
  * Получает виджет по заданным координатам.
@@ -181,28 +181,28 @@ extern bool gui_focus_prev_widget(gui_t* gui);
  * @param y Координата Y.
  * @return Виджет по заданным координатам.
  */
-extern gui_widget_t* gui_widget_from_point(gui_t* gui, graphics_pos_t x, graphics_pos_t y);
+EXTERN gui_widget_t* gui_widget_from_point(gui_t* gui, graphics_pos_t x, graphics_pos_t y);
 
 /**
  * Перерисовывает графический интерфейс.
  * @param gui Графический интерфейс.
  * @param rect Область перерисовки, может быть NULL.
  */
-extern void gui_repaint(gui_t* gui, rect_t* rect);
+EXTERN void gui_repaint(gui_t* gui, rect_t* rect);
 
 /**
  * Обрабатывает нажатие клавиши.
  * @param gui Графический интерфейс.
  * @param key Код клавиши.
  */
-extern void gui_key_pressed(gui_t* gui, keycode_t key);
+EXTERN void gui_key_pressed(gui_t* gui, keycode_t key);
 
 /**
  * Обрабатывает отпускание клавиши.
  * @param gui Графический интерфейс.
  * @param key Код клавиши.
  */
-extern void gui_key_released(gui_t* gui, keycode_t key);
+EXTERN void gui_key_released(gui_t* gui, keycode_t key);
 
 #endif	/* GUI_H */
 

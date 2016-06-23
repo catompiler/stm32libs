@@ -277,14 +277,14 @@ typedef struct _Modbus_Rtu_Init {
  * @param modbus_is Структура инициализации.
  * @return Код ошибки.
  */
-extern err_t modbus_rtu_init(modbus_rtu_t* modbus, modbus_rtu_init_t* modbus_is);
+EXTERN err_t modbus_rtu_init(modbus_rtu_t* modbus, modbus_rtu_init_t* modbus_is);
 
 /**
  * Получает адрес протокола Modbus RTU.
  * @param modbus Протокол Modbus RTU.
  * @return Адрес протокола Modbus RTU.
  */
-extern modbus_rtu_address_t modbus_rtu_address(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_address_t modbus_rtu_address(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает адрес протокола Modbus RTU.
@@ -292,7 +292,7 @@ extern modbus_rtu_address_t modbus_rtu_address(modbus_rtu_t* modbus);
  * @param address Адрес протокола Modbus RTU.
  * @return Код ошибки.
  */
-extern err_t modbus_rtu_set_address(modbus_rtu_t* modbus, modbus_rtu_address_t address);
+EXTERN err_t modbus_rtu_set_address(modbus_rtu_t* modbus, modbus_rtu_address_t address);
 
 /**
  * Отправляет сообщение протокола Modbus RTU.
@@ -301,7 +301,7 @@ extern err_t modbus_rtu_set_address(modbus_rtu_t* modbus, modbus_rtu_address_t a
  * @param modbus Протокол Modbus RTU.
  * @return Код ошибки.
  */
-extern err_t modbus_rtu_send_message(modbus_rtu_t* modbus);
+EXTERN err_t modbus_rtu_send_message(modbus_rtu_t* modbus);
 
 /**
  * Каллбэк получения байта по шине USART.
@@ -309,49 +309,49 @@ extern err_t modbus_rtu_send_message(modbus_rtu_t* modbus);
  * @param byte Полученный байт.
  * @return Флаг обработки получения байта.
  */
-extern bool modbus_rtu_usart_rx_byte_callback(modbus_rtu_t* modbus, uint8_t byte);
+EXTERN bool modbus_rtu_usart_rx_byte_callback(modbus_rtu_t* modbus, uint8_t byte);
 
 /**
  * Каллбэк событий приёма данных по шине USART.
  * @param modbus Протокол Modbus RTU.
  * @return Флаг обработки события.
  */
-extern bool modbus_rtu_usart_rx_callback(modbus_rtu_t* modbus);
+EXTERN bool modbus_rtu_usart_rx_callback(modbus_rtu_t* modbus);
 
 /**
  * Каллбэк событий передачи данных по шине USART.
  * @param modbus Протокол Modbus RTU.
  * @return Флаг обработки события.
  */
-extern bool modbus_rtu_usart_tx_callback(modbus_rtu_t* modbus);
+EXTERN bool modbus_rtu_usart_tx_callback(modbus_rtu_t* modbus);
 
 /**
  * Получает каллбэк получения сообщения.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк получения сообщения.
  */
-extern modbus_rtu_msg_recv_callback_t modbus_rtu_msg_recv_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_msg_recv_callback_t modbus_rtu_msg_recv_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк получения сообщения.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк получения сообщения.
  */
-extern void modbus_rtu_set_msg_recv_callback(modbus_rtu_t* modbus, modbus_rtu_msg_recv_callback_t callback);
+EXTERN void modbus_rtu_set_msg_recv_callback(modbus_rtu_t* modbus, modbus_rtu_msg_recv_callback_t callback);
 
 /**
  * Получает каллбэк передачи сообщения.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк передачи сообщения.
  */
-extern modbus_rtu_msg_sent_callback_t modbus_rtu_msg_sent_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_msg_sent_callback_t modbus_rtu_msg_sent_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк передачи сообщения.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк передачи сообщения.
  */
-extern void modbus_rtu_set_msg_sent_callback(modbus_rtu_t* modbus, modbus_rtu_msg_sent_callback_t callback);
+EXTERN void modbus_rtu_set_msg_sent_callback(modbus_rtu_t* modbus, modbus_rtu_msg_sent_callback_t callback);
 
 /**
  * Получает ошибку приёма данных по шине USART.
@@ -378,69 +378,69 @@ ALWAYS_INLINE static usart_error_t modbus_rtu_tx_error(modbus_rtu_t* modbus)
  * @param modbus Протокол Modbus RTU.
  * @return Сообщение для приёма протокола Modbus RTU.
  */
-extern modbus_rtu_message_t* modbus_rtu_rx_message(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_message_t* modbus_rtu_rx_message(modbus_rtu_t* modbus);
 
 /**
  * Получает сообщение для передачи протокола Modbus RTU.
  * @param modbus Протокол Modbus RTU.
  * @return Сообщение для передачи протокола Modbus RTU.
  */
-extern modbus_rtu_message_t* modbus_rtu_tx_message(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_message_t* modbus_rtu_tx_message(modbus_rtu_t* modbus);
 
 /**
  * Формирует успешный ответ на сообщение.
  * @param message Формируемое сообщение.
  * @param from_message Сообщение для ответа.
  */
-extern void modbus_rtu_message_answer_succ(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message);
+EXTERN void modbus_rtu_message_answer_succ(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message);
 
 /**
  * Формирует неудачный ответ на сообщение.
  * @param message Формируемое сообщение.
  * @param from_message Сообщение для ответа.
  */
-extern void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message, modbus_rtu_error_t error);
+EXTERN void modbus_rtu_message_answer_fail(modbus_rtu_message_t* message, const modbus_rtu_message_t* from_message, modbus_rtu_error_t error);
 
 /**
  * Сбрасывает сообщение протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  */
-extern void modbus_rtu_message_reset(modbus_rtu_message_t* message);
+EXTERN void modbus_rtu_message_reset(modbus_rtu_message_t* message);
 
 /**
  * Получает адрес сообщения протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  * @return Адрес сообщения протокола Modbus RTU.
  */
-extern modbus_rtu_address_t modbus_rtu_message_address(modbus_rtu_message_t* message);
+EXTERN modbus_rtu_address_t modbus_rtu_message_address(modbus_rtu_message_t* message);
 
 /**
  * Устанавливает адрес сообщения протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  * @param address Адрес сообщения протокола Modbus RTU.
  */
-extern void modbus_rtu_message_set_address(modbus_rtu_message_t* message, modbus_rtu_address_t address);
+EXTERN void modbus_rtu_message_set_address(modbus_rtu_message_t* message, modbus_rtu_address_t address);
 
 /**
  * Получает номер функции сообщения протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  * @return Номер функции сообщения протокола Modbus RTU.
  */
-extern modbus_rtu_func_t modbus_rtu_message_func(modbus_rtu_message_t* message);
+EXTERN modbus_rtu_func_t modbus_rtu_message_func(modbus_rtu_message_t* message);
 
 /**
  * Устанавливает номер функции сообщения протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  * @param func Номер функции сообщения протокола Modbus RTU.
  */
-extern void modbus_rtu_message_set_func(modbus_rtu_message_t* message, modbus_rtu_func_t func);
+EXTERN void modbus_rtu_message_set_func(modbus_rtu_message_t* message, modbus_rtu_func_t func);
 
 /**
  * Получает размер данных сообщения протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  * @return Размер данных сообщения протокола Modbus RTU.
  */
-extern size_t modbus_rtu_message_data_size(modbus_rtu_message_t* message);
+EXTERN size_t modbus_rtu_message_data_size(modbus_rtu_message_t* message);
 
 /**
  * Устанавливает размер данных сообщения протокола Modbus RTU.
@@ -448,14 +448,14 @@ extern size_t modbus_rtu_message_data_size(modbus_rtu_message_t* message);
  * @param size Размер данных сообщения протокола Modbus RTU.
  * @return Код ошибки.
  */
-extern err_t modbus_rtu_message_set_data_size(modbus_rtu_message_t* message, size_t size);
+EXTERN err_t modbus_rtu_message_set_data_size(modbus_rtu_message_t* message, size_t size);
 
 /**
  * Получает указатель на данные сообщения протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  * @return Указатель на данные сообщения протокола Modbus RTU.
  */
-extern void* modbus_rtu_message_data(modbus_rtu_message_t* message);
+EXTERN void* modbus_rtu_message_data(modbus_rtu_message_t* message);
 
 /**
  * Копирует данные в сообщение протокола Modbus RTU.
@@ -464,147 +464,147 @@ extern void* modbus_rtu_message_data(modbus_rtu_message_t* message);
  * @param size Размер данных для сообщения протокола Modbus RTU.
  * @return Код ошибки.
  */
-extern err_t modbus_rtu_message_copy_data(modbus_rtu_message_t* message, const void* data, size_t size);
+EXTERN err_t modbus_rtu_message_copy_data(modbus_rtu_message_t* message, const void* data, size_t size);
 
 /**
  * Получает значение контрольной суммы сообщения протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  * @return Значение контрольной суммы сообщения протокола Modbus RTU.
  */
-extern uint16_t modbus_rtu_message_crc(modbus_rtu_message_t* message);
+EXTERN uint16_t modbus_rtu_message_crc(modbus_rtu_message_t* message);
 
 /**
  * Вычисляет значение контрольной суммы сообщения протокола Modbus RTU.
  * @param message Сообщение протокола Modbus RTU.
  * @return Значение контрольной суммы сообщения протокола Modbus RTU.
  */
-extern uint16_t modbus_rtu_message_calc_crc(modbus_rtu_message_t* message);
+EXTERN uint16_t modbus_rtu_message_calc_crc(modbus_rtu_message_t* message);
 
 /**
  * Получает каллбэк чтения регистра флагов.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк чтения регистра флагов.
  */
-extern modbus_rtu_read_coil_callback_t modbus_rtu_read_coil_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_read_coil_callback_t modbus_rtu_read_coil_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк чтения регистра флагов.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк чтения регистра флагов.
  */
-extern void modbus_rtu_set_read_coil_callback(modbus_rtu_t* modbus, modbus_rtu_read_coil_callback_t callback);
+EXTERN void modbus_rtu_set_read_coil_callback(modbus_rtu_t* modbus, modbus_rtu_read_coil_callback_t callback);
 
 /**
  * Получает каллбэк чтения цифрового входа.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк чтения цифрового входа.
  */
-extern modbus_rtu_read_din_callback_t modbus_rtu_read_din_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_read_din_callback_t modbus_rtu_read_din_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк чтения цифрового входа.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк чтения цифрового входа.
  */
-extern void modbus_rtu_set_read_din_callback(modbus_rtu_t* modbus, modbus_rtu_read_din_callback_t callback);
+EXTERN void modbus_rtu_set_read_din_callback(modbus_rtu_t* modbus, modbus_rtu_read_din_callback_t callback);
 
 /**
  * Получает каллбэк чтения регистра хранения.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк чтения регистра хранения.
  */
-extern modbus_rtu_read_holding_reg_callback_t modbus_rtu_read_holding_reg_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_read_holding_reg_callback_t modbus_rtu_read_holding_reg_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк чтения регистра хранения.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк чтения регистра хранения.
  */
-extern void modbus_rtu_set_read_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_read_holding_reg_callback_t callback);
+EXTERN void modbus_rtu_set_read_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_read_holding_reg_callback_t callback);
 
 /**
  * Получает каллбэк чтения регистра ввода.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк чтения регистра ввода.
  */
-extern modbus_rtu_read_input_reg_callback_t modbus_rtu_read_input_reg_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_read_input_reg_callback_t modbus_rtu_read_input_reg_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк чтения регистра ввода.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк чтения регистра ввода.
  */
-extern void modbus_rtu_set_read_input_reg_callback(modbus_rtu_t* modbus, modbus_rtu_read_input_reg_callback_t callback);
+EXTERN void modbus_rtu_set_read_input_reg_callback(modbus_rtu_t* modbus, modbus_rtu_read_input_reg_callback_t callback);
 
 /**
  * Получает каллбэк записи регистра флагов.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк записи регистра флагов.
  */
-extern modbus_rtu_write_coil_callback_t modbus_rtu_write_coil_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_write_coil_callback_t modbus_rtu_write_coil_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк записи регистра флагов.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк записи регистра флагов.
  */
-extern void modbus_rtu_set_write_coil_callback(modbus_rtu_t* modbus, modbus_rtu_write_coil_callback_t callback);
+EXTERN void modbus_rtu_set_write_coil_callback(modbus_rtu_t* modbus, modbus_rtu_write_coil_callback_t callback);
 
 /**
  * Получает каллбэк записи регистра хранения.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк записи регистра хранения.
  */
-extern modbus_rtu_write_holding_reg_callback_t modbus_rtu_write_holding_reg_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_write_holding_reg_callback_t modbus_rtu_write_holding_reg_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк записи регистра хранения.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк записи регистра хранения.
  */
-extern void modbus_rtu_set_write_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_write_holding_reg_callback_t callback);
+EXTERN void modbus_rtu_set_write_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_write_holding_reg_callback_t callback);
 
 /**
  * Получает каллбэк изменения регистра хранения.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк изменения регистра хранения.
  */
-extern modbus_rtu_change_holding_reg_callback_t modbus_rtu_change_holding_reg_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_change_holding_reg_callback_t modbus_rtu_change_holding_reg_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк изменения регистра хранения.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк изменения регистра хранения.
  */
-extern void modbus_rtu_set_change_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_change_holding_reg_callback_t callback);
+EXTERN void modbus_rtu_set_change_holding_reg_callback(modbus_rtu_t* modbus, modbus_rtu_change_holding_reg_callback_t callback);
 
 /**
  * Получает каллбэк получения идентификатора ведомого устройства.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк получения идентификатора ведомого устройства.
  */
-extern modbus_rtu_report_slave_id_callback_t modbus_rtu_report_slave_id_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_report_slave_id_callback_t modbus_rtu_report_slave_id_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк получения идентификатора ведомого устройства.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк получения идентификатора ведомого устройства.
  */
-extern void modbus_rtu_set_report_slave_id_callback(modbus_rtu_t* modbus, modbus_rtu_report_slave_id_callback_t callback);
+EXTERN void modbus_rtu_set_report_slave_id_callback(modbus_rtu_t* modbus, modbus_rtu_report_slave_id_callback_t callback);
 
 /**
  * Получает каллбэк обработки пользовательской функции.
  * @param modbus Протокол Modbus RTU.
  * @return Каллбэк обработки пользовательской функции.
  */
-extern modbus_rtu_custom_function_callback_t modbus_rtu_custom_function_callback(modbus_rtu_t* modbus);
+EXTERN modbus_rtu_custom_function_callback_t modbus_rtu_custom_function_callback(modbus_rtu_t* modbus);
 
 /**
  * Устанавливает каллбэк обработки пользовательской функции.
  * @param modbus Протокол Modbus RTU.
  * @param callback Каллбэк обработки пользовательской функции.
  */
-extern void modbus_rtu_set_custom_function_callback(modbus_rtu_t* modbus, modbus_rtu_custom_function_callback_t callback);
+EXTERN void modbus_rtu_set_custom_function_callback(modbus_rtu_t* modbus, modbus_rtu_custom_function_callback_t callback);
 
 
 /**
@@ -612,6 +612,6 @@ extern void modbus_rtu_set_custom_function_callback(modbus_rtu_t* modbus, modbus
  * @param modbus Протокол Modbus RTU.
  * @return Код ошибки.
  */
-extern err_t modbus_rtu_dispatch(modbus_rtu_t* modbus);
+EXTERN err_t modbus_rtu_dispatch(modbus_rtu_t* modbus);
 
 #endif /* MODBUS_RTU_H */

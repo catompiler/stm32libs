@@ -34,7 +34,7 @@ typedef void (*gui_button_on_clicked_t)(gui_button_t*);
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_button_init(gui_button_t* button, gui_t* gui);
+EXTERN err_t gui_button_init(gui_button_t* button, gui_t* gui);
 
 /**
  * Инициализирует кнопку как потомок заданного родителя.
@@ -43,7 +43,7 @@ extern err_t gui_button_init(gui_button_t* button, gui_t* gui);
  * @param parent Родитель.
  * @return Код ошибки.
  */
-extern err_t gui_button_init_parent(gui_button_t* button, gui_t* gui, gui_widget_t* parent);
+EXTERN err_t gui_button_init_parent(gui_button_t* button, gui_t* gui, gui_widget_t* parent);
 
 /**
  * Получает текст кнопки.
@@ -60,7 +60,7 @@ ALWAYS_INLINE static const char* gui_button_text(gui_button_t* button)
  * @param button Кнопка.
  * @param text Текст кнопки.
  */
-extern void gui_button_set_text(gui_button_t* button, const char* text);
+EXTERN void gui_button_set_text(gui_button_t* button, const char* text);
 
 /**
  * Получает каллбэк нажатия кнопки.
@@ -87,21 +87,21 @@ ALWAYS_INLINE static void gui_button_set_on_clicked(gui_button_t* button, gui_bu
  * @param button Кнопка.
  * @param rect Область перерисовки.
  */
-extern void gui_button_on_repaint(gui_button_t* button, const rect_t* rect);
+EXTERN void gui_button_on_repaint(gui_button_t* button, const rect_t* rect);
 
 /**
  * Обработчик нажатия клавиши.
  * @param button Кнопка.
  * @param key Код клавиши.
  */
-extern void gui_button_on_key_press(gui_button_t* button, keycode_t key);
+EXTERN void gui_button_on_key_press(gui_button_t* button, keycode_t key);
 
 /**
  * Обработчик отпускания клавиши.
  * @param button Кнопка.
  * @param key Код клавиши.
  */
-extern void gui_button_on_key_release(gui_button_t* button, keycode_t key);
+EXTERN void gui_button_on_key_release(gui_button_t* button, keycode_t key);
 
 #endif	/* GUI_BUTTON_H */
 

@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include "errors/errors.h"
 #include "future/future.h"
+#include "defs/defs.h"
 #include "i2c/i2c.h"
 #include "ds1307mem.h"
 
@@ -71,97 +72,97 @@ typedef struct Ds1307_DT {
  * @param i2c Шина I2C.
  * @return Код ошибки.
  */
-extern err_t ds1307_init(ds1307_t* rtc, i2c_bus_t* i2c);
+EXTERN err_t ds1307_init(ds1307_t* rtc, i2c_bus_t* i2c);
 
 /**
  * Каллбэк i2c.
  * @param rtc RTC.
  * @return true, если событие обработано, иначе false.
  */
-extern bool ds1307_i2c_callback(ds1307_t* rtc);
+EXTERN bool ds1307_i2c_callback(ds1307_t* rtc);
 
 /**
  * Получает флаг процесса выполнения операции.
  * @param rtc RTC.
  * @return Флаг процесса выполнения операции.
  */
-extern bool ds1307_in_process(ds1307_t* rtc);
+EXTERN bool ds1307_in_process(ds1307_t* rtc);
 
 /**
  * Получает флаг завершения текущей операции.
  * @param rtc RTC.
  * @return Флаг завершения текущей операции.
  */
-extern bool ds1307_done(ds1307_t* rtc);
+EXTERN bool ds1307_done(ds1307_t* rtc);
 
 /**
  * Ждёт завершения текущей операции.
  * @param rtc RTC.
  */
-extern void ds1307_wait(ds1307_t* rtc);
+EXTERN void ds1307_wait(ds1307_t* rtc);
 
 /**
  * Получает статус.
  * @param rtc RTC.
  * @return Статус.
  */
-extern ds1307_status_t ds1307_status(ds1307_t* rtc);
+EXTERN ds1307_status_t ds1307_status(ds1307_t* rtc);
 
 /**
  * Получает код ошибки.
  * @param rtc RTC.
  * @return Код ошибки.
  */
-extern err_t ds1307_error(ds1307_t* rtc);
+EXTERN err_t ds1307_error(ds1307_t* rtc);
 
 /**
  * Читает память.
  * @param rtc RTC.
  * @return Код ошибки.
  */
-extern err_t ds1307_read(ds1307_t* rtc);
+EXTERN err_t ds1307_read(ds1307_t* rtc);
 
 /**
  * Записывает память.
  * @param rtc RTC.
  * @return Код ошибки.
  */
-extern err_t ds1307_write(ds1307_t* rtc);
+EXTERN err_t ds1307_write(ds1307_t* rtc);
 
 /**
  * Получает дату и время.
  * @param rtc RTC.
  * @param datetime Дата и время.
  */
-extern void ds1307_datetime_get(ds1307_t* rtc, ds1307_datetime_t* datetime);
+EXTERN void ds1307_datetime_get(ds1307_t* rtc, ds1307_datetime_t* datetime);
 
 /**
  * Устанавливает дату и время.
  * @param rtc RTC.
  * @param datetime Дата и время.
  */
-extern void ds1307_datetime_set(ds1307_t* rtc, ds1307_datetime_t* datetime);
+EXTERN void ds1307_datetime_set(ds1307_t* rtc, ds1307_datetime_t* datetime);
 
 /**
  * Получает флаг запущенности часов.
  * @param rtc RTC.
  * @return Флаг запущенности часов.
  */
-extern bool ds1307_running(ds1307_t* rtc);
+EXTERN bool ds1307_running(ds1307_t* rtc);
 
 /**
  * Устанавливает флаг запущенности часов.
  * @param rtc RTC.
  * @param running Флаг запущенности часов.
  */
-extern void ds1307_set_running(ds1307_t* rtc, bool running);
+EXTERN void ds1307_set_running(ds1307_t* rtc, bool running);
 
 /**
  * Записывает состояние часов.
  * @param rtc RTC.
  * @return Код ошибки.
  */
-extern err_t ds1307_write_running(ds1307_t* rtc);
+EXTERN err_t ds1307_write_running(ds1307_t* rtc);
 
 #endif	/* DS1307_H */
 

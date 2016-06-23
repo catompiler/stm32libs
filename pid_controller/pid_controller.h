@@ -31,13 +31,13 @@ typedef struct _PidController {
  * @param ki Интегральный коэффициент.
  * @param kd Дифференциальный коэффициент.
  */
-extern void pid_controller_init(pid_controller_t* controller, fixed32_t kp, fixed32_t ki, fixed32_t kd);
+EXTERN void pid_controller_init(pid_controller_t* controller, fixed32_t kp, fixed32_t ki, fixed32_t kd);
 
 /**
  * Сбрасывает ПИД-регулятор.
  * @param controller ПИД-регулятор.
  */
-extern void pid_controller_reset(pid_controller_t* controller);
+EXTERN void pid_controller_reset(pid_controller_t* controller);
 
 /**
  * Вычисляет значение регулирования.
@@ -46,7 +46,7 @@ extern void pid_controller_reset(pid_controller_t* controller);
  * @param dt Время с последнего вычисления.
  * @return Успешность вычисления значения регулирования.
  */
-extern bool pid_controller_calculate(pid_controller_t* controller, fixed32_t e, fixed32_t dt);
+EXTERN bool pid_controller_calculate(pid_controller_t* controller, fixed32_t e, fixed32_t dt);
 
 /**
  * Получает значение регулирования.

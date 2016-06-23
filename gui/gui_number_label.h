@@ -41,7 +41,7 @@ struct _Gui_Number_Label {
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_number_label_init(gui_number_label_t* label, gui_t* gui);
+EXTERN err_t gui_number_label_init(gui_number_label_t* label, gui_t* gui);
 
 /**
  * Инициализирует метку как потомок заданного родителя.
@@ -50,7 +50,7 @@ extern err_t gui_number_label_init(gui_number_label_t* label, gui_t* gui);
  * @param parent Родитель.
  * @return Код ошибки.
  */
-extern err_t gui_number_label_init_parent(gui_number_label_t* label, gui_t* gui, gui_widget_t* parent);
+EXTERN err_t gui_number_label_init_parent(gui_number_label_t* label, gui_t* gui, gui_widget_t* parent);
 
 /**
  * Получает число метки.
@@ -67,7 +67,7 @@ ALWAYS_INLINE static int gui_number_label_number(gui_number_label_t* label)
  * @param label Метка.
  * @param number Число метки.
  */
-extern void gui_number_label_set_number(gui_number_label_t* label, int number);
+EXTERN void gui_number_label_set_number(gui_number_label_t* label, int number);
 
 /**
  * Получает формат числа метки.
@@ -84,7 +84,7 @@ ALWAYS_INLINE static gui_number_label_format_t gui_number_label_format(gui_numbe
  * @param label Метка.
  * @param format Формат числа метки.
  */
-extern void gui_number_label_set_format(gui_number_label_t* label, gui_number_label_format_t format);
+EXTERN void gui_number_label_set_format(gui_number_label_t* label, gui_number_label_format_t format);
 
 /**
  * Получает число знаков дробной части метки.
@@ -101,13 +101,13 @@ ALWAYS_INLINE static int gui_number_label_decimals(gui_number_label_t* label)
  * @param label Метка.
  * @param decimal Число знаков дробной части метки.
  */
-extern void gui_number_label_set_decimals(gui_number_label_t* label, int decimals);
+EXTERN void gui_number_label_set_decimals(gui_number_label_t* label, int decimals);
 
 /**
  * Обработчик перерисовки.
  * @param label Метка.
  * @param rect Область перерисовки.
  */
-extern void gui_number_label_on_repaint(gui_number_label_t* label, const rect_t* rect);
+EXTERN void gui_number_label_on_repaint(gui_number_label_t* label, const rect_t* rect);
 
 #endif	/* GUI_NUMBER_LABEL_H */

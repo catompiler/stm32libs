@@ -43,7 +43,7 @@ ALWAYS_INLINE static void counter_tick(counter_t* counter)
  * @param counter_prev Предыдущий счётчик.
  * @return Разница между счётчиками.
  */
-extern counter_diff_t counter_diff(counter_t* counter_next, counter_t* counter_prev);
+EXTERN counter_diff_t counter_diff(counter_t* counter_next, counter_t* counter_prev);
 
 
 /*
@@ -54,37 +54,37 @@ extern counter_diff_t counter_diff(counter_t* counter_next, counter_t* counter_p
  * Инициализация системного счётчика.
  * @param ticks_per_sec Число тиков за секунду.
  */
-extern void system_counter_init(counter_t ticks_per_sec);
+EXTERN void system_counter_init(counter_t ticks_per_sec);
 
 /**
  * Инкремент системного счётчика.
  */
-extern void system_counter_tick();
+EXTERN void system_counter_tick();
 
 /**
  * Получения разницы между сохранённым и системным счётчиком.
  * @param counter Сохранённый счётчик.
  * @return Разница между счётчиками.
  */
-extern counter_diff_t system_counter_diff(counter_t* counter);
+EXTERN counter_diff_t system_counter_diff(counter_t* counter);
 
 /**
  * Получение числа тиков системного счётчика.
  * @return Число тиков системного счётчика.
  */
-extern counter_t system_counter_ticks();
+EXTERN counter_t system_counter_ticks();
 
 /**
  * Число тиков системного счётчика в секунду.
  * @return Число тиков системного счётчика в секунду.
  */
-extern counter_t system_counter_ticks_per_sec();
+EXTERN counter_t system_counter_ticks_per_sec();
 
 /**
  * Устанавливает значение числа тиков за секунду.
  * @param ticks_per_sec Число тиков за секунду.
  */
-extern void system_counter_set_ticks_per_sec(counter_t ticks_per_sec);
+EXTERN void system_counter_set_ticks_per_sec(counter_t ticks_per_sec);
 
 #endif	/* COUNTER_H */
 

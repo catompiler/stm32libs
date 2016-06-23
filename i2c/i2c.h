@@ -110,97 +110,97 @@ typedef struct _I2C_Bus_Init {
  * @param device Периферия i2c.
  * @return Код ошибки.
  */
-extern err_t i2c_bus_init(i2c_bus_t* i2c, i2c_bus_init_t* init);
+EXTERN err_t i2c_bus_init(i2c_bus_t* i2c, i2c_bus_init_t* init);
 
 /**
  * Обработчик прерывания события i2c.
  * @param i2c Шина i2c.
  */
-extern void i2c_bus_event_irq_handler(i2c_bus_t* i2c);
+EXTERN void i2c_bus_event_irq_handler(i2c_bus_t* i2c);
 
 /**
  * Обработчик прерывания ошибки i2c.
  * @param i2c Шина i2c.
  */
-extern void i2c_bus_error_irq_handler(i2c_bus_t* i2c);
+EXTERN void i2c_bus_error_irq_handler(i2c_bus_t* i2c);
 
 /**
  * Обработчик прерывания канала передачи DMA.
  * @param i2c Шина i2c.
  * @return true, если канал использовался шиной i2c, иначе false.
  */
-extern bool i2c_bus_dma_rx_channel_irq_handler(i2c_bus_t* i2c);
+EXTERN bool i2c_bus_dma_rx_channel_irq_handler(i2c_bus_t* i2c);
 
 /**
  * Обработчик прерывания канала приёма DMA.
  * @param i2c Шина i2c.
  * @return true, если канал использовался шиной i2c, иначе false.
  */
-extern bool i2c_bus_dma_tx_channel_irq_handler(i2c_bus_t* i2c);
+EXTERN bool i2c_bus_dma_tx_channel_irq_handler(i2c_bus_t* i2c);
 
 /**
  * Получает флаг занятости шины i2c.
  * @param i2c Шина i2c.
  * @return Флаг занятости шины i2c.
  */
-extern bool i2c_bus_busy(i2c_bus_t* i2c);
+EXTERN bool i2c_bus_busy(i2c_bus_t* i2c);
 
 /**
  * Ждёт завершения текущей операции i2c.
  */
-extern void i2c_bus_wait(i2c_bus_t* i2c);
+EXTERN void i2c_bus_wait(i2c_bus_t* i2c);
 
 /**
  * Сбрасывает шину i2c.
  * @param i2c Шина i2c.
  */
-extern void i2c_bus_reset(i2c_bus_t* i2c);
+EXTERN void i2c_bus_reset(i2c_bus_t* i2c);
 
 /**
  * Сбрасывает интерфейс.
  * @param i2c Шина i2c.
  */
-extern void i2c_device_reset(I2C_TypeDef* device);
+EXTERN void i2c_device_reset(I2C_TypeDef* device);
 
 /**
  * Получает функцию обратного вызова.
  * @return Функция обратного вызова.
  */
-extern i2c_callback_t i2c_bus_callback(i2c_bus_t* i2c);
+EXTERN i2c_callback_t i2c_bus_callback(i2c_bus_t* i2c);
 
 /**
  * Устанавливает функцию обратного вызова.
  * @param callback Функция обратного вызова.
  * @return true, в случае успеха, иначе false (например, если шина занята).
  */
-extern bool i2c_bus_set_callback(i2c_bus_t* i2c, i2c_callback_t callback);
+EXTERN bool i2c_bus_set_callback(i2c_bus_t* i2c, i2c_callback_t callback);
 
 /**
  * Получает идентификатор передачи.
  * @return Идентификатор передачи.
  */
-extern i2c_transfer_id_t i2c_bus_transfer_id(i2c_bus_t* i2c);
+EXTERN i2c_transfer_id_t i2c_bus_transfer_id(i2c_bus_t* i2c);
 
 /**
  * Устанавливает идентификатор передачи.
  * @param id Идентификатор передачи.
  * @return true, в случае успеха, иначе false (например, если шина занята).
  */
-extern bool i2c_bus_set_transfer_id(i2c_bus_t* i2c, i2c_transfer_id_t id);
+EXTERN bool i2c_bus_set_transfer_id(i2c_bus_t* i2c, i2c_transfer_id_t id);
 
 /**
  * Получает состояние шины i2c.
  * @param i2c Шина i2c.
  * @return Состояние шины i2c.
  */
-extern i2c_status_t i2c_bus_status(i2c_bus_t* i2c);
+EXTERN i2c_status_t i2c_bus_status(i2c_bus_t* i2c);
 
 /**
  * Получает ошибку шины i2c.
  * @param i2c Шина i2c.
  * @return Ошибку шины i2c.
  */
-extern i2c_error_t i2c_bus_error(i2c_bus_t* i2c);
+EXTERN i2c_error_t i2c_bus_error(i2c_bus_t* i2c);
 
 /**
  * Инициализирует сообщение.
@@ -211,7 +211,7 @@ extern i2c_error_t i2c_bus_error(i2c_bus_t* i2c);
  * @param data_size Размер буфера для приёма данных.
  * @return Код ошибки.
  */
-extern err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direction_t direction, void* data, size_t data_size);
+EXTERN err_t i2c_message_init(i2c_message_t* message, i2c_address_t address, i2c_direction_t direction, void* data, size_t data_size);
 
 /**
  * Инициализирует сообщение.
@@ -278,6 +278,6 @@ ALWAYS_INLINE static void i2c_message_set_sender_data(i2c_message_t* message, vo
  * @param messages_count Число сообщений.
  * @return Код ошибки.
  */
-extern err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_count);
+EXTERN err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_count);
 
 #endif	/* I2C_H */

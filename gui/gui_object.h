@@ -7,6 +7,7 @@
 
 #include "gui.h"
 #include "list/list.h"
+#include "defs/defs.h"
 
 //! Тип структуры объекта графического интерфейса.
 typedef struct _Gui_Object gui_object_t;
@@ -28,7 +29,7 @@ struct _Gui_Object {
  * @param gui Графический интерфейс.
  * @return Код ошибки.
  */
-extern err_t gui_object_init(gui_object_t* object, gui_t* gui);
+EXTERN err_t gui_object_init(gui_object_t* object, gui_t* gui);
 
 /**
  * Инициализирует объект графического интерфейса
@@ -38,7 +39,7 @@ extern err_t gui_object_init(gui_object_t* object, gui_t* gui);
  * @param parent Родитель объекта.
  * @return Код ошибки.
  */
-extern err_t gui_object_init_parent(gui_object_t* object, gui_t* gui, gui_object_t* parent);
+EXTERN err_t gui_object_init_parent(gui_object_t* object, gui_t* gui, gui_object_t* parent);
 
 /**
  * Получает графический интерфейс объекта графического интерфейса.
@@ -65,49 +66,49 @@ ALWAYS_INLINE static gui_object_t* gui_object_parent(gui_object_t* object)
  * @param object Объект графического интрефейса.
  * @param parent Родитель объекта графического интерфейса.
  */
-extern void gui_object_set_parent(gui_object_t* object, gui_object_t* parent);
+EXTERN void gui_object_set_parent(gui_object_t* object, gui_object_t* parent);
 
 /**
  * Добавляет дочерний объект графического интерфейса.
  * @param object Объект графического интерфейса.
  * @param child Дочерний объект графического интерфейса.
  */
-extern void gui_object_add_child(gui_object_t* object, gui_object_t* child);
+EXTERN void gui_object_add_child(gui_object_t* object, gui_object_t* child);
 
 /**
  * Удаляет дочерний объект графического интерфейса.
  * @param object Объект графического интерфейса.
  * @param child Дочерний объект графического интерфейса.
  */
-extern void gui_object_remove_child(gui_object_t* object, gui_object_t* child);
+EXTERN void gui_object_remove_child(gui_object_t* object, gui_object_t* child);
 
 /**
  * Получает первого потомка объекта графического интерфейса.
  * @param object Объект графического интерфейса.
  * @return Первый потомок объекта графического интерфейса.
  */
-extern gui_object_t* gui_object_first_child(gui_object_t* object);
+EXTERN gui_object_t* gui_object_first_child(gui_object_t* object);
 
 /**
  * Получает следующего потомка объекта графического интерфейса.
  * @param cur_child Текущий потомок объекта графического интерфейса.
  * @return Следующий потомок объекта графического интерфейса.
  */
-extern gui_object_t* gui_object_next_child(gui_object_t* cur_child);
+EXTERN gui_object_t* gui_object_next_child(gui_object_t* cur_child);
 
 /**
  * Получает последнего потомка объекта графического интерфейса.
  * @param object Объект графического интерфейса.
  * @return Последний потомок объекта графического интерфейса.
  */
-extern gui_object_t* gui_object_last_child(gui_object_t* object);
+EXTERN gui_object_t* gui_object_last_child(gui_object_t* object);
 
 /**
  * Получает предыдущего потомка объекта графического интерфейса.
  * @param cur_child Текущий потомок объекта графического интерфейса.
  * @return Предыдущий потомок объекта графического интерфейса.
  */
-extern gui_object_t* gui_object_prev_child(gui_object_t* cur_child);
+EXTERN gui_object_t* gui_object_prev_child(gui_object_t* cur_child);
 
 
 

@@ -13,6 +13,7 @@
 #include "spi/spi.h"
 #include "errors/errors.h"
 #include "future/future.h"
+#include "defs/defs.h"
 
 
 //! Вспомогательный макрос для создания 16 битного цвета.
@@ -287,7 +288,7 @@ typedef struct _Tft9341_Display_Control {
  * Каллбэк SPI.
  * @return true, если событие обработано, иначе false.
  */
-extern bool tft9341_spi_callback(tft9341_t* tft);
+EXTERN bool tft9341_spi_callback(tft9341_t* tft);
 
 /**
  * Инициализирует TFT.
@@ -295,48 +296,48 @@ extern bool tft9341_spi_callback(tft9341_t* tft);
  * @param tft_init Структура инициализации.
  * @return Код ошибки.
  */
-extern err_t tft9341_init(tft9341_t* tft, tft9341_init_t* tft_init);
+EXTERN err_t tft9341_init(tft9341_t* tft, tft9341_init_t* tft_init);
 
 /**
  * Получает флаг занятости TFT.
  * @param tft TFT.
  * @return Флаг занятости TFT.
  */
-extern bool tft9341_busy(tft9341_t* tft);
+EXTERN bool tft9341_busy(tft9341_t* tft);
 
 /**
  * Получает код ошибки асинхронно выполненой операции.
  * @param tft TFT.
  * @return Код ошибки асинхронно выполненой операции.
  */
-extern err_t tft9341_error(tft9341_t* tft);
+EXTERN err_t tft9341_error(tft9341_t* tft);
 
 /**
  * Ожидает завершения операции с TFT.
  * @param tft TFT.
  * @return Код ошибки операции.
  */
-extern err_t tft9341_wait(tft9341_t* tft);
+EXTERN err_t tft9341_wait(tft9341_t* tft);
 
 /**
  * Сбрасывает TFT.
  * @param tft TFT.
  */
-extern void tft9341_reset(tft9341_t* tft);
+EXTERN void tft9341_reset(tft9341_t* tft);
 
 /**
  * Ничего не делает.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_nop(tft9341_t* tft);
+EXTERN err_t tft9341_nop(tft9341_t* tft);
 
 /**
  * Сбрасывает TFT командой.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_soft_reset(tft9341_t* tft);
+EXTERN err_t tft9341_soft_reset(tft9341_t* tft);
 
 /**
  * Читает идентификатор TFT.
@@ -344,7 +345,7 @@ extern err_t tft9341_soft_reset(tft9341_t* tft);
  * @param id Адрес переменной для записи идентификатора.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_id(tft9341_t* tft, tft9341_id_t* id);
+EXTERN err_t tft9341_read_id(tft9341_t* tft, tft9341_id_t* id);
 
 /**
  * Читает статус TFT.
@@ -352,7 +353,7 @@ extern err_t tft9341_read_id(tft9341_t* tft, tft9341_id_t* id);
  * @param status Статус.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_status(tft9341_t* tft, tft9341_status_t* status);
+EXTERN err_t tft9341_read_status(tft9341_t* tft, tft9341_status_t* status);
 
 /**
  * Читает режим питания TFT.
@@ -360,7 +361,7 @@ extern err_t tft9341_read_status(tft9341_t* tft, tft9341_status_t* status);
  * @param mode Режим питания.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_power_mode(tft9341_t* tft, tft9341_power_mode_t* mode);
+EXTERN err_t tft9341_read_power_mode(tft9341_t* tft, tft9341_power_mode_t* mode);
 
 /**
  * Читает настройки доступа к памяти.
@@ -368,7 +369,7 @@ extern err_t tft9341_read_power_mode(tft9341_t* tft, tft9341_power_mode_t* mode)
  * @param madctl Настройки доступа к памяти.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_madctl(tft9341_t* tft, tft9341_madctl_t* madctl);
+EXTERN err_t tft9341_read_madctl(tft9341_t* tft, tft9341_madctl_t* madctl);
 
 /**
  * Читает формат пиксела экрана.
@@ -376,7 +377,7 @@ extern err_t tft9341_read_madctl(tft9341_t* tft, tft9341_madctl_t* madctl);
  * @param format Формат пиксела.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_pixel_format(tft9341_t* tft, tft9341_display_pixel_format_t* format);
+EXTERN err_t tft9341_read_pixel_format(tft9341_t* tft, tft9341_display_pixel_format_t* format);
 
 /**
  * Читает формат изображения экрана.
@@ -384,49 +385,49 @@ extern err_t tft9341_read_pixel_format(tft9341_t* tft, tft9341_display_pixel_for
  * @param format Формат изображения.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_image_format(tft9341_t* tft, tft9341_gamma_curve_t* format);
+EXTERN err_t tft9341_read_image_format(tft9341_t* tft, tft9341_gamma_curve_t* format);
 
 /**
  * Засыпает.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_sleep_in(tft9341_t* tft);
+EXTERN err_t tft9341_sleep_in(tft9341_t* tft);
 
 /**
  * Просыпается.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_sleep_out(tft9341_t* tft);
+EXTERN err_t tft9341_sleep_out(tft9341_t* tft);
 
 /**
  * Частичный режим.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_partial_mode(tft9341_t* tft);
+EXTERN err_t tft9341_partial_mode(tft9341_t* tft);
 
 /**
  * Нормальный режим.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_normal_mode(tft9341_t* tft);
+EXTERN err_t tft9341_normal_mode(tft9341_t* tft);
 
 /**
  * Выключает инверсию.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_inversion_off(tft9341_t* tft);
+EXTERN err_t tft9341_inversion_off(tft9341_t* tft);
 
 /**
  * Включает инверсию.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_inversion_on(tft9341_t* tft);
+EXTERN err_t tft9341_inversion_on(tft9341_t* tft);
 
 /**
  * Устанавливает гамму экрана.
@@ -434,21 +435,21 @@ extern err_t tft9341_inversion_on(tft9341_t* tft);
  * @param gamma Гамма.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_gamma(tft9341_t* tft, tft9341_gamma_curve_t gamma);
+EXTERN err_t tft9341_set_gamma(tft9341_t* tft, tft9341_gamma_curve_t gamma);
 
 /**
  * Выключает дисплей.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_display_off(tft9341_t* tft);
+EXTERN err_t tft9341_display_off(tft9341_t* tft);
 
 /**
  * Включает дисплей.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_display_on(tft9341_t* tft);
+EXTERN err_t tft9341_display_on(tft9341_t* tft);
 
 /**
  * Устанавливает столбцы области памяти, к которой есть доступ.
@@ -457,7 +458,7 @@ extern err_t tft9341_display_on(tft9341_t* tft);
  * @param end Конечный столбец.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_column_address(tft9341_t* tft, uint16_t start, uint16_t end);
+EXTERN err_t tft9341_set_column_address(tft9341_t* tft, uint16_t start, uint16_t end);
 
 /**
  * Устанавливает страницы области памяти, к которой есть доступ.
@@ -466,7 +467,7 @@ extern err_t tft9341_set_column_address(tft9341_t* tft, uint16_t start, uint16_t
  * @param end Конечная страница.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_page_address(tft9341_t* tft, uint16_t start, uint16_t end);
+EXTERN err_t tft9341_set_page_address(tft9341_t* tft, uint16_t start, uint16_t end);
 
 /**
  * Записывает данные.
@@ -476,7 +477,7 @@ extern err_t tft9341_set_page_address(tft9341_t* tft, uint16_t start, uint16_t e
  * @param size Размер данных.
  * @return Код ошибки.
  */
-extern err_t tft9341_write(tft9341_t* tft, const void* data, size_t size);
+EXTERN err_t tft9341_write(tft9341_t* tft, const void* data, size_t size);
 
 /**
  * Команда начала записи данных.
@@ -484,7 +485,7 @@ extern err_t tft9341_write(tft9341_t* tft, const void* data, size_t size);
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_begin_write(tft9341_t* tft);
+EXTERN err_t tft9341_begin_write(tft9341_t* tft);
 
 /**
  * Читает данные.
@@ -494,7 +495,7 @@ extern err_t tft9341_begin_write(tft9341_t* tft);
  * @param size Размер данных.
  * @return Код ошибки.
  */
-extern err_t tft9341_read(tft9341_t* tft, void* data, size_t size);
+EXTERN err_t tft9341_read(tft9341_t* tft, void* data, size_t size);
 
 /**
  * Устанавливает устанавливает область строк частичного режима.
@@ -503,7 +504,7 @@ extern err_t tft9341_read(tft9341_t* tft, void* data, size_t size);
  * @param end Конечная строка.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_partial_area(tft9341_t* tft, uint16_t start, uint16_t end);
+EXTERN err_t tft9341_set_partial_area(tft9341_t* tft, uint16_t start, uint16_t end);
 
 /**
  * Устанавливает настройки доступа к памяти.
@@ -511,21 +512,21 @@ extern err_t tft9341_set_partial_area(tft9341_t* tft, uint16_t start, uint16_t e
  * @param madctl Настройки доступа к памяти.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_madctl(tft9341_t* tft, const tft9341_madctl_t* madctl);
+EXTERN err_t tft9341_set_madctl(tft9341_t* tft, const tft9341_madctl_t* madctl);
 
 /**
  * Выключает режим ожидания.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_idle_off(tft9341_t* tft);
+EXTERN err_t tft9341_idle_off(tft9341_t* tft);
 
 /**
  * Включает режим ожидания.
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_idle_on(tft9341_t* tft);
+EXTERN err_t tft9341_idle_on(tft9341_t* tft);
 
 /**
  * Устанавливает формат пиксела экрана.
@@ -534,7 +535,7 @@ extern err_t tft9341_idle_on(tft9341_t* tft);
  * @param mcu_iface_format Формат пиксела MCU-интерфейса.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_pixel_format(tft9341_t* tft, tft9341_pixel_format_t rgb_iface_format, tft9341_pixel_format_t mcu_iface_format);
+EXTERN err_t tft9341_set_pixel_format(tft9341_t* tft, tft9341_pixel_format_t rgb_iface_format, tft9341_pixel_format_t mcu_iface_format);
 
 /**
  * Записывает данные с адреса последней записи.
@@ -543,7 +544,7 @@ extern err_t tft9341_set_pixel_format(tft9341_t* tft, tft9341_pixel_format_t rgb
  * @param data Данные.
  * @param size Размер данных.
  */
-extern err_t tft9341_write_continue(tft9341_t* tft, const void* data, size_t size);
+EXTERN err_t tft9341_write_continue(tft9341_t* tft, const void* data, size_t size);
 
 /**
  * Команда начала записи данных с адреса последней записи.
@@ -551,7 +552,7 @@ extern err_t tft9341_write_continue(tft9341_t* tft, const void* data, size_t siz
  * @param tft TFT.
  * @return Код ошибки.
  */
-extern err_t tft9341_begin_write_continue(tft9341_t* tft);
+EXTERN err_t tft9341_begin_write_continue(tft9341_t* tft);
 
 /**
  * Читает данные с адреса последнего чтения.
@@ -560,7 +561,7 @@ extern err_t tft9341_begin_write_continue(tft9341_t* tft);
  * @param data Данные.
  * @param size Размер данных.
  */
-extern err_t tft9341_read_continue(tft9341_t* tft, void* data, size_t size);
+EXTERN err_t tft9341_read_continue(tft9341_t* tft, void* data, size_t size);
 
 /**
  * Устанавливает яркость экрана.
@@ -568,7 +569,7 @@ extern err_t tft9341_read_continue(tft9341_t* tft, void* data, size_t size);
  * @param brightness Яркость.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_brightness(tft9341_t* tft, uint8_t brightness);
+EXTERN err_t tft9341_set_brightness(tft9341_t* tft, uint8_t brightness);
 
 /**
  * Читает яркость экрана.
@@ -576,7 +577,7 @@ extern err_t tft9341_set_brightness(tft9341_t* tft, uint8_t brightness);
  * @param brightness Яркость.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_brightness(tft9341_t* tft, uint8_t* brightness);
+EXTERN err_t tft9341_read_brightness(tft9341_t* tft, uint8_t* brightness);
 
 /**
  * Устанавливает настройки экрана.
@@ -584,7 +585,7 @@ extern err_t tft9341_read_brightness(tft9341_t* tft, uint8_t* brightness);
  * @param control Настройки экрана.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_display_control(tft9341_t* tft, const tft9341_display_control_t* control);
+EXTERN err_t tft9341_set_display_control(tft9341_t* tft, const tft9341_display_control_t* control);
 
 /**
  * Читает настройки экрана.
@@ -592,7 +593,7 @@ extern err_t tft9341_set_display_control(tft9341_t* tft, const tft9341_display_c
  * @param control Настройки экрана.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_display_control(tft9341_t* tft, tft9341_display_control_t* control);
+EXTERN err_t tft9341_read_display_control(tft9341_t* tft, tft9341_display_control_t* control);
 
 /**
  * Устанавливает адаптивный контроль яркости.
@@ -600,7 +601,7 @@ extern err_t tft9341_read_display_control(tft9341_t* tft, tft9341_display_contro
  * @param cabc Адаптивный контроль яркости.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_cabc(tft9341_t* tft, tft9341_cabc_t cabc);
+EXTERN err_t tft9341_set_cabc(tft9341_t* tft, tft9341_cabc_t cabc);
 
 /**
  * Получает адаптивный контроль яркости.
@@ -608,7 +609,7 @@ extern err_t tft9341_set_cabc(tft9341_t* tft, tft9341_cabc_t cabc);
  * @param cabc Адаптивный контроль яркости.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_cabc(tft9341_t* tft, tft9341_cabc_t* cabc);
+EXTERN err_t tft9341_read_cabc(tft9341_t* tft, tft9341_cabc_t* cabc);
 
 /**
  * Устанавливает минимум яркости для CABC.
@@ -616,7 +617,7 @@ extern err_t tft9341_read_cabc(tft9341_t* tft, tft9341_cabc_t* cabc);
  * @param cabc_min Минимум яркости.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_cabc_min(tft9341_t* tft, uint8_t cabc_min);
+EXTERN err_t tft9341_set_cabc_min(tft9341_t* tft, uint8_t cabc_min);
 
 /**
  * Читает минимум яркости для CABC.
@@ -624,7 +625,7 @@ extern err_t tft9341_set_cabc_min(tft9341_t* tft, uint8_t cabc_min);
  * @param cabc_min Минимум яркости.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_cabc_min(tft9341_t* tft, uint8_t* cabc_min);
+EXTERN err_t tft9341_read_cabc_min(tft9341_t* tft, uint8_t* cabc_min);
 
 /**
  * Читает идентификатор ID1 TFT.
@@ -632,7 +633,7 @@ extern err_t tft9341_read_cabc_min(tft9341_t* tft, uint8_t* cabc_min);
  * @param id Адрес переменной для записи идентификатора.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_id1(tft9341_t* tft, uint8_t* id);
+EXTERN err_t tft9341_read_id1(tft9341_t* tft, uint8_t* id);
 
 /**
  * Читает идентификатор ID2 TFT.
@@ -640,7 +641,7 @@ extern err_t tft9341_read_id1(tft9341_t* tft, uint8_t* id);
  * @param id Адрес переменной для записи идентификатора.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_id2(tft9341_t* tft, uint8_t* id);
+EXTERN err_t tft9341_read_id2(tft9341_t* tft, uint8_t* id);
 
 /**
  * Читает идентификатор ID3 TFT.
@@ -648,7 +649,7 @@ extern err_t tft9341_read_id2(tft9341_t* tft, uint8_t* id);
  * @param id Адрес переменной для записи идентификатора.
  * @return Код ошибки.
  */
-extern err_t tft9341_read_id3(tft9341_t* tft, uint8_t* id);
+EXTERN err_t tft9341_read_id3(tft9341_t* tft, uint8_t* id);
 
 /**
  * Записывает данные в TFT без посыла команды.
@@ -658,7 +659,7 @@ extern err_t tft9341_read_id3(tft9341_t* tft, uint8_t* id);
  * @param size Размер данных.
  * @return Код ошибки.
  */
-extern err_t tft9341_data(tft9341_t* tft, const void* data, size_t size);
+EXTERN err_t tft9341_data(tft9341_t* tft, const void* data, size_t size);
 
 /**
  * Устанавливает пиксел на экране.
@@ -672,7 +673,7 @@ extern err_t tft9341_data(tft9341_t* tft, const void* data, size_t size);
  * @param size Размер пиксела в байтах.
  * @return Код ошибки.
  */
-extern err_t tft9341_set_pixel(tft9341_t* tft, uint16_t x, uint16_t y, const void* pixel, size_t size);
+EXTERN err_t tft9341_set_pixel(tft9341_t* tft, uint16_t x, uint16_t y, const void* pixel, size_t size);
 
 /**
  * Записывает данные в регион на экране.
@@ -686,7 +687,7 @@ extern err_t tft9341_set_pixel(tft9341_t* tft, uint16_t x, uint16_t y, const voi
  * @param size Размер данных в байтах.
  * @return Код ошибки.
  */
-extern err_t tft9341_write_region(tft9341_t* tft, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const void* data, size_t size);
+EXTERN err_t tft9341_write_region(tft9341_t* tft, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const void* data, size_t size);
 
 //147
 //209

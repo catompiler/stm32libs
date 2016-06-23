@@ -11,6 +11,7 @@
 #include "errors/errors.h"
 #include "future/future.h"
 #include "i2c/i2c.h"
+#include "defs/defs.h"
 #include "pca9555_mem.h"
 
 
@@ -90,89 +91,89 @@ typedef enum _Pca9555_Pin_Direction {
  * @param address Адрес.
  * @return Код ошибки.
  */
-extern err_t pca9555_init(pca9555_t* ioport, i2c_bus_t* i2c, i2c_address_t address);
+EXTERN err_t pca9555_init(pca9555_t* ioport, i2c_bus_t* i2c, i2c_address_t address);
 
 /**
  * Получает идентификатор передачи i2c.
  * @param ioport Порт ввода-вывода.
  * @return Идентификатор передачи i2c.
  */
-extern i2c_transfer_id_t pca9555_i2c_transfer_id(const pca9555_t* ioport);
+EXTERN i2c_transfer_id_t pca9555_i2c_transfer_id(const pca9555_t* ioport);
 
 /**
  * Устанавливает идентификатор передачи i2c.
  * @param ioport Порт ввода-вывода.
  * @param transfer_id Идентификатор передачи i2c.
  */
-extern void pca9555_set_i2c_transfer_id(pca9555_t* ioport, i2c_transfer_id_t transfer_id);
+EXTERN void pca9555_set_i2c_transfer_id(pca9555_t* ioport, i2c_transfer_id_t transfer_id);
 
 /**
  * Получает идентификатор передачи i2c.
  * @param ioport Порт ввода-вывода.
  * @return Адрес i2c.
  */
-extern i2c_address_t pca9555_i2c_address(const pca9555_t* ioport);
+EXTERN i2c_address_t pca9555_i2c_address(const pca9555_t* ioport);
 
 /**
  * Устанавливает идентификатор передачи i2c.
  * @param ioport Порт ввода-вывода.
  * @param address Адрес i2c.
  */
-extern void pca9555_set_i2c_address(pca9555_t* ioport, i2c_address_t address);
+EXTERN void pca9555_set_i2c_address(pca9555_t* ioport, i2c_address_t address);
 
 /**
  * Получает шину i2c.
  * @param ioport Порт ввода-вывода.
  * @return Шина i2c.
  */
-extern i2c_bus_t* pca9555_i2c_bus(const pca9555_t* ioport);
+EXTERN i2c_bus_t* pca9555_i2c_bus(const pca9555_t* ioport);
 
 /**
  * Устанавливает шину i2c.
  * @param ioport Порт ввода-вывода.
  * @param i2c Шина i2c.
  */
-extern void pca9555_set_i2c_bus(pca9555_t* ioport, i2c_bus_t* i2c);
+EXTERN void pca9555_set_i2c_bus(pca9555_t* ioport, i2c_bus_t* i2c);
 
 /**
  * Каллбэк i2c.
  * @param ioport Порт ввода-вывода.
  * @return true, если событие обработано, иначе false.
  */
-extern bool pca9555_i2c_callback(pca9555_t* ioport);
+EXTERN bool pca9555_i2c_callback(pca9555_t* ioport);
 
 /**
  * Сбрасывает состояние порта ввода-вывода.
  * @param ioport Порт ввода-вывода.
  */
-extern void pca9555_reset(pca9555_t* ioport);
+EXTERN void pca9555_reset(pca9555_t* ioport);
 
 /**
  * Получает флаг процесса выполнения операции.
  * @param ioport Порт ввода-вывода.
  * @return Флаг процесса выполнения операции.
  */
-extern bool pca9555_busy(pca9555_t* ioport);
+EXTERN bool pca9555_busy(pca9555_t* ioport);
 
 /**
  * Получает флаг завершения текущей операции.
  * @param ioport Порт ввода-вывода.
  * @return Флаг завершения текущей операции.
  */
-extern bool pca9555_done(pca9555_t* ioport);
+EXTERN bool pca9555_done(pca9555_t* ioport);
 
 /**
  * Получает код ошибки.
  * @param ioport Порт ввода-вывода.
  * @return Код ошибки.
  */
-extern err_t pca9555_error(pca9555_t* ioport);
+EXTERN err_t pca9555_error(pca9555_t* ioport);
 
 /**
  * Ждёт завершения текущей операции.
  * @param ioport Порт ввода-вывода.
  */
-extern err_t pca9555_wait(pca9555_t* ioport);
+EXTERN err_t pca9555_wait(pca9555_t* ioport);
 
 /**
  * Читает полное состояние.
@@ -180,7 +181,7 @@ extern err_t pca9555_wait(pca9555_t* ioport);
  * @param ioport Порт ввода-вывода.
  * @return Код ошибки.
  */
-extern err_t pca9555_read_state(pca9555_t* ioport);
+EXTERN err_t pca9555_read_state(pca9555_t* ioport);
 
 /**
  * Читает входное состояние пинов.
@@ -188,7 +189,7 @@ extern err_t pca9555_read_state(pca9555_t* ioport);
  * @param ioport Порт ввода-вывода.
  * @return Код ошибки.
  */
-extern err_t pca9555_read_pins_state(pca9555_t* ioport);
+EXTERN err_t pca9555_read_pins_state(pca9555_t* ioport);
 
 /**
  * Записывает всю конфигурацию.
@@ -196,7 +197,7 @@ extern err_t pca9555_read_pins_state(pca9555_t* ioport);
  * @param ioport Порт ввода-вывода.
  * @return Код ошибки.
  */
-extern err_t pca9555_write_state(pca9555_t* ioport);
+EXTERN err_t pca9555_write_state(pca9555_t* ioport);
 
 /**
  * Получает входное состояние пина.
@@ -205,7 +206,7 @@ extern err_t pca9555_write_state(pca9555_t* ioport);
  * @param pin Пин.
  * @return Входное состояние пина.
  */
-extern pca9555_pin_state_t pca9555_pin_state(pca9555_t* ioport, pca9555_pin_t pin);
+EXTERN pca9555_pin_state_t pca9555_pin_state(pca9555_t* ioport, pca9555_pin_t pin);
 
 /**
  * Получает выходное состояние пина.
@@ -213,7 +214,7 @@ extern pca9555_pin_state_t pca9555_pin_state(pca9555_t* ioport, pca9555_pin_t pi
  * @param pin Пин.
  * @return Выходное состояние пина.
  */
-extern pca9555_pin_state_t pca9555_pin_output_state(pca9555_t* ioport, pca9555_pin_t pin);
+EXTERN pca9555_pin_state_t pca9555_pin_output_state(pca9555_t* ioport, pca9555_pin_t pin);
 
 /**
  * Получает пины с заданным входным состоянием.
@@ -222,7 +223,7 @@ extern pca9555_pin_state_t pca9555_pin_output_state(pca9555_t* ioport, pca9555_p
  * @param state Состояние пинов.
  * @return Пины с заданным состоянием.
  */
-extern pca9555_pins_t pca9555_pins_state(pca9555_t* ioport, pca9555_pin_state_t state);
+EXTERN pca9555_pins_t pca9555_pins_state(pca9555_t* ioport, pca9555_pin_state_t state);
 
 /**
  * Получает пины с заданным выходным состоянием.
@@ -230,7 +231,7 @@ extern pca9555_pins_t pca9555_pins_state(pca9555_t* ioport, pca9555_pin_state_t 
  * @param state Состояние пинов.
  * @return Пины с заданным состоянием.
  */
-extern pca9555_pins_t pca9555_pins_output_state(pca9555_t* ioport, pca9555_pin_state_t state);
+EXTERN pca9555_pins_t pca9555_pins_output_state(pca9555_t* ioport, pca9555_pin_state_t state);
 
 /**
  * Устанавливает состояние заданных пинов.
@@ -239,7 +240,7 @@ extern pca9555_pins_t pca9555_pins_output_state(pca9555_t* ioport, pca9555_pin_s
  * @param pins Пины.
  * @param state Состояние пинов.
  */
-extern void pca9555_set_pins_state(pca9555_t* ioport, pca9555_pins_t pins, pca9555_pin_state_t state);
+EXTERN void pca9555_set_pins_state(pca9555_t* ioport, pca9555_pins_t pins, pca9555_pin_state_t state);
 
 /**
  * Записывает значения выходов.
@@ -247,7 +248,7 @@ extern void pca9555_set_pins_state(pca9555_t* ioport, pca9555_pins_t pins, pca95
  * @param ioport Порт ввода-вывода.
  * @return Код ошибки.
  */
-extern err_t pca9555_write_pins_state(pca9555_t* ioport);
+EXTERN err_t pca9555_write_pins_state(pca9555_t* ioport);
 
 /**
  * Получает инвертирование входа пина.
@@ -256,7 +257,7 @@ extern err_t pca9555_write_pins_state(pca9555_t* ioport);
  * @param pin Пин.
  * @return Инвертирование пина.
  */
-extern pca9555_pin_inversion_t pca9555_pin_inversion(pca9555_t* ioport, pca9555_pin_t pin);
+EXTERN pca9555_pin_inversion_t pca9555_pin_inversion(pca9555_t* ioport, pca9555_pin_t pin);
 
 /**
  * Получает пины с заданным инвертированием.
@@ -265,7 +266,7 @@ extern pca9555_pin_inversion_t pca9555_pin_inversion(pca9555_t* ioport, pca9555_
  * @param inversion Инвертирование пинов.
  * @return Пины с заданным инвертированием.
  */
-extern pca9555_pins_t pca9555_pins_inversion(pca9555_t* ioport, pca9555_pin_inversion_t inversion);
+EXTERN pca9555_pins_t pca9555_pins_inversion(pca9555_t* ioport, pca9555_pin_inversion_t inversion);
 
 /**
  * Устанавливает инвертирование входа заданных пинов.
@@ -274,7 +275,7 @@ extern pca9555_pins_t pca9555_pins_inversion(pca9555_t* ioport, pca9555_pin_inve
  * @param pins Пины.
  * @param inversion Инвертирование пинов.
  */
-extern void pca9555_set_pins_inversion(pca9555_t* ioport, pca9555_pins_t pins, pca9555_pin_inversion_t inversion);
+EXTERN void pca9555_set_pins_inversion(pca9555_t* ioport, pca9555_pins_t pins, pca9555_pin_inversion_t inversion);
 
 /**
  * Записывает значения инвертирования входов.
@@ -282,7 +283,7 @@ extern void pca9555_set_pins_inversion(pca9555_t* ioport, pca9555_pins_t pins, p
  * @param ioport Порт ввода-вывода.
  * @return Код ошибки.
  */
-extern err_t pca9555_write_pins_inversion(pca9555_t* ioport);
+EXTERN err_t pca9555_write_pins_inversion(pca9555_t* ioport);
 
 /**
  * Получает направление пина.
@@ -291,7 +292,7 @@ extern err_t pca9555_write_pins_inversion(pca9555_t* ioport);
  * @param pin Пин.
  * @return Направление пина.
  */
-extern pca9555_pin_direction_t pca9555_pin_direction(pca9555_t* ioport, pca9555_pin_t pin);
+EXTERN pca9555_pin_direction_t pca9555_pin_direction(pca9555_t* ioport, pca9555_pin_t pin);
 
 /**
  * Получает пины с заданным направлением.
@@ -300,7 +301,7 @@ extern pca9555_pin_direction_t pca9555_pin_direction(pca9555_t* ioport, pca9555_
  * @param direction Направление пинов.
  * @return Пины с заданным направлением.
  */
-extern pca9555_pins_t pca9555_pins_direction(pca9555_t* ioport, pca9555_pin_direction_t direction);
+EXTERN pca9555_pins_t pca9555_pins_direction(pca9555_t* ioport, pca9555_pin_direction_t direction);
 
 /**
  * Устанавливает направление заданных пинов.
@@ -309,7 +310,7 @@ extern pca9555_pins_t pca9555_pins_direction(pca9555_t* ioport, pca9555_pin_dire
  * @param pins Пины.
  * @param direction Направление пинов.
  */
-extern void pca9555_set_pins_direction(pca9555_t* ioport, pca9555_pins_t pins, pca9555_pin_direction_t direction);
+EXTERN void pca9555_set_pins_direction(pca9555_t* ioport, pca9555_pins_t pins, pca9555_pin_direction_t direction);
 
 /**
  * Записывает направление выходов.
@@ -317,6 +318,6 @@ extern void pca9555_set_pins_direction(pca9555_t* ioport, pca9555_pins_t pins, p
  * @param ioport Порт ввода-вывода.
  * @return Код ошибки.
  */
-extern err_t pca9555_write_pins_direction(pca9555_t* ioport);
+EXTERN err_t pca9555_write_pins_direction(pca9555_t* ioport);
 
 #endif	/* PCA9555_H */

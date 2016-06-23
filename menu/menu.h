@@ -307,7 +307,7 @@ typedef struct _MenuDescr {
  * @param root Корневой элемент меню.
  * @return Код ошибки.
  */
-extern err_t menu_init(menu_t* menu, menu_item_t* root);
+EXTERN err_t menu_init(menu_t* menu, menu_item_t* root);
 
 /**
  * Формирует меню из массива дескрипторов.
@@ -318,7 +318,7 @@ extern err_t menu_init(menu_t* menu, menu_item_t* root);
  * @param descrs_count Число дескрипторов элементов меню.
  * @return Код ошибки.
  */
-extern err_t menu_make_from_descrs(menu_t* menu, menu_item_t* items, size_t items_count,
+EXTERN err_t menu_make_from_descrs(menu_t* menu, menu_item_t* items, size_t items_count,
                                            const menu_descr_t* descrs, size_t descrs_count);
 
 /**
@@ -337,7 +337,7 @@ ALWAYS_INLINE static menu_item_t* menu_root(menu_t* menu)
  * @param root Корневой элемент меню.
  * @return Код ошибки.
  */
-extern err_t menu_set_root(menu_t* menu, menu_item_t* root);
+EXTERN err_t menu_set_root(menu_t* menu, menu_item_t* root);
 
 /**
  * Получает текущий элемент меню.
@@ -355,41 +355,41 @@ ALWAYS_INLINE static menu_item_t* menu_current(menu_t* menu)
  * @param current Текущий элемент меню.
  * @return Код ошибки.
  */
-extern err_t menu_set_current(menu_t* menu, menu_item_t* current);
+EXTERN err_t menu_set_current(menu_t* menu, menu_item_t* current);
 
 /**
  * Сбрасывает текущий элемент меню.
  * @param menu Меню.
  */
-extern void menu_reset_current(menu_t* menu);
+EXTERN void menu_reset_current(menu_t* menu);
 
 /**
  * Поднимает текущий элемент меню на уровень выше.
  * @param menu Меню.
  * @return true в случае успеха, иначе false.
  */
-extern bool menu_up(menu_t* menu);
+EXTERN bool menu_up(menu_t* menu);
 
 /**
  * Поднимает текущий элемент меню на уровень ниже.
  * @param menu Меню.
  * @return true в случае успеха, иначе false.
  */
-extern bool menu_down(menu_t* menu);
+EXTERN bool menu_down(menu_t* menu);
 
 /**
  * Переходит на следующий элемент меню.
  * @param menu Меню.
  * @return true в случае успеха, иначе false.
  */
-extern bool menu_next(menu_t* menu);
+EXTERN bool menu_next(menu_t* menu);
 
 /**
  * Переходит на предыдущий элемент меню.
  * @param menu Меню.
  * @return true в случае успеха, иначе false.
  */
-extern bool menu_prev(menu_t* menu);
+EXTERN bool menu_prev(menu_t* menu);
 
 /**
  * Инициализирует элемент меню.
@@ -397,7 +397,7 @@ extern bool menu_prev(menu_t* menu);
  * @param text Текст.
  * @return Код ошибки.
  */
-extern err_t menu_item_init(menu_item_t* item, const char* text);
+EXTERN err_t menu_item_init(menu_item_t* item, const char* text);
 
 /**
  * Инициализирует элемент меню по дескриптору элемента меню.
@@ -405,14 +405,21 @@ extern err_t menu_item_init(menu_item_t* item, const char* text);
  * @param descr Дескриптор элемента меню.
  * @return Код ошибки.
  */
-extern err_t menu_item_init_from_descr(menu_item_t* item, const menu_descr_t* descr);
+EXTERN err_t menu_item_init_from_descr(menu_item_t* item, const menu_descr_t* descr);
 
 /**
  * @brief Получает число дочерних элементов элемента меню.
  * @param item Элемент меню.
  * @return Число дочерних элементов элемента меню.
  */
-extern size_t menu_item_childs_count(menu_item_t* item);
+EXTERN size_t menu_item_childs_count(menu_item_t* item);
+
+/**
+ * @brief Получает элементов меню в списке дочерних элементов меню.
+ * @param item Элемент меню.
+ * @return Число элементов меню в списке дочерних элементов меню.
+ */
+EXTERN size_t menu_item_count(menu_item_t* item);
 
 /**
  * @brief Получает дочерний элемент элемента меню с заданным индексом.
@@ -420,7 +427,7 @@ extern size_t menu_item_childs_count(menu_item_t* item);
  * @param index Индекс элемента меню.
  * @return Дочерний элемент элемента меню с заданным индексом.
  */
-extern menu_item_t* menu_item_child_at(menu_item_t* item, size_t index);
+EXTERN menu_item_t* menu_item_child_at(menu_item_t* item, size_t index);
 
 /**
  * @brief Получает следующий элемент элемента меню с заданным индексом.
@@ -428,14 +435,14 @@ extern menu_item_t* menu_item_child_at(menu_item_t* item, size_t index);
  * @param index Индекс элемента меню.
  * @return Следующий элемент элемента меню с заданным индексом.
  */
-extern menu_item_t* menu_item_next_at(menu_item_t* item, size_t index);
+EXTERN menu_item_t* menu_item_next_at(menu_item_t* item, size_t index);
 
 /**
  * @brief Получает позицию элемента меню в списке дочерних элементов.
  * @param item Элемент меню.
  * @return Позиция элемента меню в списке дочерних элементов.
  */
-extern size_t menu_item_pos(menu_item_t* item);
+EXTERN size_t menu_item_pos(menu_item_t* item);
 
 /**
  * Получает идентификатор элемента меню.
@@ -602,28 +609,28 @@ ALWAYS_INLINE static void menu_item_set_next(menu_item_t* item, menu_item_t* nex
  * @param item Элемент меню.
  * @return Первый элемент меню.
  */
-extern menu_item_t* menu_item_first(menu_item_t* item);
+EXTERN menu_item_t* menu_item_first(menu_item_t* item);
 
 /**
  * Получает последний элемент в пределах родителя.
  * @param item Элемент меню.
  * @return Последний элемент меню.
  */
-extern menu_item_t* menu_item_last(menu_item_t* item);
+EXTERN menu_item_t* menu_item_last(menu_item_t* item);
 
 /**
  * Связывает два элемента меню.
  * @param prev Предыдущий элемент меню.
  * @param next Следующий элемент меню.
  */
-extern void menu_item_link(menu_item_t* prev, menu_item_t* next);
+EXTERN void menu_item_link(menu_item_t* prev, menu_item_t* next);
 
 /**
  * Связывает два элемента меню.
  * @param parent Родительский элемент меню.
  * @param child Дочерний элемент меню.
  */
-extern void menu_item_link_parent(menu_item_t* parent, menu_item_t* child);
+EXTERN void menu_item_link_parent(menu_item_t* parent, menu_item_t* child);
 
 /**
  * Получает значение элемента меню.
@@ -660,7 +667,7 @@ ALWAYS_INLINE static bool menu_item_has_value(menu_item_t* item)
  * @param value Значение элемента меню.
  * @return Код ошибки.
  */
-extern err_t menu_value_init(menu_value_t* value);
+EXTERN err_t menu_value_init(menu_value_t* value);
 
 /**
  * Получает тип значения элемента меню.
@@ -793,7 +800,7 @@ ALWAYS_INLINE static menu_value_enum_t* menu_value_enum(menu_value_t* value)
  * @param val Списочное значение элемента меню.
  * @return Код ошибки.
  */
-extern err_t menu_value_set_enum(menu_value_t* value, menu_value_enum_t* val);
+EXTERN err_t menu_value_set_enum(menu_value_t* value, menu_value_enum_t* val);
 
 /**
  * Получает текущий индекс списка значений элемента меню.
@@ -830,7 +837,7 @@ ALWAYS_INLINE static size_t menu_value_enum_count(menu_value_t* value)
  * @param value Значение элемента меню.
  * @param count Число значений списка значений элемента меню.
  */
-extern err_t menu_value_enum_set_count(menu_value_t* value, size_t count);
+EXTERN err_t menu_value_enum_set_count(menu_value_t* value, size_t count);
 
 /**
  * Получает значения списка значений элемента меню.
@@ -847,14 +854,14 @@ ALWAYS_INLINE static menu_value_t* menu_value_enum_values(menu_value_t* value)
  * @param value Значение элемента меню.
  * @param values Значения списка значений элемента меню.
  */
-extern err_t menu_value_enum_set_values(menu_value_t* value, menu_value_t* values);
+EXTERN err_t menu_value_enum_set_values(menu_value_t* value, menu_value_t* values);
 
 /**
  * Получает текущие значение списка значений элемента меню.
  * @param value Значение элемента меню.
  * @return Текущее значение списка значений элемента меню.
  */
-extern menu_value_t* menu_value_enum_current_value(menu_value_t* value);
+EXTERN menu_value_t* menu_value_enum_current_value(menu_value_t* value);
 
 
 /*

@@ -873,7 +873,10 @@ static err_t modbus_rtu_disp_custom(modbus_rtu_t* modbus)
     size_t rx_size = modbus_rtu_message_data_size(modbus->rx_message);
     size_t tx_size = 0;
     
-    modbus_err = modbus->custom_function_callback(rx_data, rx_size, tx_data, &tx_size);
+    modbus_err = modbus->custom_function_callback(
+                    modbus_rtu_message_func(modbus->rx_message),
+                    rx_data, rx_size, tx_data, &tx_size
+                 );
     
     if(modbus_err != MODBUS_RTU_ERROR_NONE)
         return modbus_rtu_disp_fail(modbus, modbus_err);

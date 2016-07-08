@@ -187,7 +187,7 @@ typedef struct _Modbus_Rtu_Adu {
 //! Тип сообщения протокола Modbus RTU.
 typedef struct _Modbus_Rtu_Message {
     modbus_rtu_adu_t adu; //!< ADU.
-    size_t data_size; //!< Размер ADU.
+    size_t data_size; //!< Размер данных без crc.
 } modbus_rtu_message_t;
 
 
@@ -230,13 +230,14 @@ typedef modbus_rtu_error_t (*modbus_rtu_report_slave_id_callback_t)(modbus_rtu_s
 
 /**
  * Каллбэк обработки пользовательской функции.
+ * @param func Номер функции.
  * @param rx_data Принятые данные.
  * @param rx_size Размер принятых данных.
  * @param tx_data Буфер данных для передачи.
  * @param tx_size Размер данных для передачи.
  * @return Код ошибки протокола Modbus RTU.
  */
-typedef modbus_rtu_error_t (*modbus_rtu_custom_function_callback_t)(const void* rx_data, size_t rx_size, void* tx_data, size_t* tx_size);
+typedef modbus_rtu_error_t (*modbus_rtu_custom_function_callback_t)(modbus_rtu_func_t func, const void* rx_data, size_t rx_size, void* tx_data, size_t* tx_size);
 
 
 //! Тип протокола Modbus RTU.

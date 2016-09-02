@@ -475,9 +475,7 @@ static err_t modbus_rtu_disp_read_coils(modbus_rtu_t* modbus)
     
     tx_data[0] = (byte_index - 1) + (count > 0);
     
-    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
 }
 
 static err_t modbus_rtu_disp_read_dins(modbus_rtu_t* modbus)
@@ -525,9 +523,7 @@ static err_t modbus_rtu_disp_read_dins(modbus_rtu_t* modbus)
     
     tx_data[0] = (byte_index - 1) + (count > 0);
     
-    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
 }
 
 static err_t modbus_rtu_disp_read_holding_regs(modbus_rtu_t* modbus)
@@ -566,9 +562,7 @@ static err_t modbus_rtu_disp_read_holding_regs(modbus_rtu_t* modbus)
     
     tx_data[0] = count * 2;
     
-    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
 }
 
 static err_t modbus_rtu_disp_read_input_regs(modbus_rtu_t* modbus)
@@ -607,9 +601,7 @@ static err_t modbus_rtu_disp_read_input_regs(modbus_rtu_t* modbus)
     
     tx_data[0] = count * 2;
     
-    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
 }
 
 static err_t modbus_rtu_disp_write_coil(modbus_rtu_t* modbus)
@@ -640,9 +632,7 @@ static err_t modbus_rtu_disp_write_coil(modbus_rtu_t* modbus)
     tx_data[0] = rx_data[0];
     tx_data[1] = rx_data[1];
     
-    modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
 }
 
 static err_t modbus_rtu_disp_write_reg(modbus_rtu_t* modbus)
@@ -669,9 +659,7 @@ static err_t modbus_rtu_disp_write_reg(modbus_rtu_t* modbus)
     tx_data[0] = rx_data[0];
     tx_data[1] = rx_data[1];
     
-    modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
 }
 
 static err_t modbus_rtu_disp_write_coils(modbus_rtu_t* modbus)
@@ -727,9 +715,7 @@ static err_t modbus_rtu_disp_write_coils(modbus_rtu_t* modbus)
     tx_data[0] = rx_data[0];
     tx_data[1] = rx_data[1];
     
-    modbus_rtu_disp_succ(modbus, sizeof(uint16_t) * 2);
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, sizeof(uint16_t) * 2);
 }
 
 static err_t modbus_rtu_disp_write_regs(modbus_rtu_t* modbus)
@@ -770,9 +756,7 @@ static err_t modbus_rtu_disp_write_regs(modbus_rtu_t* modbus)
     tx_data[0] = rx_data[0];
     tx_data[1] = rx_data[1];
     
-    modbus_rtu_disp_succ(modbus, sizeof(uint16_t) * 2);
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, sizeof(uint16_t) * 2);
 }
 
 static err_t modbus_rtu_disp_change_reg(modbus_rtu_t* modbus)
@@ -801,9 +785,7 @@ static err_t modbus_rtu_disp_change_reg(modbus_rtu_t* modbus)
     tx_data[1] = rx_data[1];
     tx_data[2] = rx_data[2];
     
-    modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, modbus_rtu_message_data_size(modbus->rx_message));
 }
 
 static err_t modbus_rtu_disp_report_slave_id(modbus_rtu_t* modbus)
@@ -855,9 +837,7 @@ static err_t modbus_rtu_disp_report_slave_id(modbus_rtu_t* modbus)
         memcpy(&tx_data[offset], slave_id.data, slave_id.data_size);
     }
     
-    modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
 }
 
 static err_t modbus_rtu_disp_custom(modbus_rtu_t* modbus)
@@ -884,9 +864,7 @@ static err_t modbus_rtu_disp_custom(modbus_rtu_t* modbus)
     if(tx_size > MODBUS_RTU_DATA_SIZE_MAX)
         return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
     
-    modbus_rtu_disp_succ(modbus, tx_size);
-    
-    return E_NO_ERROR;
+    return modbus_rtu_disp_succ(modbus, tx_size);
 }
 
 

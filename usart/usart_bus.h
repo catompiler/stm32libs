@@ -81,6 +81,7 @@ typedef struct _UsartBus {
     usart_bus_rx_byte_callback_t rx_byte_callback; //!< Каллбэк при приёме байта.
     usart_bus_callback_t rx_callback; //!< Каллбэк событий приёма данных шины USART.
     usart_bus_callback_t tx_callback; //!< Каллбэк событий передачи данных шины USART.
+    usart_bus_callback_t tc_callback; //!< Каллбэк события окончания передачи данных шины USART.
     bool dma_rx_locked;//!< Заблокирован канал получения.
     bool dma_tx_locked;//!< Заблокирован канал передачи.
     usart_transfer_id_t rx_transfer_id;//!< Идентификатор приёма.
@@ -280,6 +281,20 @@ EXTERN usart_bus_callback_t usart_bus_tx_callback(usart_bus_t* usart);
  * @param callback Каллбэк.
  */
 EXTERN void usart_bus_set_tx_callback(usart_bus_t* usart, usart_bus_callback_t callback);
+
+/**
+ * Получает каллбэк события окончания передачи данных шины USART.
+ * @param usart Шина USART.
+ * @return Каллбэк.
+ */
+EXTERN usart_bus_callback_t usart_bus_tc_callback(usart_bus_t* usart);
+
+/**
+ * Устанавливает каллбэк события окончания передачи данных шины USART.
+ * @param usart Шина USART.
+ * @param callback Каллбэк.
+ */
+EXTERN void usart_bus_set_tc_callback(usart_bus_t* usart, usart_bus_callback_t callback);
 
 /**
  * Получает состояние канала приёма шины USART.

@@ -171,6 +171,7 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     usart->rx_byte_callback = NULL;
     usart->rx_callback = NULL;
     usart->tx_callback = NULL;
+    usart->tc_callback = NULL;
     usart->dma_rx_locked = false;
     usart->dma_tx_locked = false;
     usart->rx_status = USART_STATUS_IDLE;
@@ -228,6 +229,11 @@ void usart_bus_irq_handler(usart_bus_t* usart)
     // Получен байт.
     if(SR & USART_SR_RXNE){
         if(usart->rx_byte_callback) usart->rx_byte_callback(byte);
+    }
+    
+    if(SR & USART_SR_TC){
+        usart->usart_device->SR &= ~USART_SR_TC;
+        if(usart->tc_callback) usart->tc_callback();
     }
 }
 
@@ -395,6 +401,22 @@ usart_bus_callback_t usart_bus_tx_callback(usart_bus_t* usart)
 void usart_bus_set_tx_callback(usart_bus_t* usart, usart_bus_callback_t callback)
 {
     usart->tx_callback = callback;
+}
+
+usart_bus_callback_t usart_bus_tc_callback(usart_bus_t* usart)
+{
+    return usart->tc_callback;
+}
+
+void usart_bus_set_tc_callback(usart_bus_t* usart, usart_bus_callback_t callback)
+{
+    if(callback){
+        usart->tc_callback = callback;
+        USART_ITConfig(usart->usart_device, USART_IT_TC, ENABLE);
+    }else{
+        USART_ITConfig(usart->usart_device, USART_IT_TC, DISABLE);
+        usart->tc_callback = callback;
+    }
 }
 
 usart_status_t usart_bus_rx_status(usart_bus_t* usart)

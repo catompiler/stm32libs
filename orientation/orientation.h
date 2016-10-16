@@ -11,7 +11,7 @@
 #include "fixed/fixed32.h"
 #include "counter/counter.h"
 #include "gyro6050/gyro6050.h"
-#include "hmc5883l.h"
+#include "hmc5883l/hmc5883l.h"
 
 /**
  * Структура ориентации.

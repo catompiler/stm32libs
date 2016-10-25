@@ -157,6 +157,11 @@ bool modbus_rtu_usart_rx_byte_callback(modbus_rtu_t* modbus, uint8_t byte)
         return true;
     }
     
+    if(usart_bus_rx_errors(modbus->usart) != USART_ERROR_NONE){
+        usart_bus_sleep(modbus->usart);
+        return true;
+    }
+    
     if(modbus_rtu_message_recv(modbus->rx_message, modbus->usart) == E_NO_ERROR){
         modbus_rtu_message_recv_init(modbus->rx_message, byte);
     }else{
@@ -168,7 +173,7 @@ bool modbus_rtu_usart_rx_byte_callback(modbus_rtu_t* modbus, uint8_t byte)
 
 bool modbus_rtu_usart_rx_callback(modbus_rtu_t* modbus)
 {
-    if(usart_bus_rx_error(modbus->usart) != E_NO_ERROR) return true;
+    if(usart_bus_rx_errors(modbus->usart) != USART_ERROR_NONE) return true;
     
     modbus_rtu_message_recv_done(modbus->rx_message, modbus->usart);
     

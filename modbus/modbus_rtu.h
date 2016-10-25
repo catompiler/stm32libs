@@ -354,23 +354,23 @@ EXTERN modbus_rtu_msg_sent_callback_t modbus_rtu_msg_sent_callback(modbus_rtu_t*
 EXTERN void modbus_rtu_set_msg_sent_callback(modbus_rtu_t* modbus, modbus_rtu_msg_sent_callback_t callback);
 
 /**
- * Получает ошибку приёма данных по шине USART.
+ * Получает ошибки приёма данных по шине USART.
  * @param modbus Протокол Modbus RTU.
- * @return Ошибка приёма данных по шине USART.
+ * @return Ошибки приёма данных по шине USART.
  */
-ALWAYS_INLINE static usart_error_t modbus_rtu_rx_error(modbus_rtu_t* modbus)
+ALWAYS_INLINE static usart_errors_t modbus_rtu_rx_errors(modbus_rtu_t* modbus)
 {
-    return usart_bus_rx_error(modbus->usart);
+    return usart_bus_rx_errors(modbus->usart);
 }
 
 /**
- * Получает ошибку передачи данных по шине USART.
+ * Получает ошибки передачи данных по шине USART.
  * @param modbus Протокол Modbus RTU.
- * @return Ошибка передачи данных по шине USART.
+ * @return Ошибки передачи данных по шине USART.
  */
-ALWAYS_INLINE static usart_error_t modbus_rtu_tx_error(modbus_rtu_t* modbus)
+ALWAYS_INLINE static usart_errors_t modbus_rtu_tx_errors(modbus_rtu_t* modbus)
 {
-    return usart_bus_tx_error(modbus->usart);
+    return usart_bus_tx_errors(modbus->usart);
 }
 
 /**

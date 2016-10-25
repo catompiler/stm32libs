@@ -34,13 +34,16 @@ typedef enum _Usart_Status {
 
 //! Ошибки шины USART.
 typedef enum _Usart_Error {
-    USART_ERROR_NONE = 0, //!< Нет ошибки.
-    USART_ERROR_PARITY, //!< Ошибка чётности.
-    USART_ERROR_NOISE, //!< Шум.
-    USART_ERROR_OVERRUN, //!< Переполнение.
-    USART_ERROR_FRAMING, //!< Ошибка кадра.
-    USART_ERROR_DMA//!< Ошибка DMA.
+    USART_ERROR_NONE    = 0, //!< Нет ошибки.
+    USART_ERROR_PARITY  = 1, //!< Ошибка чётности.
+    USART_ERROR_NOISE   = 2, //!< Шум.
+    USART_ERROR_OVERRUN = 4, //!< Переполнение.
+    USART_ERROR_FRAMING = 8, //!< Ошибка кадра.
+    USART_ERROR_DMA     = 16//!< Ошибка DMA.
 } usart_error_t;
+
+//! Тип ошибок USART.
+typedef uint8_t usart_errors_t;
 
 //! Тип реакции на IDLE при приёме данных.
 typedef enum _Usart_Idle_Mode {
@@ -88,8 +91,8 @@ typedef struct _UsartBus {
     usart_transfer_id_t tx_transfer_id;//!< Идентификатор передачи.
     usart_status_t rx_status; //!< Состояние канала приёма.
     usart_status_t tx_status; //!< Состояние канала передачи.
-    usart_error_t rx_error; //!< Ошибка канала приёма.
-    usart_error_t tx_error; //!< Ошибка канала передачи.
+    usart_errors_t rx_errors; //!< Ошибки канала приёма.
+    usart_errors_t tx_errors; //!< Ошибки канала передачи.
     uint16_t rx_size; //!< Размер данных для приёма.
     uint16_t tx_size; //!< Размер данных для передачи.
     usart_idle_mode_t idle_mode; //!< Режим реакции на IDLE при приёме.
@@ -311,18 +314,18 @@ EXTERN usart_status_t usart_bus_rx_status(usart_bus_t* usart);
 EXTERN usart_status_t usart_bus_tx_status(usart_bus_t* usart);
 
 /**
- * Получает ошибку канала приёма шины USART.
+ * Получает ошибки канала приёма шины USART.
  * @param usart Шина USART.
- * @return Ошибка канала приёма.
+ * @return Ошибки канала приёма.
  */
-EXTERN usart_error_t usart_bus_rx_error(usart_bus_t* usart);
+EXTERN usart_errors_t usart_bus_rx_errors(usart_bus_t* usart);
 
 /**
- * Получает ошибку канала передачи шины USART.
+ * Получает ошибки канала передачи шины USART.
  * @param usart Шина USART.
- * @return Ошибка канала передачи.
+ * @return Ошибки канала передачи.
  */
-EXTERN usart_error_t usart_bus_tx_error(usart_bus_t* usart);
+EXTERN usart_errors_t usart_bus_tx_errors(usart_bus_t* usart);
 
 /**
  * Получает число полученных

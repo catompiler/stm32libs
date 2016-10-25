@@ -75,11 +75,27 @@ static void usart_bus_dma_stop_tx(usart_bus_t* usart)
     usart->usart_device->CR3 &= ~USART_CR3_DMAT;
 }
 
+ALWAYS_INLINE static bool usart_bus_has_rx_errors(uint16_t SR)
+{
+    return (SR & (USART_SR_ORE | USART_SR_NE | USART_SR_FE | USART_SR_PE)) != 0;
+}
+
+static usart_errors_t usart_bus_get_rx_errors(uint16_t SR)
+{
+    usart_errors_t errs = USART_ERROR_NONE;
+    
+    if(SR & USART_SR_ORE) errs |= USART_ERROR_OVERRUN;
+    if(SR & USART_SR_NE) errs |= USART_ERROR_NOISE;
+    if(SR & USART_SR_FE) errs |= USART_ERROR_FRAMING;
+    if(SR & USART_SR_PE) errs |= USART_ERROR_PARITY;
+    
+    return errs;
+}
+
 static void usart_bus_dma_rx_done(usart_bus_t* usart)
 {
     usart_bus_dma_stop_rx(usart);
 
-    usart->rx_status = USART_STATUS_TRANSFERED;
     usart->rx_size -= usart->dma_rx_channel->CNDTR;
     
     usart_bus_dma_unlock_rx_channel(usart);
@@ -91,8 +107,7 @@ static void usart_bus_dma_rx_error(usart_bus_t* usart)
 {
     usart_bus_dma_stop_rx(usart);
 
-    usart->rx_status = USART_STATUS_ERROR;
-    usart->rx_error = USART_ERROR_DMA;
+    usart->rx_errors |= USART_ERROR_DMA;
     usart->rx_size -= usart->dma_rx_channel->CNDTR;
     
     usart_bus_dma_unlock_rx_channel(usart);
@@ -104,7 +119,6 @@ static void usart_bus_dma_tx_done(usart_bus_t* usart)
 {
     usart_bus_dma_stop_tx(usart);
 
-    usart->tx_status = USART_STATUS_TRANSFERED;
     usart->tx_size -= usart->dma_tx_channel->CNDTR;
     
     usart_bus_dma_unlock_tx_channel(usart);
@@ -114,11 +128,32 @@ static void usart_bus_dma_tx_error(usart_bus_t* usart)
 {
     usart_bus_dma_stop_tx(usart);
 
-    usart->tx_status = USART_STATUS_ERROR;
-    usart->tx_error = USART_ERROR_DMA;
+    usart->tx_errors |= USART_ERROR_DMA;
     usart->tx_size -= usart->dma_tx_channel->CNDTR;
     
     usart_bus_dma_unlock_tx_channel(usart);
+}
+
+static void usart_bus_rx_done(usart_bus_t* usart)
+{
+    if(usart->rx_errors == USART_ERROR_NONE){
+        usart->rx_status = USART_STATUS_TRANSFERED;
+    }else{
+        usart->rx_status = USART_STATUS_ERROR;
+    }
+    
+    if(usart->rx_callback) usart->rx_callback();
+}
+
+static void usart_bus_tx_done(usart_bus_t* usart)
+{
+    if(usart->tx_errors == USART_ERROR_NONE){
+        usart->tx_status = USART_STATUS_TRANSFERED;
+    }else{
+        usart->tx_status = USART_STATUS_ERROR;
+    }
+    
+    if(usart->tx_callback) usart->tx_callback();
 }
 
 /*
@@ -176,8 +211,8 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     usart->dma_tx_locked = false;
     usart->rx_status = USART_STATUS_IDLE;
     usart->tx_status = USART_STATUS_IDLE;
-    usart->rx_error = USART_ERROR_NONE;
-    usart->tx_error = USART_ERROR_NONE;
+    usart->rx_errors = USART_ERROR_NONE;
+    usart->tx_errors = USART_ERROR_NONE;
     
     usart->rx_transfer_id = USART_BUS_DEFAULT_TRANSFER_ID;
     usart->tx_transfer_id = USART_BUS_DEFAULT_TRANSFER_ID;
@@ -186,35 +221,37 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     
     USART_WakeUpConfig(usart->usart_device, USART_WakeUp_IdleLine);
     
-    /*
-    USART_ITConfig(usart->usart_device, USART_IT_PE, ENABLE);
-    USART_ITConfig(usart->usart_device, USART_IT_ORE, ENABLE);
-    USART_ITConfig(usart->usart_device, USART_IT_NE, ENABLE);
-    USART_ITConfig(usart->usart_device, USART_IT_FE, ENABLE);
-    USART_ITConfig(usart->usart_device, USART_IT_ERR, ENABLE);
-    */
-    
     if(usart_bus_receiver_state(usart->usart_device) != DISABLE){
         USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
+        
+        USART_ITConfig(usart->usart_device, USART_IT_ORE, ENABLE);
+        USART_ITConfig(usart->usart_device, USART_IT_PE, ENABLE);
+        USART_ITConfig(usart->usart_device, USART_IT_NE, ENABLE);
+        USART_ITConfig(usart->usart_device, USART_IT_FE, ENABLE);
+        USART_ITConfig(usart->usart_device, USART_IT_ERR, ENABLE);
     }
     
     return E_NO_ERROR;
-}
-
-static ALWAYS_INLINE void usart_bus_rx_done(usart_bus_t* usart)
-{
-    if(usart->rx_callback) usart->rx_callback();
-}
-
-static ALWAYS_INLINE void usart_bus_tx_done(usart_bus_t* usart)
-{
-    if(usart->tx_callback) usart->tx_callback();
 }
 
 void usart_bus_irq_handler(usart_bus_t* usart)
 {
     uint16_t SR = usart->usart_device->SR;
     uint8_t byte = usart->usart_device->DR;
+    
+    // Если есть ошибки.
+    if(usart_bus_has_rx_errors(SR)){
+        usart->rx_errors = usart_bus_get_rx_errors(SR);
+        
+        if(usart->rx_status == USART_STATUS_TRANSFERING){
+            
+            usart_bus_dma_rx_done(usart);
+            
+            usart_bus_rx_done(usart);
+        }
+    }else{
+        usart->rx_errors = USART_ERROR_NONE;
+    }
     
     // Получен IDLE при приёме данных.
     if(SR & USART_SR_IDLE){
@@ -226,11 +263,13 @@ void usart_bus_irq_handler(usart_bus_t* usart)
             usart_bus_rx_done(usart);
         }
     }
+    
     // Получен байт.
     if(SR & USART_SR_RXNE){
         if(usart->rx_byte_callback) usart->rx_byte_callback(byte);
     }
     
+    // Завершена передача.
     if(SR & USART_SR_TC){
         usart->usart_device->SR &= ~USART_SR_TC;
         if(usart->tc_callback) usart->tc_callback();
@@ -429,14 +468,14 @@ usart_status_t usart_bus_tx_status(usart_bus_t* usart)
     return usart->tx_status;
 }
 
-usart_error_t usart_bus_rx_error(usart_bus_t* usart)
+usart_errors_t usart_bus_rx_errors(usart_bus_t* usart)
 {
-    return usart->rx_error;
+    return usart->rx_errors;
 }
 
-usart_error_t usart_bus_tx_error(usart_bus_t* usart)
+usart_errors_t usart_bus_tx_errors(usart_bus_t* usart)
 {
-    return usart->tx_error;
+    return usart->tx_errors;
 }
 
 size_t usart_bus_bytes_received(usart_bus_t* usart)
@@ -483,7 +522,7 @@ err_t usart_bus_send(usart_bus_t* usart, const void* data, size_t size)
     
     if(!usart_bus_dma_lock_tx_channel(usart)) return E_BUSY;
     
-    usart->tx_error = E_NO_ERROR;
+    usart->tx_errors = USART_ERROR_NONE;
     usart->tx_status = USART_STATUS_TRANSFERING;
     usart->tx_size = size;
     
@@ -506,7 +545,7 @@ err_t usart_bus_recv(usart_bus_t* usart, void* data, size_t size)
     
     USART_ITConfig(usart->usart_device, USART_IT_RXNE, DISABLE);
     
-    usart->rx_error = E_NO_ERROR;
+    usart->rx_errors = USART_ERROR_NONE;
     usart->rx_status = USART_STATUS_TRANSFERING;
     usart->rx_size = size;
     

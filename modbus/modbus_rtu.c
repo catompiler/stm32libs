@@ -800,11 +800,10 @@ static err_t modbus_rtu_disp_report_slave_id(modbus_rtu_t* modbus)
     
     uint8_t* tx_data = modbus_rtu_message_data(modbus->tx_message);
     
-    const size_t max_slave_id_size = MODBUS_RTU_DATA_SIZE_MAX - 2;
+    const size_t max_slave_id_size = MODBUS_RTU_DATA_SIZE_MAX - 3;
     
     modbus_rtu_slave_id_t slave_id;
-    slave_id.id = NULL;
-    slave_id.id_size = 0;
+    slave_id.id = 0;
     slave_id.data = NULL;
     slave_id.data_size = 0;
     slave_id.status = MODBUS_RTU_RUN_STATUS_OFF;
@@ -814,21 +813,18 @@ static err_t modbus_rtu_disp_report_slave_id(modbus_rtu_t* modbus)
     if(modbus_err != MODBUS_RTU_ERROR_NONE)
         return modbus_rtu_disp_fail(modbus, modbus_err);
     
-    if(slave_id.id_size + slave_id.data_size > max_slave_id_size)
+    if(slave_id.data_size > max_slave_id_size)
         return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
     
-    if(slave_id.id == NULL) slave_id.id_size = 0;
     if(slave_id.data == NULL) slave_id.data_size = 0;
     
     size_t offset = 0;
     
-    tx_data[0] = (uint8_t) (slave_id.id_size + slave_id.data_size + 1);
+    tx_data[0] = (uint8_t) (slave_id.data_size + 2);
     offset ++;
     
-    if(slave_id.id){
-        memcpy(&tx_data[offset], slave_id.id, slave_id.id_size);
-        offset += slave_id.id_size;
-    }
+    tx_data[offset] = slave_id.id;
+    offset ++;
     
     tx_data[offset] = (slave_id.status == MODBUS_RTU_RUN_STATUS_OFF) ? 0x0 : 0xff;
     offset ++;

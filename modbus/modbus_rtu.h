@@ -144,8 +144,7 @@ typedef enum _Modbus_Rtu_Run_Status {
 
 //! Тип структуры идентификации ведомого.
 typedef struct _Modbus_Rtu_Slave_Id {
-    const void* id; //!< Идентификатор ведомого.
-    size_t id_size; //!< Размер идентификатора ведомого.
+    uint8_t id; //!< Идентификатор ведомого.
     modbus_rtu_run_status_t status; //!< Статус ведомого
     const void* data; //!< Дополнительные данные.
     size_t data_size; //!< Размер дополнительных данных.

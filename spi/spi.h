@@ -51,12 +51,15 @@ typedef enum _spi_status {
 
 //! Тип ошибки spi.
 typedef enum _spi_error {
-    SPI_NO_ERROR = 0,//!< Нет ошибки.
-    SPI_ERROR_MASTER_MODE_FAULT,//!< Ошибка приоритета, появился новый мастер.
-    SPI_ERROR_OVERRUN,//!< Слишком медленная/быстрая пересылка данных.
-    SPI_ERROR_CRC,//!< Ошибка CRC.
-    SPI_ERROR_DMA//!< Ошибка DMA.
+    SPI_NO_ERROR                = 0,//!< Нет ошибки.
+    SPI_ERROR_MASTER_MODE_FAULT = 1,//!< Ошибка приоритета, появился новый мастер.
+    SPI_ERROR_OVERRUN           = 2,//!< Слишком медленная/быстрая пересылка данных.
+    SPI_ERROR_CRC               = 4,//!< Ошибка CRC.
+    SPI_ERROR_DMA               = 8//!< Ошибка DMA.
 } spi_error_t;
+
+//! Тип ошибок SPI.
+typedef uint8_t spi_errors_t;
 
 //! Направление передачи spi.
 typedef enum _spi_direction {
@@ -81,7 +84,7 @@ typedef struct _SPI_Bus {
     DMA_Channel_TypeDef* dma_rx_channel;//!< Канал DMA для приёма.
     DMA_Channel_TypeDef* dma_tx_channel;//!< Канал DMA для передачи.
     spi_status_t status;//!< Статус шины.
-    spi_error_t error;//!< Ошибка шины.
+    spi_errors_t errors;//!< Ошибка шины.
     spi_callback_t callback;//!< Функция обратного вызова.
     spi_transfer_id_t transfer_id;//!< Идентификатор передачи.
     spi_message_t* messages;//!< Массив сообщений.
@@ -136,33 +139,91 @@ EXTERN bool spi_bus_busy(spi_bus_t* spi);
 
 /**
  * Ждёт завершения текущей операции spi.
+ * @param spi Шина spi.
  */
 EXTERN void spi_bus_wait(spi_bus_t* spi);
 
 /**
  * Получает функцию обратного вызова.
+ * @param spi Шина spi.
  * @return Функция обратного вызова.
  */
 EXTERN spi_callback_t spi_bus_callback(spi_bus_t* spi);
 
 /**
  * Устанавливает функцию обратного вызова.
+ * @param spi Шина spi.
  * @param callback Функция обратного вызова.
  */
 EXTERN void spi_bus_set_callback(spi_bus_t* spi, spi_callback_t callback);
 
 /**
  * Получает идентификатор передачи.
+ * @param spi Шина spi.
  * @return Идентификатор передачи.
  */
 EXTERN spi_transfer_id_t spi_bus_transfer_id(spi_bus_t* spi);
 
 /**
  * Устанавливает идентификатор передачи.
+ * @param spi Шина spi.
  * @param id Идентификатор передачи.
  * @return true, если идентификатор передачи установлен, иначе false (шина занята).
  */
 EXTERN bool spi_bus_set_transfer_id(spi_bus_t* spi, spi_transfer_id_t id);
+
+/**
+ * Получает флаг включения вычисления
+ * контрольной суммы CRC и её приёма / передачи.
+ * @param spi Шина spi.
+ * @return Флаг включения вычисления CRC.
+ */
+EXTERN bool spi_bus_crc_enabled(spi_bus_t* spi);
+
+/**
+ * Устанавливает флаг включения вычисления
+ * контрольной суммы CRC и её приёма / передачи.
+ * @param spi Шина spi.
+ * @param enabled Флаг включения вычисления CRC.
+ * @return true в случае успеха, иначе false (шина занята).
+ */
+EXTERN bool spi_bus_set_crc_enabled(spi_bus_t* spi, bool enabled);
+
+/**
+ * Получает полином контрольной суммы CRC.
+ * @param spi Шина spi.
+ * @return Полином контрольной суммы CRC.
+ */
+EXTERN uint16_t spi_bus_crc_polynomial(spi_bus_t* spi);
+
+/**
+ * Устанавливает полином контрольной суммы CRC.
+ * @param spi Шина spi.
+ * @param polynomial Полином контрольной суммы CRC.
+ * @return true в случае успеха, иначе false (шина занята).
+ */
+EXTERN bool spi_bus_set_crc_polynomial(spi_bus_t* spi, uint16_t polynomial);
+
+/**
+ * Получает контрольную сумму переданных данных.
+ * @param spi Шина SPI.
+ * @return Контрольная сумма переданных данных.
+ */
+EXTERN uint16_t spi_bus_tx_crc(spi_bus_t* spi);
+
+/**
+ * Получает контрольную сумму полученных данных.
+ * @param spi Шина SPI.
+ * @return Контрольная сумма полученных данных.
+ */
+EXTERN uint16_t spi_bus_rx_crc(spi_bus_t* spi);
+
+/**
+ * Сбрасывает контрольные суммы.
+ * @param spi Шина SPI.
+ * @return true в случае успеха, иначе false (шина занята).
+ */
+EXTERN bool spi_bus_reset_crc(spi_bus_t* spi);
 
 /**
  * Получает состояние шины spi.
@@ -176,7 +237,7 @@ EXTERN spi_status_t spi_bus_status(spi_bus_t* spi);
  * @param spi Шина spi.
  * @return Ошибку шины spi.
  */
-EXTERN spi_error_t spi_bus_error(spi_bus_t* spi);
+EXTERN spi_errors_t spi_bus_errors(spi_bus_t* spi);
 
 /**
  * Инициализирует сообщение.

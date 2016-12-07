@@ -756,8 +756,9 @@ EXTERN void painter_flood_fill(painter_t* painter, graphics_pos_t x, graphics_po
  * @param x Абсцисса.
  * @param y Ордината.
  * @param c Символ.
+ * @return Число отрисованных символов.
  */
-EXTERN void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c);
+EXTERN size_t painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c);
 
 /**
  * Отрисовывает строку символов.
@@ -766,8 +767,9 @@ EXTERN void painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos
  * @param x Абсцисса.
  * @param y Ордината.
  * @param s Строка символов.
+ * @return Число отрисованных символов.
  */
-EXTERN void painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s);
+EXTERN size_t painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s);
 
 /**
  * Вычисляет размер отрисованной строки символов.

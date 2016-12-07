@@ -64,6 +64,26 @@ bool font_bitmap_get_char_coords(const font_t* font, const font_bitmap_t* font_b
     return true;
 }
 
+bool font_get_char_bitmap(const font_t* font, font_char_t c, const font_bitmap_t** font_bitmap, graphics_pos_t* x, graphics_pos_t* y)
+{
+    const font_bitmap_t* fbmp = font_bitmap_by_char(font, c);
+    
+    if(!fbmp){
+        c = font_default_char(font);
+        if(!(fbmp = font_bitmap_by_char(font, c))) return false;
+    }
+    
+    graphics_pos_t cx = 0, cy = 0;
+    
+    if(!font_bitmap_get_char_coords(font, fbmp, c, &cx, &cy)) return false;
+    
+    *font_bitmap = fbmp;
+    *x = cx;
+    *y = cy;
+    
+    return true;
+}
+
 size_t font_utf8_size(const char* c)
 {
     unsigned char first_c = *c;

@@ -48,6 +48,8 @@ typedef struct _Font {
     graphics_pos_t hspace;
     //! Расстояние между символами в тексте по вертикали.
     graphics_pos_t vspace;
+    //! Символ по-умолчанию для отсутствующих символов.
+    font_char_t default_char;
 } font_t;
 
 
@@ -101,7 +103,16 @@ static ALWAYS_INLINE const graphics_t* font_bitmap_graphics(const font_bitmap_t*
 /**
  * Заполняет структуру шрифта по месту объявления.
  */
-#define make_font(arg_bitmaps, arg_bitmaps_count, arg_char_width, arg_char_height, arg_hspace, arg_vspace) {.bitmaps = arg_bitmaps, .bitmaps_count = arg_bitmaps_count, .char_width = arg_char_width, .char_height = arg_char_height, .hspace = arg_hspace, .vspace = arg_vspace}
+#define make_font(arg_bitmaps, arg_bitmaps_count, arg_char_width, arg_char_height, arg_hspace, arg_vspace)\
+                 {.bitmaps = arg_bitmaps, .bitmaps_count = arg_bitmaps_count, .char_width = arg_char_width,\
+                  .char_height = arg_char_height, .hspace = arg_hspace, .vspace = arg_vspace, .default_char = 0}
+
+/**
+ * Заполняет структуру шрифта по месту объявления с указанием символа по-умолчанию.
+ */
+#define make_font_defchar(arg_bitmaps, arg_bitmaps_count, arg_char_width, arg_char_height, arg_hspace, arg_vspace, arg_def_char)\
+                         {.bitmaps = arg_bitmaps, .bitmaps_count = arg_bitmaps_count, .char_width = arg_char_width,\
+                          .char_height = arg_char_height, .hspace = arg_hspace, .vspace = arg_vspace, .default_char = arg_def_char}
 
 /**
  * Инициализирует шрифт.
@@ -137,6 +148,17 @@ EXTERN const font_bitmap_t* font_bitmap_by_char(const font_t* font, font_char_t 
  * @return true в случае успеха, иначе false.
  */
 EXTERN bool font_bitmap_get_char_coords(const font_t* font, const font_bitmap_t* font_bitmap, font_char_t c, graphics_pos_t* x, graphics_pos_t* y);
+
+/**
+ * Получает битовую карту и координаты символа.
+ * @param font Шрифт.
+ * @param c Символ.
+ * @param font_bitmap Битовая карта.
+ * @param x Координата X.
+ * @param y Координата Y.
+ * @return true в случае успеха, иначе false.
+ */
+EXTERN bool font_get_char_bitmap(const font_t* font, font_char_t c, const font_bitmap_t** font_bitmap, graphics_pos_t* x, graphics_pos_t* y);
 
 /**
  * Получает ширину символа шрифта.
@@ -196,6 +218,26 @@ static ALWAYS_INLINE void font_set_vspace(font_t* font, graphics_pos_t vspace)
 static ALWAYS_INLINE graphics_pos_t font_vspace(const font_t* font)
 {
     return font->vspace;
+}
+
+/**
+ * Устанавливает символ по-умолчанию для отсутствующих символов.
+ * @param font Шрифт.
+ * @param def_char Символ по-умолчанию для отсутствующих символов.
+ */
+static ALWAYS_INLINE void font_set_default_char(font_t* font, font_char_t def_char)
+{
+    font->default_char = def_char;
+}
+
+/**
+ * Получает символ по-умолчанию для отсутствующих символов.
+ * @param font Шрифт.
+ * @return Символ по-умолчанию для отсутствующих символов.
+ */
+static ALWAYS_INLINE font_char_t font_default_char(const font_t* font)
+{
+    return font->default_char;
 }
 
 /**

@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "utils/utils.h"
 
-// СЋС‚С„8!
 
 
 static const uint16_t sin_table[] = {
@@ -455,7 +454,6 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
         }
 #endif
         
-        // Р—Р°Р»РёРІРєР°.
         graphics_pos_t x_first = left;
         graphics_pos_t y_first = top;
 
@@ -1354,23 +1352,37 @@ void painter_flood_fill(painter_t* painter, graphics_pos_t x, graphics_pos_t y)
     }
 }
 
-size_t painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c)
+static bool painter_draw_char_impl(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c, rect_t* char_rect, point_t* char_offset)
 {
-    if(painter->font == NULL) return 0;
-    
-    if(x + (graphics_pos_t)font_char_width(painter->font) < 0 ||
-       x >= (graphics_pos_t)graphics_width(painter->graphics)) return 0;
-    if(y + (graphics_pos_t)font_char_height(painter->font) < 0 ||
-       y >= (graphics_pos_t)graphics_height(painter->graphics)) return 0;
+    if(painter->font == NULL) return false;
     
     const font_bitmap_t* font_bitmap = NULL;
-    graphics_pos_t cx = 0, cy = 0;
+    rect_t rect;
+    point_t offset;
     
-    if(!font_get_char_bitmap(painter->font, c, &font_bitmap, &cx, &cy)) return 0;
+    if(!font_get_char_bitmap_position(painter->font, c, &font_bitmap, &rect, &offset)) return false;
+    
+    x += point_x(&offset);
+    y += point_y(&offset);
+    
+    if(x >= (graphics_pos_t)graphics_width(painter->graphics)) return true;
+    if(y >= (graphics_pos_t)graphics_height(painter->graphics)) return true;
+    
+    if(x + (graphics_pos_t)rect_width(&rect) < 0) return true;
+    if(y + (graphics_pos_t)rect_height(&rect) < 0) return true;
 
-    painter_bitblt(painter, x, y, font_bitmap_graphics(font_bitmap), cx, cy, font_char_width(painter->font), font_char_height(painter->font));
+    painter_bitblt(painter, x, y, font_bitmap_graphics(font_bitmap),
+            rect_left(&rect), rect_top(&rect), rect_width(&rect), rect_height(&rect));
     
-    return 1;
+    if(char_rect) rect_copy(char_rect, &rect);
+    if(char_offset) point_copy(char_offset, &offset);
+    
+    return true;
+}
+
+size_t painter_draw_char(painter_t* painter, graphics_pos_t x, graphics_pos_t y, font_char_t c)
+{
+    return painter_draw_char_impl(painter, x, y, c, NULL, NULL) ? 1 : 0;
 }
 
 size_t painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s)
@@ -1385,6 +1397,8 @@ size_t painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t 
     font_char_t c = 0;
     size_t c_size = 0;
     size_t count = 0;
+    rect_t char_rect;
+    point_t char_offset;
 
     while(*s){
         switch(*s){
@@ -1394,25 +1408,31 @@ size_t painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t 
                 count ++;
                 break;
             case '\n':
-                x = orig_x;
-                y += font_char_height(painter->font) + font_vspace(painter->font);
+                if(font_get_char_position(painter->font, 0x20, &char_rect, &char_offset)){
+                    x = orig_x;
+                    y += rect_height(&char_rect) + point_y(&char_offset) + font_vspace(painter->font);
+                    count ++;
+                }
                 s ++;
-                count ++;
                 break;
             case '\t':
-                painter_draw_char(painter, x, y, 0x20);
-                x += font_char_width(painter->font) + font_hspace(painter->font);
+                if(painter_draw_char_impl(painter, x, y, 0x20, &char_rect, &char_offset)){
+                    x += rect_width(&char_rect) + point_x(&char_offset) + font_hspace(painter->font);
+                }else{
+                    s ++;
+                    break;
+                }
                 if(++ tabs_count == FONT_TAB_SIZE){
                     tabs_count = 0;
                     s ++;
-                    count += FONT_TAB_SIZE;
+                    count ++;
                 }
                 break;
             default:
                 c = font_utf8_decode(s, &c_size);
                 s += c_size;
-                if(painter_draw_char(painter, x, y, c)){
-                    x += font_char_width(painter->font) + font_hspace(painter->font);
+                if(painter_draw_char_impl(painter, x, y, c, &char_rect, &char_offset)){
+                    x += rect_width(&char_rect) + point_x(&char_offset) + font_hspace(painter->font);
                     count ++;
                 }
                 break;
@@ -1431,9 +1451,12 @@ void painter_string_size(painter_t* painter, const char* s, graphics_size_t* wid
     graphics_size_t cur_x = 0;
     graphics_size_t x = 0;
     graphics_size_t y = 0;
-
+    font_char_t c = 0;
     graphics_size_t orig_x = cur_x;
     size_t c_size = 0;
+    
+    rect_t char_rect;
+    point_t char_offset;
 
     while(*s){
         switch(*s){
@@ -1442,23 +1465,34 @@ void painter_string_size(painter_t* painter, const char* s, graphics_size_t* wid
                 s ++;
                 break;
             case '\n':
-                cur_x = orig_x;
-                y += font_char_height(painter->font) + font_vspace(painter->font);
+                if(font_get_char_position(painter->font, 0x20, &char_rect, &char_offset)){
+                    cur_x = orig_x;
+                    y += rect_height(&char_rect) + point_y(&char_offset) + font_vspace(painter->font);
+                }
                 s ++;
                 break;
             case '\t':
-                cur_x += (font_char_width(painter->font) + font_hspace(painter->font)) * FONT_TAB_SIZE;
+                if(font_get_char_position(painter->font, 0x20, &char_rect, &char_offset)){
+                    cur_x += (rect_width(&char_rect) + point_x(&char_offset) + font_hspace(painter->font)) * FONT_TAB_SIZE;
+                }
                 s ++;
                 break;
             default:
-                font_utf8_decode(s, &c_size);
-                cur_x += font_char_width(painter->font) + font_hspace(painter->font);
+                c = font_utf8_decode(s, &c_size);
                 s += c_size;
+                if(font_get_char_position(painter->font, c, &char_rect, &char_offset)){
+                    cur_x += rect_width(&char_rect) + point_x(&char_offset) + font_hspace(painter->font);
+                }
                 break;
         }
         if(cur_x > x) x = cur_x;
     }
-    if(cur_x != 0) y += font_char_height(painter->font);
+    
+    if(cur_x != 0){
+        if(font_get_char_position(painter->font, 0x20, &char_rect, &char_offset)){
+            y += rect_height(&char_rect) + point_y(&char_offset);
+        }
+    }
     
     if(width) *width = x;
     if(height) *height = y;

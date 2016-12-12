@@ -11,11 +11,27 @@
 #include "graphics.h"
 #include "defs/defs.h"
 #include "errors/errors.h"
+#include "rect.h"
+#include "point.h"
 
 // ютф8!
 
 //! Тип символа.
 typedef uint32_t font_char_t;
+
+/**
+ * Тип описания символа не моноширинного шрифта.
+ * Число дескрипторов обязано совпадать
+ * с числом символов в битовой карте.
+ */
+typedef struct _FontCharDescr {
+    uint16_t x; //!< Координата X символа в битовой карте.
+    uint16_t y; //!< Координата Y символа в битовой карте.
+    uint8_t width; //!< Ширина символа.
+    uint8_t height; //!< Высота символа.
+    uint8_t offset_x; //!< Смещение символа по X.
+    uint8_t offset_y; //!< Смещение символа по Y.
+} font_char_descr_t;
 
 /**
  * Структура битовой карты шрифта.
@@ -27,15 +43,17 @@ typedef struct _FontBitmap {
     font_char_t last_char;
     //! Битовая карта.
     const graphics_t graphics;
+    //! Таблица дескрипторов символов.
+    const font_char_descr_t* char_descrs;
 } font_bitmap_t;
 
 /**
  * Структура шрифта.
  */
 typedef struct _Font {
-    //! Ширина символа.
+    //! Ширина символа (моноширинный шрифт, табуляция).
     graphics_size_t char_width;
-    //! Высота символа.
+    //! Высота символа (моноширинный шрифт, перенос строки).
     graphics_size_t char_height;
     //! Число битовых карт.
     size_t bitmaps_count;
@@ -60,7 +78,18 @@ typedef struct _Font {
 /**
  * Заполняет структуру битовой маски шрифта по месту объявления.
  */
-#define make_font_bitmap(arg_first_char, arg_last_char, arg_data, arg_width, arg_height, arg_format) {.first_char = arg_first_char, .last_char = arg_last_char, .graphics = make_graphics(arg_data, arg_width, arg_height, arg_format)}
+#define make_font_bitmap(arg_first_char, arg_last_char, arg_data, arg_width, arg_height, arg_format)\
+                        {.first_char = arg_first_char, .last_char = arg_last_char,\
+                         .graphics = make_graphics(arg_data, arg_width, arg_height, arg_format),\
+                         .char_descrs = NULL}
+
+/**
+ * Заполняет структуру битовой маски шрифта с дескрипторами по месту объявления.
+ */
+#define make_font_bitmap_descrs(arg_first_char, arg_last_char, arg_data, arg_width, arg_height, arg_format, arg_descrs)\
+                               {.first_char = arg_first_char, .last_char = arg_last_char,\
+                                .graphics = make_graphics(arg_data, arg_width, arg_height, arg_format),\
+                                .char_descrs = arg_descrs}
 
 /**
  * Инициализирует битовую карту шрифта.
@@ -71,10 +100,12 @@ typedef struct _Font {
  * @param width Ширина битовой карты.
  * @param height Высота битовой карты.
  * @param format Формат битовой карты.
+ * @param char_descrs Дескрипторы символов.
  * @return Код ошибки.
  */
 EXTERN err_t font_bitmap_init(font_bitmap_t* font_bitmap, font_char_t first_char, font_char_t last_char,
-                              const uint8_t* data, graphics_size_t width, graphics_size_t height, graphics_format_t format);
+                                const uint8_t* data, graphics_size_t width, graphics_size_t height,
+                                graphics_format_t format, const font_char_descr_t* char_descrs);
 
 /**
  * Получает начальный символ битовой карты.
@@ -127,7 +158,8 @@ static ALWAYS_INLINE const graphics_t* font_bitmap_graphics(const font_bitmap_t*
  * @return Код ошибки.
  */
 EXTERN err_t font_init(font_t* font, const font_bitmap_t* bitmaps, size_t bitmaps_count,
-                       graphics_size_t char_width, graphics_size_t char_height, graphics_pos_t hspace, graphics_pos_t vspace);
+                        graphics_size_t char_width, graphics_size_t char_height,
+                        graphics_pos_t hspace, graphics_pos_t vspace);
 
 /**
  * Получает битовую карту, содержащую заданный символ.
@@ -139,26 +171,36 @@ EXTERN err_t font_init(font_t* font, const font_bitmap_t* bitmaps, size_t bitmap
 EXTERN const font_bitmap_t* font_bitmap_by_char(const font_t* font, font_char_t c);
 
 /**
- * Получает координаты символа в битовой карте.
+ * Получает положение символа в битовой карте.
  * @param font Шрифт.
  * @param font_bitmap Битовая карта шрифта.
  * @param c Символ.
- * @param x Координата X.
- * @param y Координата Y.
+ * @param rect Прямоугольная область символа.
+ * @param offset Смещение символа.
  * @return true в случае успеха, иначе false.
  */
-EXTERN bool font_bitmap_get_char_coords(const font_t* font, const font_bitmap_t* font_bitmap, font_char_t c, graphics_pos_t* x, graphics_pos_t* y);
+EXTERN bool font_bitmap_get_char_position(const font_t* font, const font_bitmap_t* font_bitmap, font_char_t c, rect_t* rect, point_t* offset);
 
 /**
- * Получает битовую карту и координаты символа.
+ * Получает положение символа.
+ * @param font Шрифт.
+ * @param c Символ.
+ * @param rect Прямоугольная область символа.
+ * @param offset Смещение символа.
+ * @return true в случае успеха, иначе false.
+ */
+EXTERN bool font_get_char_position(const font_t* font, font_char_t c, rect_t* rect, point_t* offset);
+
+/**
+ * Получает битовую карту и положение символа.
  * @param font Шрифт.
  * @param c Символ.
  * @param font_bitmap Битовая карта.
- * @param x Координата X.
- * @param y Координата Y.
+ * @param rect Прямоугольная область символа.
+ * @param offset Смещение символа.
  * @return true в случае успеха, иначе false.
  */
-EXTERN bool font_get_char_bitmap(const font_t* font, font_char_t c, const font_bitmap_t** font_bitmap, graphics_pos_t* x, graphics_pos_t* y);
+EXTERN bool font_get_char_bitmap_position(const font_t* font, font_char_t c, const font_bitmap_t** font_bitmap, rect_t* rect, point_t* offset);
 
 /**
  * Получает ширину символа шрифта.

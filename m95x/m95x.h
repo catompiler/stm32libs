@@ -178,7 +178,7 @@ err_t m95x_write_enable(m95x_t* eeprom);
  * @param eeprom EEPROM.
  * @return Код ошибки.
  */
-err_t m95x_write_enable(m95x_t* eeprom);
+err_t m95x_write_disable(m95x_t* eeprom);
 
 /**
  * Записывает память EEPROM.

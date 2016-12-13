@@ -144,6 +144,21 @@ EXTERN bool spi_bus_busy(spi_bus_t* spi);
 EXTERN void spi_bus_wait(spi_bus_t* spi);
 
 /**
+ * Получает флаг включения шины.
+ * @param spi Шина spi.
+ * @return Флаг включения шины.
+ */
+EXTERN bool spi_bus_enabled(spi_bus_t* spi);
+
+/**
+ * Устанавливает флаг включения шины.
+ * @param spi Шина spi.
+ * @param enabled Флаг включения шины.
+ * @return true в случае успеха, иначе false (шина занята).
+ */
+EXTERN bool spi_bus_set_enabled(spi_bus_t* spi, bool enabled);
+
+/**
  * Получает функцию обратного вызова.
  * @param spi Шина spi.
  * @return Функция обратного вызова.
@@ -183,6 +198,7 @@ EXTERN bool spi_bus_crc_enabled(spi_bus_t* spi);
 /**
  * Устанавливает флаг включения вычисления
  * контрольной суммы CRC и её приёма / передачи.
+ * Шина SPI должна быть отключена.
  * @param spi Шина spi.
  * @param enabled Флаг включения вычисления CRC.
  * @return true в случае успеха, иначе false (шина занята).
@@ -220,6 +236,7 @@ EXTERN uint16_t spi_bus_rx_crc(spi_bus_t* spi);
 
 /**
  * Сбрасывает контрольные суммы.
+ * Шина SPI должна быть отключена.
  * @param spi Шина SPI.
  * @return true в случае успеха, иначе false (шина занята).
  */

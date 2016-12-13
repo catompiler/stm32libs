@@ -376,6 +376,24 @@ void spi_bus_wait(spi_bus_t* spi)
     WAIT_WHILE_TRUE(spi_bus_busy(spi));
 }
 
+bool spi_bus_enabled(spi_bus_t* spi)
+{
+    return (spi->spi_device->CR1 & SPI_CR1_SPE) != 0;
+}
+
+bool spi_bus_set_enabled(spi_bus_t* spi, bool enabled)
+{
+    if(spi_bus_busy(spi)) return false;
+    
+    if(enabled){
+        spi->spi_device->CR1 |= SPI_CR1_SPE;
+    }else{
+        spi->spi_device->CR1 &= ~SPI_CR1_SPE;
+    }
+    
+    return true;
+}
+
 spi_callback_t spi_bus_callback(spi_bus_t* spi)
 {
     return spi->callback;
@@ -445,6 +463,7 @@ uint16_t spi_bus_rx_crc(spi_bus_t* spi)
 bool spi_bus_reset_crc(spi_bus_t* spi)
 {
     if(spi_bus_busy(spi)) return false;
+    if(!spi_bus_is_crc_enabled(spi)) return false;
     
     spi->spi_device->CR1 &= ~SPI_CR1_CRCEN;
     __NOP();

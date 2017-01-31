@@ -316,10 +316,12 @@ EXTERN err_t menu_init(menu_t* menu, menu_item_t* root);
  * @param items_count Число элементов меню.
  * @param descrs Дескрипторы.
  * @param descrs_count Число дескрипторов элементов меню.
+ * @param append_pred Предикат добавления элемента (может быть NULL).
  * @return Код ошибки.
  */
 EXTERN err_t menu_make_from_descrs(menu_t* menu, menu_item_t* items, size_t items_count,
-                                           const menu_descr_t* descrs, size_t descrs_count);
+                                           const menu_descr_t* descrs, size_t descrs_count,
+                                           bool (*append_pred)(const menu_descr_t* descr));
 
 /**
  * Получает корневой элемент меню.

@@ -14,7 +14,8 @@ err_t menu_init(menu_t* menu, menu_item_t* root)
 }
 
 err_t menu_make_from_descrs(menu_t* menu, menu_item_t* items, size_t items_count,
-                                    const menu_descr_t* descrs, size_t descrs_count)
+                                    const menu_descr_t* descrs, size_t descrs_count,
+                                    bool (*append_pred)(const menu_descr_t* descr))
 {
     if(descrs == NULL) return E_NULL_POINTER;
     if(items == NULL) return E_NULL_POINTER;
@@ -27,18 +28,21 @@ err_t menu_make_from_descrs(menu_t* menu, menu_item_t* items, size_t items_count
     menu_item_t* item = NULL;
     const menu_descr_t* descr = NULL;
     
-    size_t index = 0;
+    size_t item_index = 0;
+    size_t descr_index = 0;
     
     // Цикл по все дескрипторам.
-    for(; index < descrs_count; index ++){
-        // Текущий элемент меню.
-        item = &items[index];
+    for(; descr_index < descrs_count; descr_index ++){
         // Текущий дескриптор.
-        descr = &descrs[index];
+        descr = &descrs[descr_index];
+        // Если не нужно добавлять элемент - продолжить.
+        if(append_pred && !append_pred(descr)) continue;
+        // Текущий элемент меню.
+        item = &items[item_index ++];
         // Инициализирует элемент меню.
         RETURN_ERR_IF_FAIL(menu_item_init_from_descr(item, descr));
         // Если не начальный элемент (меню не пустое).
-        if(index != 0){
+        if(descr_index != 0){
             // Если текущая глубина не меняется (элементы одного уровня).
             if(cur_depth == descr->depth){
                 // Соединим предыдущий элемент со следующим.

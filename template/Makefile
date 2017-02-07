@@ -5,8 +5,7 @@ TARGET    = main
 OBJECTS   = main.o
 
 # Собственные библиотеки в исходниках.
-SRC_LIBS += 
-
+SRC_LIBS  =
 
 # Стандартные драйвера периферии.
 # STD_PERIPH_DRIVERS += misc
@@ -34,13 +33,16 @@ SRC_LIBS +=
 # STD_PERIPH_DRIVERS += stm32f10x_wwdg
 
 # Библиотеки.
-LIBS     += c
+LIBS      = c
 
 # Оптимизация, вторая часть флага компилятора -O.
 OPTIMIZE  = s
 
 # Флаги отладки.
-DEBUG     = 
+DEBUG     =
+
+# Макросы.
+DEFINES   =
 
 # МК.
 # Имя МК.
@@ -59,8 +61,7 @@ MCU_RAM_SIZE     = 0x5000
 # Семейство МК в верхнем регистре.
 MCU_FAMILY_UPPER = $(shell echo $(MCU_FAMILY) | tr '[:lower:]' '[:upper:]')
 
-# Макросы.
-DEFINES	  += 
+# Макросы МК.
 # Макрос семейства МК.
 DEFINES   += STM32F10X_$(MCU_FAMILY_UPPER)
 # Использование стандартной библиотеки периферии.
@@ -68,11 +69,14 @@ DEFINES   += USE_STDPERIPH_DRIVER
 # Использование набора инстркций Thumb-2
 DEFINES   += __thumb2__=1
 
-# Программа st-flash.
-STFLASH    = "/usr/bin/st-flash"
-STFLASH_WIN = "C:\Program Files\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe"
-# Устройство stlink.
-STLINK_DEV = /dev/stlinkv2_4
+# st-flash.
+STFLASH      = "st-flash"
+# OpenOCD
+OPENOCD      = openocd
+# Аргументы OpenOCD
+OPENOCD_ARGS = -f "interface/stlink-v2.cfg" -f "target/stm32f1x.cfg"
+# Команда OpenOCD
+OPENOCD_CMD  = $(OPENOCD) $(OPENOCD_ARGS)
 
 # Путь к стандартной библиотеке периферии.
 SPL_PATH        = ../stm32/StdPeriphLib/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
@@ -96,12 +100,12 @@ STD_PERIPH_SRC  = $(STD_PERIPH_PATH)/src
 STD_PERIPH_INC  = $(STD_PERIPH_PATH)/inc
 
 # Путь к собственным библиотекам в исходниках.
-SRC_LIBS_PATH     += ../lib
+SRC_LIBS_PATH    += ../lib
 # Пути ко всем собственным библиотекам в исходниках.
-SRC_LIBS_ALL_PATH += $(wildcard $(addsuffix /*, $(SRC_LIBS_PATH)))
+SRC_LIBS_ALL_PATH = $(wildcard $(addsuffix /*, $(SRC_LIBS_PATH)))
 
 # Пути библиотек.
-LIBS_PATH += /opt/cross/arm-none-eabi/arm-none-eabi/lib/armv7-m
+LIBS_PATH +=
 
 # Скрипты линкера.
 # Путь к скриптам линкера.
@@ -231,8 +235,6 @@ bin: $(TARGET)
 
 asm: $(ASM)
 
-#$(TARGET_BIN): all
-
 $(TARGET): $(OBJECTS)
 	$(LD) -o $@ $(LDFLAGS) $^
 
@@ -255,12 +257,11 @@ clean_all: clean
 	$(RM) $(TARGET_HEX)
 	$(RM) $(TARGET_MAP)
 
-burn: $(TARGET_BIN)
+burn_stflash: $(TARGET_BIN)
 	$(STFLASH) erase
 	$(STFLASH) write $(TARGET_BIN) $(MCU_FLASH_ORIGIN)
 
-burn_win: $(TARGET_BIN)
-	$(STFLASH_WIN) -Q -ME
-	$(STFLASH_WIN) -Q -P $(TARGET_BIN) $(MCU_FLASH_ORIGIN)
-	$(STFLASH_WIN) -Q -Rst
+burn_openocd: $(TARGET_BIN)
+	$(OPENOCD_CMD) -c "init" -c "reset halt" -c "flash write_image erase $(TARGET_BIN) $(MCU_FLASH_ORIGIN) bin" -c "reset run" -c "exit"
 
+burn: burn_openocd

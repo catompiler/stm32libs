@@ -1,0 +1,35 @@
+# Файл инициализации GDB.
+
+# Тайм-аут 10 сек.
+set remotetimeout 10
+
+# Лимиты.
+set remote hardware-watchpoint-limit 4
+set remote hardware-breakpoint-limit 6
+
+# Цель.
+target extended-remote | openocd -f "interface/stlink-v2.cfg" -f "target/stm32f1x.cfg" -c "gdb_port pipe"
+#; log_output openocd.log
+
+# Сброс.
+monitor reset halt
+
+# Файл отладки
+file main
+
+## Раскомментировать, если необходимо
+## каждый раз загружать прошивку.
+## Загрузка прошивки.
+#load
+#
+## Сброс.
+#monitor reset halt
+
+# Удалить точки останова.
+delete
+
+# Точка останова на main
+break main
+
+# Запуск
+continue

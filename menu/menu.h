@@ -62,6 +62,8 @@ typedef struct _MenuValue {
 
 //! Тип идентификатора меню.
 typedef uint16_t menu_id_t;
+//! Тип иденетификатора иконки.
+typedef uint16_t menu_icon_id_t;
 //! Тип флагов меню.
 typedef uint32_t menu_flags_t;
 //! Тип пользовательских данных меню.
@@ -86,6 +88,10 @@ typedef struct _MenuItem {
     struct _MenuItem* next; //!< Следующий элемент.
     
     const char* text; //!< Текст.
+    const char* help; //!< Справка.
+    
+    menu_icon_id_t icon_id; //!< Идентификатор иконки.
+    
     menu_value_t* value; //!< Значение.
     
     menu_flags_t flags; //!< Флаги.
@@ -102,6 +108,8 @@ typedef struct _MenuDescr {
     menu_depth_t depth; //!< Глубина элемента меню.
     menu_id_t id; //!< Идентификатор элемента меню.
     const char* text; //!< Текст элемента меню.
+    const char* help; //!< Справка элемента меню.
+    menu_icon_id_t icon_id; //!< Идентификатор иконки элемента меню.
     menu_flags_t flags; //!< Флаги элемента меню.
     menu_user_data_t user_data; //!< Пользовательские данные элемента меню.
     menu_value_t* value; //!< Значение элемента меню.
@@ -223,43 +231,49 @@ typedef struct _MenuDescr {
 
 //! Инициализирует элемент меню.
 #define MAKE_MENU_ITEM(arg_id, arg_parent, arg_child, arg_prev, arg_next,\
-                       arg_text, arg_value, arg_flags, arg_user_data)\
+                       arg_text, arg_help, arg_icon_id, arg_value, arg_flags, arg_user_data)\
                       { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = (menu_item_t*)arg_child,\
                         .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                        .value = (menu_value_t*)arg_value, .flags = arg_flags .user_data = arg_user_data }
+                        .help = arg_help, .icon_id = arg_icon_id, .value = (menu_value_t*)arg_value,\
+                        .flags = arg_flags .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент меню.
 #define MENU_ITEM(name, arg_id, arg_parent, arg_child, arg_prev, arg_next,\
-                  arg_text, arg_value, arg_flags, arg_user_data)\
+                  arg_text, arg_help, arg_icon_id, arg_value, arg_flags, arg_user_data)\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = (menu_item_t*)arg_child,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                                    .value = (menu_value_t*)arg_value, .flags = arg_flags, .user_data = arg_user_data }
+                                    .help = arg_help, .icon_id = arg_icon_id, .value = (menu_value_t*)arg_value,\
+                                    .flags = arg_flags, .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент подменю.
-#define SUBMENU(name, arg_id, arg_parent, arg_child, arg_prev, arg_next, arg_text, arg_flags, arg_user_data)\
+#define SUBMENU(name, arg_id, arg_parent, arg_child, arg_prev, arg_next, arg_text, arg_help, arg_icon_id, arg_flags, arg_user_data)\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = (menu_item_t*)arg_child,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                                    .value = NULL, .flags = arg_flags, .user_data = arg_user_data }
+                                    .help = arg_help, .icon_id = arg_icon_id, .value = NULL,\
+                                    .flags = arg_flags, .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент подменю со значением.
 #define SUBITEM(name, arg_id, arg_parent, arg_child, arg_prev, arg_next,\
-                arg_text, arg_flags, arg_user_data, arg_value)\
+                arg_text, arg_help, arg_icon_id, arg_flags, arg_user_data, arg_value)\
         DECLARE_MENU_VALUE(CONCAT(name, MENU_VALUE_NAME_POSTFIX)) = arg_value;\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = (menu_item_t*)arg_child,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
+                                    .help = arg_help, .icon_id = arg_icon_id,\
                                     .value = (menu_value_t*)&CONCAT(name, MENU_VALUE_NAME_POSTFIX), .flags = arg_flags,\
                                     .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент меню со значением.
 #define MENUITEM(name, arg_id, arg_parent, arg_prev, arg_next,\
-                 arg_text, arg_flags, arg_user_data, arg_value)\
+                 arg_text, arg_help, arg_icon_id, arg_flags, arg_user_data, arg_value)\
         DECLARE_MENU_VALUE(CONCAT(name, MENU_VALUE_NAME_POSTFIX)) = arg_value;\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = NULL,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
+                                    .help = arg_help, .icon_id = arg_icon_id,\
                                     .value = (menu_value_t*)&CONCAT(name, MENU_VALUE_NAME_POSTFIX), .flags = arg_flags,\
                                     .user_data = arg_user_data }
 //! Объявляет переменную и инициализирует элемент меню без значения.
 #define MENUACTION(name, arg_id, arg_parent, arg_prev, arg_next,\
-                   arg_text, arg_flags, arg_user_data)\
+                   arg_text, arg_help, arg_icon_id, arg_flags, arg_user_data)\
         DECLARE_MENU_ITEM(name) = { .id = arg_id, .parent = (menu_item_t*)arg_parent, .child = NULL,\
                                     .prev = (menu_item_t*)arg_prev, .next = (menu_item_t*)arg_next, .text = arg_text,\
-                                    .value = NULL, .flags = arg_flags, .user_data = arg_user_data }
+                                    .help = arg_help, .icon_id = arg_icon_id, .value = NULL,\
+                                    .flags = arg_flags, .user_data = arg_user_data }
 
 #endif //MENU_MACRO
 
@@ -281,8 +295,8 @@ typedef struct _MenuDescr {
 #endif
 
 //! Инициализирует дескриптор элемента меню по месту объявления.
-#define MENU_DESCR(arg_depth, arg_id, arg_text, arg_flags, arg_user_data, arg_value)\
-        { arg_depth, arg_id, arg_text, arg_flags, arg_user_data, (menu_value_t*)arg_value }
+#define MENU_DESCR(arg_depth, arg_id, arg_text, arg_help, arg_icon_id, arg_flags, arg_user_data, arg_value)\
+        { arg_depth, arg_id, arg_text, arg_help, arg_icon_id, arg_flags, arg_user_data, (menu_value_t*)arg_value }
 
 //! Объявляет массив дескрипторов элементов меню.
 #define MENU_DESCRS(arg_name)\
@@ -484,6 +498,46 @@ ALWAYS_INLINE static const char* menu_item_text(menu_item_t* item)
 ALWAYS_INLINE static void menu_item_set_text(menu_item_t* item, const char* text)
 {
     item->text = text;
+}
+
+/**
+ * Получает справку элемента меню.
+ * @param item Элемент меню.
+ * @return Справка элемента меню.
+ */
+ALWAYS_INLINE static const char* menu_item_help(menu_item_t* item)
+{
+    return item->help;
+}
+
+/**
+ * Устанавливает справку элемента меню.
+ * @param item Элемент меню.
+ * @param help Справка элемента меню.
+ */
+ALWAYS_INLINE static void menu_item_set_help(menu_item_t* item, const char* help)
+{
+    item->help = help;
+}
+
+/**
+ * Получает идентификатор иконки элемента меню.
+ * @param item Элемент меню.
+ * @return Идентификатор иконки элемента меню.
+ */
+ALWAYS_INLINE static menu_icon_id_t menu_item_icon_id(menu_item_t* item)
+{
+    return item->icon_id;
+}
+
+/**
+ * Устанавливает идентификатор иконки элемента меню.
+ * @param item Элемент меню.
+ * @param icon_id Идентификатор иконки элемента меню.
+ */
+ALWAYS_INLINE static void menu_item_set_icon_id(menu_item_t* item, menu_icon_id_t icon_id)
+{
+    item->icon_id = icon_id;
 }
 
 /**
@@ -889,16 +943,16 @@ MENU_VALUES(menu_values_en_dis, MAKE_MENU_VALUE_STRING("Enabled"), MAKE_MENU_VAL
 
 // Создание самого меню.
 
-//        Имя  ID  Предок  Предыдущий Следующий Текст      Флаги Польз.данные Значения
-MENUITEM(item1, 0, NULL,   NULL,      &item2,   "Menu0_0", 0,    0,           MAKE_MENU_VALUE_STRING("Text"));
-MENUITEM(item2, 0, NULL,   &item1,    &item3,   "Menu0_1", 0,    0,           MAKE_MENU_VALUE_INT(123));
+//        Имя  ID  Предок  Предыдущий Следующий Текст      Справка Иконка Флаги Польз.данные Значения
+MENUITEM(item1, 0, NULL,   NULL,      &item2,   "Menu0_0", "Item", 0,     0,    0,           MAKE_MENU_VALUE_STRING("Text"));
+MENUITEM(item2, 0, NULL,   &item1,    &item3,   "Menu0_1", "Item", 0,     0,    0,           MAKE_MENU_VALUE_INT(123));
 
-//         Имя  ID  Предок  Потомок Предыдущий Следующий    Текст      Флаги Польз.данные
-SUBMENU (item3, 0,  NULL,   &item4, &item2,    NULL,        "Menu0_2", 0,    0);
+//         Имя  ID  Предок  Потомок Предыдущий Следующий    Текст      Справка Иконка Флаги Польз.данные
+SUBMENU (item3, 0,  NULL,   &item4, &item2,    NULL,        "Menu0_2", "Menu", 0,     0,    0);
 
-//         Имя  ID Предок  Предыдущий Следующий Текст      Флаги Польз.данные Значения
-MENUITEM(item4, 0, &item3, NULL,      &item5,   "Menu1_0", 0,    0,           MAKE_MENU_VALUE_BOOL(true));
-MENUITEM(item5, 0, &item3, &item4,    NULL,     "Menu1_1", 0,    0,           MAKE_MENU_VALUE_ENUM(0, 2, menu_values_en_dis));
+//         Имя  ID Предок  Предыдущий Следующий Текст      Справка Иконка Флаги Польз.данные Значения
+MENUITEM(item4, 0, &item3, NULL,      &item5,   "Menu1_0", "Item", 0,     0,    0,           MAKE_MENU_VALUE_BOOL(true));
+MENUITEM(item5, 0, &item3, &item4,    NULL,     "Menu1_1", "Item", 0,     0,    0,           MAKE_MENU_VALUE_ENUM(0, 2, menu_values_en_dis));
 
 */
 
@@ -913,12 +967,12 @@ menu_t test_menu;
 
 // Объявление массива дескрипторов.
 MENU_DESCRS(test_menu_descrs) {
-    //         Уровень ID Текст      Флаги Польз.данные Значения
-    MENU_DESCR(0,      0, "Menu0_0", 0,    0,           0),
-    MENU_DESCR(0,      0, "Menu0_1", 0,    0,           0),
-    MENU_DESCR(0,      0, "Menu0_2", 0,    0,           0),
-        MENU_DESCR(1,  0, "Menu1_0", 0,    0,           0),
-        MENU_DESCR(1,  0, "Menu1_1", 0,    0,           0)
+    //         Уровень ID Текст      Справка Иконка Флаги Польз.данные Значения
+    MENU_DESCR(0,      0, "Menu0_0", "Item", 0,     0,    0,           0),
+    MENU_DESCR(0,      0, "Menu0_1", "Item", 0,     0,    0,           0),
+    MENU_DESCR(0,      0, "Menu0_2", "Menu", 0,     0,    0,           0),
+        MENU_DESCR(1,  0, "Menu1_0", "Item", 0,     0,    0,           0),
+        MENU_DESCR(1,  0, "Menu1_1", "Item", 0,     0,    0,           0)
 };
 
 // Объявление массива элементов меню.

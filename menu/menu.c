@@ -177,6 +177,8 @@ err_t menu_item_init_from_descr(menu_item_t* item, const menu_descr_t* descr)
     item->prev = NULL;
     item->next = NULL;
     item->text = descr->text;
+    item->help = descr->help;
+    item->icon_id = descr->icon_id;
     item->value = descr->value;
     item->flags = descr->flags;
     item->user_data = descr->user_data;

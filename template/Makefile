@@ -5,7 +5,10 @@ TARGET    = main
 OBJECTS   = main.o
 
 # Собственные библиотеки в исходниках.
-SRC_LIBS  =
+SRC_LIBS  = 
+
+# Макросы.
+DEFINES  += 
 
 # Стандартные драйвера периферии.
 # STD_PERIPH_DRIVERS += misc
@@ -39,10 +42,7 @@ LIBS      = c
 OPTIMIZE  = s
 
 # Флаги отладки.
-DEBUG     =
-
-# Макросы.
-DEFINES   =
+DEBUG    += 
 
 # МК.
 # Имя МК.
@@ -69,8 +69,11 @@ DEFINES   += USE_STDPERIPH_DRIVER
 # Использование набора инстркций Thumb-2
 DEFINES   += __thumb2__=1
 
-# st-flash.
-STFLASH      = "st-flash"
+# Программа st-flash.
+STFLASH    = "/usr/bin/st-flash"
+STFLASH_WIN = "C:\Program Files\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LINK_CLI.exe"
+# Устройство stlink.
+STLINK_DEV = /dev/stlinkv2_4
 # OpenOCD
 OPENOCD      = openocd
 # Аргументы OpenOCD
@@ -78,20 +81,11 @@ OPENOCD_ARGS = -f "interface/stlink-v2.cfg" -f "target/stm32f1x.cfg"
 # Команда OpenOCD
 OPENOCD_CMD  = $(OPENOCD) $(OPENOCD_ARGS)
 
+# Путь к библиотекам от производителя (SPL, CMSIS).
+STM32_LIBS      = ../stm32
+
 # Путь к стандартной библиотеке периферии.
-SPL_PATH        = ../stm32/StdPeriphLib/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
-
-# Путь к CMSIS
-CMSIS_PATH      = $(SPL_PATH)/CMSIS
-# Путь к библиотеке ядра.
-CMSIS_CORE_SUPPORT_PATH   = $(CMSIS_PATH)/CM3/CoreSupport
-# Путь к библиотеке устройства.
-CMSIS_DEVICE_SUPPORT_PATH = $(CMSIS_PATH)/CM3/DeviceSupport/ST/STM32F10x
-# Путь к стартовым файлам.
-CMSIS_STARTUP_PATH = $(CMSIS_DEVICE_SUPPORT_PATH)/startup/gcc_ride7
-# Стартовый файл CMSIS.
-CMSIS_STARTUP = startup_stm32f10x_$(MCU_FAMILY).s
-
+SPL_PATH        = $(STM32_LIBS)/StdPeriphLib/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
 # Путь к стандартной библиотеке драйверов периферии.
 STD_PERIPH_PATH = $(SPL_PATH)/STM32F10x_StdPeriph_Driver
 # Путь к исходникам драйверов периферии.
@@ -99,13 +93,42 @@ STD_PERIPH_SRC  = $(STD_PERIPH_PATH)/src
 # Путь к заголовочным файлам драйверов периферии.
 STD_PERIPH_INC  = $(STD_PERIPH_PATH)/inc
 
+# Путь к CMSIS
+CMSIS_PATH                = $(STM32_LIBS)/CMSIS
+# Путь к библиотеке ядра.
+CMSIS_CORE_SUPPORT_PATH   = $(CMSIS_PATH)/CMSIS
+# Заголовки библиотеки ядра.
+CMSIS_CORE_SUPPORT_INC    = $(CMSIS_CORE_SUPPORT_PATH)/Include
+# Исходники библиотеки ядра.
+CMSIS_CORE_SUPPORT_SRC    = 
+# Путь к библиотекам ядра.
+CMSIS_CORE_SUPPORT_LIBS_PATH = $(CMSIS_CORE_SUPPORT_PATH)/Lib/GCC
+# Библиотека математики.
+CMSIS_MATH_LIB            = arm_cortexM3l_math
+# Библиотеки ядра.
+CMSIS_CORE_SUPPORT_LIBS  += $(CMSIS_MATH_LIB)
+
+# Путь к библиотеке CMSIS в составе SPL.
+SPL_CMSIS_PATH            = $(SPL_PATH)/CMSIS/CM3
+# Путь к библиотеке устройства.
+CMSIS_DEVICE_SUPPORT_PATH = $(SPL_CMSIS_PATH)/DeviceSupport/ST/STM32F10x
+# Путь к заголовкам библиотеки устройства.
+CMSIS_DEVICE_SUPPORT_INC  = $(CMSIS_DEVICE_SUPPORT_PATH)
+# Путь к исходникам библиотеки устройства.
+CMSIS_DEVICE_SUPPORT_SRC  = $(CMSIS_DEVICE_SUPPORT_PATH)
+# Путь к стартовым файлам.
+CMSIS_STARTUP_PATH        = $(CMSIS_DEVICE_SUPPORT_PATH)/startup/gcc_ride7
+# Стартовый файл CMSIS.
+CMSIS_STARTUP             = startup_stm32f10x_$(MCU_FAMILY).s
+
 # Путь к собственным библиотекам в исходниках.
-SRC_LIBS_PATH    += ../lib
+SRC_LIBS_PATH     += ../lib
 # Пути ко всем собственным библиотекам в исходниках.
-SRC_LIBS_ALL_PATH = $(wildcard $(addsuffix /*, $(SRC_LIBS_PATH)))
+SRC_LIBS_ALL_PATH += $(wildcard $(addsuffix /*, $(SRC_LIBS_PATH)))
 
 # Пути библиотек.
-LIBS_PATH +=
+# Путь к библиотекам ядра.
+LIBS_PATH += $(CMSIS_CORE_SUPPORT_LIBS_PATH)
 
 # Скрипты линкера.
 # Путь к скриптам линкера.
@@ -123,24 +146,28 @@ MCUFLAGS  += -mthumb
 
 # Пути заголовочных файлов.
 INCS     += .
-INCS     += $(CMSIS_CORE_SUPPORT_PATH)
-INCS     += $(CMSIS_DEVICE_SUPPORT_PATH)
+INCS     += $(CMSIS_CORE_SUPPORT_INC)
+INCS     += $(CMSIS_DEVICE_SUPPORT_INC)
 INCS     += $(STD_PERIPH_INC)
 INCS     += $(SRC_LIBS_PATH)
 
+# Библиотеки.
+# Библиотеки CMSIS.
+LIBS     += $(CMSIS_CORE_SUPPORT_LIBS)
+
 # Пути с исходниками.
 VPATH   += .
-VPATH   += $(CMSIS_CORE_SUPPORT_PATH)
-VPATH   += $(CMSIS_DEVICE_SUPPORT_PATH)
+VPATH   += $(CMSIS_CORE_SUPPORT_SRC)
+VPATH   += $(CMSIS_DEVICE_SUPPORT_SRC)
 VPATH   += $(STD_PERIPH_SRC)
 VPATH   += $(CMSIS_STARTUP_PATH)
 VPATH   += $(SRC_LIBS_ALL_PATH)
 
 # Объектные файлы.
 # CMSIS поддержка ядра.
-OBJECTS += $(notdir $(patsubst %.c, %.o, $(wildcard $(addsuffix /*.c, $(CMSIS_CORE_SUPPORT_PATH)))))
+OBJECTS += $(notdir $(patsubst %.c, %.o, $(wildcard $(addsuffix /*.c, $(CMSIS_CORE_SUPPORT_SRC)))))
 # CMSIS поддержка устройства.
-OBJECTS += $(notdir $(patsubst %.c, %.o, $(wildcard $(addsuffix /*.c, $(CMSIS_DEVICE_SUPPORT_PATH)))))
+OBJECTS += $(notdir $(patsubst %.c, %.o, $(wildcard $(addsuffix /*.c, $(CMSIS_DEVICE_SUPPORT_SRC)))))
 # Драйвера периферии.
 OBJECTS += $(addsuffix .o, $(STD_PERIPH_DRIVERS))
 # Стартовые файлы.
@@ -235,6 +262,8 @@ bin: $(TARGET)
 
 asm: $(ASM)
 
+#$(TARGET_BIN): all
+
 $(TARGET): $(OBJECTS)
 	$(LD) -o $@ $(LDFLAGS) $^
 
@@ -261,7 +290,13 @@ burn_stflash: $(TARGET_BIN)
 	$(STFLASH) erase
 	$(STFLASH) write $(TARGET_BIN) $(MCU_FLASH_ORIGIN)
 
+burn_win: $(TARGET_BIN)
+	$(STFLASH_WIN) -Q -ME
+	$(STFLASH_WIN) -Q -P $(TARGET_BIN) $(MCU_FLASH_ORIGIN)
+	$(STFLASH_WIN) -Q -Rst
+
 burn_openocd: $(TARGET_BIN)
 	$(OPENOCD_CMD) -c "init" -c "reset halt" -c "flash write_image erase $(TARGET_BIN) $(MCU_FLASH_ORIGIN) bin" -c "reset run" -c "exit"
 
 burn: burn_openocd
+

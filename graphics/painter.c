@@ -466,12 +466,6 @@ void painter_draw_rect(painter_t* painter, graphics_pos_t left, graphics_pos_t t
 void painter_draw_fillrect(painter_t* painter, graphics_pos_t left, graphics_pos_t top, graphics_pos_t right, graphics_pos_t bottom)
 {
     if(painter->brush == PAINTER_BRUSH_NONE) return;
-
-#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
-    if(painter_fast_fillrect_impl(painter, left, top, right, bottom)){
-        return;
-    }
-#endif
     
     if(left > right){
         graphics_pos_t tmp;
@@ -485,6 +479,12 @@ void painter_draw_fillrect(painter_t* painter, graphics_pos_t left, graphics_pos
 
     if(left >= (graphics_pos_t)graphics_width(painter->graphics) || right < 0) return;
     if(top >= (graphics_pos_t)graphics_height(painter->graphics) || bottom < 0) return;
+
+#ifdef USE_GRAPHICS_VIRTUAL_BUFFER
+    if(painter_fast_fillrect_impl(painter, left, top, right, bottom)){
+        return;
+    }
+#endif
 
     graphics_pos_t x_first = left;
     graphics_pos_t y_first = top;

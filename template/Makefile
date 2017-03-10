@@ -215,10 +215,10 @@ LDFLAGS   += -nostartfiles
 LDFLAGS   += -Wl,-Map=$(TARGET_MAP),--cref
 # Пути поиска библиотек.
 LDFLAGS   += $(addprefix -L, $(LIBS_PATH))
-# Библиотеки.
-LDFLAGS   += $(addprefix -l, $(LIBS))
 # Скрипт линкера.
 LDFLAGS   += -T$(LDSCRIPT)
+# Библиотеки.
+LDLIBS   += $(addprefix -l, $(LIBS))
 
 # Флаги ассемблера.
 # Флаги МК.
@@ -265,7 +265,7 @@ asm: $(ASM)
 #$(TARGET_BIN): all
 
 $(TARGET): $(OBJECTS)
-	$(LD) -o $@ $(LDFLAGS) $^
+	$(LD) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
 %.o: %.c
 	$(CC) -c -o $@ $(CFLAGS) $<

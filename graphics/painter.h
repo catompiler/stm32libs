@@ -780,4 +780,19 @@ EXTERN size_t painter_draw_string(painter_t* painter, graphics_pos_t x, graphics
  */
 EXTERN void painter_string_size(painter_t* painter, const char* s, graphics_size_t* width, graphics_size_t* height);
 
+/**
+ * Отрисовывает строку символов,
+ * осуществляя перенос при достижении
+ * заданной ширины.
+ * @param painter Рисовальщик.
+ * @param font Шрифт.
+ * @param x Абсцисса.
+ * @param y Ордината.
+ * @param s Строка символов.
+ * @param width Ширина области для отрисовки строки символов.
+ * @param height Высота области для отрисовки строки символов.
+ * @return Число отрисованных символов.
+ */
+EXTERN size_t painter_draw_string_wrap(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s, graphics_size_t width);
+
 #endif  //_PAINTER_H_

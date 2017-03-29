@@ -1437,7 +1437,7 @@ size_t painter_draw_string(painter_t* painter, graphics_pos_t x, graphics_pos_t 
                 }
                 break;
         }
-        if(y >= (graphics_pos_t)graphics_width(painter->graphics)) break;
+        if(y >= (graphics_pos_t)graphics_height(painter->graphics)) break;
     }
     
     return count;
@@ -1496,4 +1496,85 @@ void painter_string_size(painter_t* painter, const char* s, graphics_size_t* wid
     
     if(width) *width = x;
     if(height) *height = y;
+}
+
+size_t painter_draw_string_wrap(painter_t* painter, graphics_pos_t x, graphics_pos_t y, const char* s, graphics_size_t width)
+{
+    if(painter->font == NULL || s == NULL) return 0;
+    
+    if(x >= (graphics_pos_t)graphics_width(painter->graphics) ||
+       y >= (graphics_pos_t)graphics_height(painter->graphics)) return 0;
+
+    size_t tabs_count = 0;
+    graphics_pos_t orig_x = x;
+    font_char_t c = 0;
+    size_t c_size = 0;
+    size_t count = 0;
+    rect_t char_rect;
+    point_t char_offset;
+    graphics_pos_t char_size;
+    
+    graphics_pos_t right = x + (graphics_pos_t)width;
+
+    while(*s){
+        
+        c = font_utf8_decode(s, &c_size);
+        if(font_get_char_position(painter->font, c, &char_rect, &char_offset)){
+            char_size = rect_width(&char_rect) + point_x(&char_offset);
+            
+            if(x + char_size > right){
+                if(x == orig_x){
+                    break;
+                }
+                if(font_get_char_position(painter->font, 0x20, &char_rect, &char_offset)){
+                    y += rect_height(&char_rect) + point_y(&char_offset) + font_vspace(painter->font);
+                }else{
+                    y += font_char_height(painter->font) + font_vspace(painter->font);
+                }
+                x = orig_x;
+                
+                if(y < (graphics_pos_t)graphics_height(painter->graphics)) continue;
+            }
+        }
+        
+        if(y >= (graphics_pos_t)graphics_height(painter->graphics)) break;
+        
+        switch(c){
+            case '\r':
+                x = orig_x;
+                s ++;
+                count ++;
+                break;
+            case '\n':
+                if(font_get_char_position(painter->font, 0x20, &char_rect, &char_offset)){
+                    x = orig_x;
+                    y += rect_height(&char_rect) + point_y(&char_offset) + font_vspace(painter->font);
+                    count ++;
+                }
+                s ++;
+                break;
+            case '\t':
+                if(painter_draw_char_impl(painter, x, y, 0x20, &char_rect, &char_offset)){
+                    x += rect_width(&char_rect) + point_x(&char_offset) + font_hspace(painter->font);
+                }else{
+                    s ++;
+                    break;
+                }
+                if(++ tabs_count == FONT_TAB_SIZE){
+                    tabs_count = 0;
+                    s ++;
+                    count ++;
+                }
+                break;
+            default:
+                s += c_size;
+                if(painter_draw_char_impl(painter, x, y, c, &char_rect, &char_offset)){
+                    x += rect_width(&char_rect) + point_x(&char_offset) + font_hspace(painter->font);
+                    count ++;
+                }
+                break;
+        }
+    }
+    
+    return count;
 }

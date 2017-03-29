@@ -157,8 +157,21 @@ EXTERN void i2c_bus_wait(i2c_bus_t* i2c);
 EXTERN void i2c_bus_reset(i2c_bus_t* i2c);
 
 /**
+ * Получает флаг занятости периферии i2c.
+ * @param device Периферия i2c.
+ * @return Флаг занятости периферии i2c.
+ */
+EXTERN bool i2c_device_busy(I2C_TypeDef* device);
+
+/**
+ * Ждёт завершения текущей операции периферии i2c.
+ * @param device Периферия i2c.
+ */
+EXTERN void i2c_device_wait(I2C_TypeDef* device);
+
+/**
  * Сбрасывает интерфейс.
- * @param i2c Шина i2c.
+ * @param device Периферия i2c.
  */
 EXTERN void i2c_device_reset(I2C_TypeDef* device);
 

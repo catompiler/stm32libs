@@ -563,7 +563,7 @@ void i2c_bus_error_irq_handler(i2c_bus_t* i2c)
 
 bool i2c_bus_busy(i2c_bus_t* i2c)
 {
-    return ((i2c->i2c_device->SR2 & I2C_SR2_BUSY) != 0);// || (i2c->state != I2C_STATE_IDLE);
+    return (i2c->state != I2C_STATE_IDLE);
 }
 
 void i2c_bus_wait(i2c_bus_t* i2c)
@@ -573,7 +573,28 @@ void i2c_bus_wait(i2c_bus_t* i2c)
 
 void i2c_bus_reset(i2c_bus_t* i2c)
 {
-    i2c_device_reset(i2c->i2c_device);
+    i2c_bus_dma_stop_rx(i2c);
+    i2c_bus_dma_stop_tx(i2c);
+    
+    i2c_bus_dma_unlock_channels(i2c);
+    
+    i2c->state = I2C_STATE_IDLE;
+    i2c->status = I2C_STATUS_IDLE;
+    i2c->error = I2C_NO_ERROR;
+    
+    //i2c_device_reset(i2c->i2c_device);
+
+    i2c_bus_done(i2c);
+}
+
+bool i2c_device_busy(I2C_TypeDef* device)
+{
+    return ((device->SR2 & I2C_SR2_BUSY) != 0);
+}
+
+void i2c_device_wait(I2C_TypeDef* device)
+{
+    WAIT_WHILE_TRUE(i2c_device_busy(device));
 }
 
 void i2c_device_reset(I2C_TypeDef* device)

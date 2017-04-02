@@ -298,5 +298,10 @@ burn_win: $(TARGET_BIN)
 burn_openocd: $(TARGET_BIN)
 	$(OPENOCD_CMD) -c "init" -c "reset halt" -c "flash write_image erase $(TARGET_BIN) $(MCU_FLASH_ORIGIN) bin" -c "reset run" -c "exit"
 
+erase_openocd:
+	$(OPENOCD_CMD) -c "init" -c "reset halt" -c "flash erase_sector 0 0 last" -c "exit"
+
 burn: burn_openocd
+
+erase: erase_openocd
 

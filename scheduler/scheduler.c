@@ -63,7 +63,7 @@ ALWAYS_INLINE static task_descr_t* scheduler_task_descr_by_index(size_t index)
     return &scheduler.tasks_buffer[index];
 }
 
-static int tasks_compare(const void* left, const void* right)
+static int tasks_add_compare(const void* left, const void* right)
 {
     task_descr_t* ldescr = scheduler_task_descr_by_index((size_t)left);
     task_descr_t* rdescr = scheduler_task_descr_by_index((size_t)right);
@@ -71,8 +71,9 @@ static int tasks_compare(const void* left, const void* right)
     if(ldescr == NULL || rdescr == NULL) return 0;
     
     if(ldescr->priority > rdescr->priority) return -1;
-    if(ldescr->priority < rdescr->priority) return 1;
-    return 0;
+    //if(ldescr->priority < rdescr->priority) return 1;
+    //return 0;
+    return 1;
 }
 
 err_t scheduler_init(task_descr_t* buffer, size_t count)
@@ -144,7 +145,7 @@ task_id_t scheduler_add_task(task_proc_t proc, task_priority_t priority, void* a
     
     descr->tid = scheduler_index_to_next_task_id(task_index);
     scheduler.max_task_id = descr->tid;
-    list_insert_sorted(&scheduler.tasks_queued, task_item, tasks_compare);
+    list_insert_sorted(&scheduler.tasks_queued, task_item, tasks_add_compare);
     
     CRITICAL_EXIT();
     

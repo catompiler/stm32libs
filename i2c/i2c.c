@@ -396,7 +396,8 @@ static void i2c_bus_master_error_handler(i2c_bus_t* i2c, uint16_t SR1/*, uint16_
 
 bool i2c_bus_dma_tx_channel_irq_handler(i2c_bus_t* i2c)
 {
-    if(i2c->state == I2C_STATE_WRITING){
+    if(i2c->state == I2C_STATE_WRITING &&
+       i2c->dma_tx_locked){
 
         i2c_bus_dma_stop_tx(i2c);
         
@@ -439,6 +440,7 @@ bool i2c_bus_dma_rx_channel_irq_handler(i2c_bus_t* i2c)
     i2c_message_t* message = &i2c->messages[i2c->message_index];
     
     if(i2c->state == I2C_STATE_READING &&
+       i2c->dma_rx_locked &&
        message->data_size > 1){
             
         i2c_bus_dma_stop_rx(i2c);
@@ -670,7 +672,7 @@ err_t i2c_bus_transfer(i2c_bus_t* i2c, i2c_message_t* messages, size_t messages_
     size_t i = 0;
     
     i2c_message_t* msg = NULL;
-    // �������� ��� ���������.
+    // Проверим все сообщения.
     for(; i < messages_count; i ++){
         msg = &messages[i];
         if(msg->data_size == 0) return E_INVALID_VALUE;

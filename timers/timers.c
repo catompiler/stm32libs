@@ -238,16 +238,17 @@ bool timers_remove_timer(timer_id_t tid)
     
     if(timer_descr->tid != tid) return false;
     
+    CRITICAL_ENTER();
+    
     if(timer_descr == timers.current_timer){
         timer_descr->t_interval.tv_sec = 0;
         timer_descr->t_interval.tv_usec = 0;
     }else{
-        CRITICAL_ENTER();
-        
         timers_remove_timer_impl(timer_descr);
-        
-        CRITICAL_EXIT();
+        timer_descr->tid = INVALID_TIMER_ID;
     }
+    
+    CRITICAL_EXIT();
     
     if(timers.current_timer == NULL) timers_setup_first_timer();
     

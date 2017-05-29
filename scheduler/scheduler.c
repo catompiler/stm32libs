@@ -172,15 +172,16 @@ bool scheduler_remove_task(task_id_t tid)
     
     if(task_descr->tid != tid) return false;
     
+    CRITICAL_ENTER();
+    
     if(task_descr == scheduler.current_task){
         task_descr->flags |= TASK_RUN_ONCE;
     }else{
-        CRITICAL_ENTER();
-        
         scheduler_remove_task_impl(task_descr);
-        
-        CRITICAL_EXIT();
+        task_descr->tid = INVALID_TASK_ID;
     }
+    
+    CRITICAL_EXIT();
     
     return true;
 }

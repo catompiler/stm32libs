@@ -160,6 +160,11 @@ void pca9555_reset(pca9555_t* ioport)
     pca9555_end(ioport, E_NO_ERROR);
 }
 
+void pca9555_timeout(pca9555_t* ioport)
+{
+    pca9555_end(ioport, E_TIME_OUT);
+}
+
 bool pca9555_busy(pca9555_t* ioport)
 {
     return future_running(&ioport->future);

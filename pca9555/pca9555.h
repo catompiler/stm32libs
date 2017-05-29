@@ -149,6 +149,13 @@ EXTERN bool pca9555_i2c_callback(pca9555_t* ioport);
 EXTERN void pca9555_reset(pca9555_t* ioport);
 
 /**
+ * Завершает операцию порта ввода-вывода
+ * с ошибкой тайм-аута.
+ * @param ioport Порт ввода-вывода.
+ */
+EXTERN void pca9555_timeout(pca9555_t* ioport);
+
+/**
  * Получает флаг процесса выполнения операции.
  * @param ioport Порт ввода-вывода.
  * @return Флаг процесса выполнения операции.

@@ -31,6 +31,8 @@ typedef uint8_t err_t;
 #define E_CRC 8
 //! Ошибка состояния.
 #define E_STATE 9
+//! Ошибка тайм-аута.
+#define E_TIME_OUT 10
 
 //! Начальный код для пользовательских ошибок.
 #define E_USER 100

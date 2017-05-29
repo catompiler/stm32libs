@@ -105,13 +105,14 @@ task_id_t scheduler_add_task(task_proc_t proc, task_priority_t priority, void* a
     list_item_t* task_item = NULL;
     size_t task_index = 0;
     
+    CRITICAL_ENTER();
+    
     task_item = list_head(&scheduler.tasks_empty);
     
     if(task_item == NULL){
+        CRITICAL_EXIT();
         return INVALID_TASK_ID;
     }
-    
-    CRITICAL_ENTER();
     
     list_remove(&scheduler.tasks_empty, task_item);
     
@@ -154,6 +155,7 @@ task_id_t scheduler_add_task(task_proc_t proc, task_priority_t priority, void* a
 
 static void scheduler_remove_task_impl(task_descr_t* task_descr)
 {
+    task_descr->tid = INVALID_TASK_ID;
     list_remove(&scheduler.tasks_queued, &task_descr->list_item);
     list_append(&scheduler.tasks_empty, &task_descr->list_item);
 }
@@ -178,7 +180,6 @@ bool scheduler_remove_task(task_id_t tid)
         task_descr->flags |= TASK_RUN_ONCE;
     }else{
         scheduler_remove_task_impl(task_descr);
-        task_descr->tid = INVALID_TASK_ID;
     }
     
     CRITICAL_EXIT();

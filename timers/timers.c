@@ -79,6 +79,7 @@ static int timers_add_compare(const void* left, const void* right)
 
 static void timers_remove_timer_impl(timer_descr_t* timer_descr)
 {
+    timer_descr->tid = INVALID_TIMER_ID;
     list_remove(&timers.timers_queued, &timer_descr->list_item);
     list_append(&timers.timers_empty, &timer_descr->list_item);
 }
@@ -166,13 +167,14 @@ timer_id_t timers_add_timer(timer_proc_t proc, struct timeval* t_start, struct t
     list_item_t* timer_item = NULL;
     size_t timer_index = 0;
     
+    CRITICAL_ENTER();
+    
     timer_item = list_head(&timers.timers_empty);
     
     if(timer_item == NULL){
+        CRITICAL_EXIT();
         return INVALID_TIMER_ID;
     }
-    
-    CRITICAL_ENTER();
     
     list_remove(&timers.timers_empty, timer_item);
     
@@ -245,7 +247,6 @@ bool timers_remove_timer(timer_id_t tid)
         timer_descr->t_interval.tv_usec = 0;
     }else{
         timers_remove_timer_impl(timer_descr);
-        timer_descr->tid = INVALID_TIMER_ID;
     }
     
     CRITICAL_EXIT();

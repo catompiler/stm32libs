@@ -7,6 +7,11 @@
 #include "stm32f10x.h"
 
 
+//! Минимальная измеряемая температура.
+#define LM75_TEMP_MIN (fixed16_make_from_int(-55))
+//! Максимальная измеряемая температура.
+#define LM75_TEMP_MAX (fixed16_make_from_int(125))
+
 //! Номер сообщения с адресом памяти.
 #define LM75_I2C_MESSAGE_ROM_ADDRESS 0
 //! Номер сообщения с данными.
@@ -199,7 +204,14 @@ err_t lm75_read_temp(lm75_t* sensor, fixed16_t* temp)
     err = lm75_wait(sensor);
     if(err != E_NO_ERROR) return err;
     
-    *temp = ntohs(data);
+    fixed16_t readed_temp = ntohs(data);
+    
+    if(readed_temp > LM75_TEMP_MAX ||
+       readed_temp < LM75_TEMP_MIN){
+        return E_OUT_OF_RANGE;
+    }
+    
+    *temp = readed_temp;
     
     return E_NO_ERROR;
 }

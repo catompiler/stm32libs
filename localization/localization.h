@@ -100,6 +100,13 @@ EXTERN void localization_set_default_text(const char* text);
 EXTERN bool localization_set_lang(lang_id_t lang_id);
 
 /**
+ * Получает идентификатор текущего языка.
+ * @return Идентификатор текущего языка.
+ * По-умолчанию возвращает 0.
+ */
+EXTERN lang_id_t localization_lang(void);
+
+/**
  * Получает текст перевода по его идентификатору.
  * @param id Идентификатор перевода.
  * @return Текст перевода по его идентификатору.

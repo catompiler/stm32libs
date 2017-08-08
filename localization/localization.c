@@ -85,6 +85,13 @@ bool localization_set_lang(lang_id_t lang_id)
     return false;
 }
 
+lang_id_t localization_lang(void)
+{
+    if(loc.cur_tr >= loc.trs_count) return 0;
+    
+    return loc.trs[loc.cur_tr].lang_id;
+}
+
 /**
  * Функция сравнения перевода текста и идентификатора.
  * @param id Идентификатор перевода текста.

@@ -134,11 +134,15 @@ EXTERN rtc_alarm_callback_t rtc_alarm_callback(void);
 
 /**
  * Устанавливает каллбэк сигнализации.
- * Разрешает прерывание сигнализации, если каллбэк не равен NULL,
- * иначе запрещает его.
  * @param callback Каллбэк сигнализации.
  */
 EXTERN void rtc_set_alarm_callback(rtc_alarm_callback_t callback);
+
+/**
+ * Устанавливает разрешение прерывания RTC при срабатывании сигнализации.
+ * @param enabled Флаг разрешения прерывания RTC при срабатывании сигнализации.
+ */
+EXTERN void rtc_set_alarm_interrupt_enabled(bool enabled);
 
 /**
  * Получает текущий каллбэк получения микросекунд.

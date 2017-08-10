@@ -199,22 +199,22 @@ bool rtc_synchronized(void)
 void rtc_interrupt_handler(void)
 {
     rtc_wait_current_op();
-    //if(RTC->CRL & RTC_CRL_OWF){
+    if(RTC->CRL & RTC_CRL_OWF){
         RTC->CRL &= ~RTC_CRL_OWF;
-    //}
-    //if(RTC->CRL & RTC_CRL_SECF){
+    }
+    if(RTC->CRL & RTC_CRL_SECF){
         RTC->CRL &= ~RTC_CRL_SECF;
         if(rtc.second_callback) rtc.second_callback();
-    //}
+    }
 }
 
 void rtc_alarm_interrupt_handler(void)
 {
     rtc_wait_current_op();
-    //if(RTC->CRL & RTC_CRL_ALRF){
+    if(RTC->CRL & RTC_CRL_ALRF){
         RTC->CRL &= ~RTC_CRL_ALRF;
         if(rtc.alarm_callback) rtc.alarm_callback();
-    //}
+    }
 }
 
 rtc_second_callback_t rtc_second_callback(void)
@@ -241,13 +241,16 @@ rtc_alarm_callback_t rtc_alarm_callback(void)
 
 void rtc_set_alarm_callback(rtc_alarm_callback_t callback)
 {
+    rtc.alarm_callback = callback;
+}
+
+void rtc_set_alarm_interrupt_enabled(bool enabled)
+{
     rtc_wait_current_op();
-    if(callback){
-        rtc.alarm_callback = callback;
+    if(enabled){
         RTC->CRH |= RTC_CRH_ALRIE;
     }else{
         RTC->CRH &= ~RTC_CRH_ALRIE;
-        rtc.alarm_callback = callback;
     }
 }
 

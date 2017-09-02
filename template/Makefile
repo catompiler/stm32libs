@@ -10,6 +10,15 @@ SRC_LIBS  =
 # Макросы.
 DEFINES  += 
 
+# Библиотеки.
+LIBS      = c
+
+# Оптимизация, вторая часть флага компилятора -O.
+OPTIMIZE  = s
+
+# Флаги отладки.
+DEBUG    += 
+
 # Стандартные драйвера периферии.
 # STD_PERIPH_DRIVERS += misc
 # STD_PERIPH_DRIVERS += stm32f10x_adc
@@ -34,15 +43,6 @@ DEFINES  +=
 # STD_PERIPH_DRIVERS += stm32f10x_tim
 # STD_PERIPH_DRIVERS += stm32f10x_usart
 # STD_PERIPH_DRIVERS += stm32f10x_wwdg
-
-# Библиотеки.
-LIBS      = c
-
-# Оптимизация, вторая часть флага компилятора -O.
-OPTIMIZE  = s
-
-# Флаги отладки.
-DEBUG    += 
 
 # МК.
 # Имя МК.
@@ -81,50 +81,66 @@ OPENOCD_ARGS = -f "interface/stlink-v2.cfg" -f "target/stm32f1x.cfg"
 # Команда OpenOCD
 OPENOCD_CMD  = $(OPENOCD) $(OPENOCD_ARGS)
 
+# Каталог сборки.
+BUILD_DIR       = ./build
+
 # Путь к библиотекам от производителя (SPL, CMSIS).
 STM32_LIBS      = ../stm32
 
 # Путь к стандартной библиотеке периферии.
-SPL_PATH        = $(STM32_LIBS)/StdPeriphLib/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
+SPL_PATH        = StdPeriphLib/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries
 # Путь к стандартной библиотеке драйверов периферии.
 STD_PERIPH_PATH = $(SPL_PATH)/STM32F10x_StdPeriph_Driver
 # Путь к исходникам драйверов периферии.
 STD_PERIPH_SRC  = $(STD_PERIPH_PATH)/src
 # Путь к заголовочным файлам драйверов периферии.
-STD_PERIPH_INC  = $(STD_PERIPH_PATH)/inc
+STD_PERIPH_INC  = $(STM32_LIBS)/$(STD_PERIPH_PATH)/inc
+# Объектные файлы SPL.
+STD_PERIPH_OBJS = $(addprefix $(STD_PERIPH_SRC)/,$(addsuffix .o, $(STD_PERIPH_DRIVERS)))
 
-# Путь к CMSIS
-CMSIS_PATH                = $(STM32_LIBS)/CMSIS
+# Путь к CMSIS.
+CMSIS_PATH                = CMSIS
 # Путь к библиотеке ядра.
 CMSIS_CORE_SUPPORT_PATH   = $(CMSIS_PATH)/CMSIS
 # Заголовки библиотеки ядра.
-CMSIS_CORE_SUPPORT_INC    = $(CMSIS_CORE_SUPPORT_PATH)/Include
+CMSIS_CORE_SUPPORT_INC    = $(STM32_LIBS)/$(CMSIS_CORE_SUPPORT_PATH)/Include
 # Исходники библиотеки ядра.
 CMSIS_CORE_SUPPORT_SRC    = 
 # Путь к библиотекам ядра.
-CMSIS_CORE_SUPPORT_LIBS_PATH = $(CMSIS_CORE_SUPPORT_PATH)/Lib/GCC
+CMSIS_CORE_SUPPORT_LIBS_PATH = $(STM32_LIBS)/$(CMSIS_CORE_SUPPORT_PATH)/Lib/GCC
 # Библиотека математики.
 CMSIS_MATH_LIB            = arm_cortexM3l_math
 # Библиотеки ядра.
 CMSIS_CORE_SUPPORT_LIBS  += $(CMSIS_MATH_LIB)
+# Файлы исходного кода библиотеки ядра.
+CMSIS_CORE_SRC           += 
+# Объектные файлы библеотеки ядра.
+CMSIS_CORE_SUPPORT_OBJS  += $(addprefix $(CMSIS_CORE_SUPPORT_SRC)/, $(patsubst %.c, %.o, $(CMSIS_CORE_SRC)))
 
 # Путь к библиотеке CMSIS в составе SPL.
 SPL_CMSIS_PATH            = $(SPL_PATH)/CMSIS/CM3
 # Путь к библиотеке устройства.
 CMSIS_DEVICE_SUPPORT_PATH = $(SPL_CMSIS_PATH)/DeviceSupport/ST/STM32F10x
 # Путь к заголовкам библиотеки устройства.
-CMSIS_DEVICE_SUPPORT_INC  = $(CMSIS_DEVICE_SUPPORT_PATH)
+CMSIS_DEVICE_SUPPORT_INC  = $(STM32_LIBS)/$(CMSIS_DEVICE_SUPPORT_PATH)
 # Путь к исходникам библиотеки устройства.
 CMSIS_DEVICE_SUPPORT_SRC  = $(CMSIS_DEVICE_SUPPORT_PATH)
 # Путь к стартовым файлам.
 CMSIS_STARTUP_PATH        = $(CMSIS_DEVICE_SUPPORT_PATH)/startup/gcc_ride7
 # Стартовый файл CMSIS.
-CMSIS_STARTUP             = startup_stm32f10x_$(MCU_FAMILY).s
+CMSIS_STARTUP_SRC         = startup_stm32f10x_$(MCU_FAMILY).s
+# Системный файл CMSIS.
+CMSIS_SYSTEM_SRC          = system_stm32f10x.c
+# Объектные файлы библиотеки устройства.
+CMSIS_DEVICE_SUPPORT_OBJS += $(addprefix $(CMSIS_STARTUP_PATH)/, $(patsubst %.s, %.o, $(CMSIS_STARTUP_SRC)))
+CMSIS_DEVICE_SUPPORT_OBJS += $(addprefix $(CMSIS_DEVICE_SUPPORT_SRC)/, $(patsubst %.c, %.o, $(CMSIS_SYSTEM_SRC)))
 
 # Путь к собственным библиотекам в исходниках.
 SRC_LIBS_PATH     += ../lib
 # Пути ко всем собственным библиотекам в исходниках.
-SRC_LIBS_ALL_PATH += $(wildcard $(addsuffix /*, $(SRC_LIBS_PATH)))
+SRC_LIBS_ALL_PATH += $(dir $(wildcard $(addsuffix /*/., $(SRC_LIBS_PATH))))
+# Объектные файлы собственных библиотек.
+SRC_LIBS_OBJS      = $(addsuffix .o, $(SRC_LIBS))
 
 # Пути библиотек.
 # Путь к библиотекам ядра.
@@ -157,23 +173,18 @@ LIBS     += $(CMSIS_CORE_SUPPORT_LIBS)
 
 # Пути с исходниками.
 VPATH   += .
-VPATH   += $(CMSIS_CORE_SUPPORT_SRC)
-VPATH   += $(CMSIS_DEVICE_SUPPORT_SRC)
-VPATH   += $(STD_PERIPH_SRC)
-VPATH   += $(CMSIS_STARTUP_PATH)
+VPATH   += $(STM32_LIBS)
 VPATH   += $(SRC_LIBS_ALL_PATH)
 
 # Объектные файлы.
 # CMSIS поддержка ядра.
-OBJECTS += $(notdir $(patsubst %.c, %.o, $(wildcard $(addsuffix /*.c, $(CMSIS_CORE_SUPPORT_SRC)))))
+OBJECTS += $(CMSIS_CORE_SUPPORT_OBJS)
 # CMSIS поддержка устройства.
-OBJECTS += $(notdir $(patsubst %.c, %.o, $(wildcard $(addsuffix /*.c, $(CMSIS_DEVICE_SUPPORT_SRC)))))
+OBJECTS += $(CMSIS_DEVICE_SUPPORT_OBJS)
 # Драйвера периферии.
-OBJECTS += $(addsuffix .o, $(STD_PERIPH_DRIVERS))
-# Стартовые файлы.
-OBJECTS += $(patsubst %.s, %.o, $(CMSIS_STARTUP))
+OBJECTS += $(STD_PERIPH_OBJS)
 # Собственные библиотеки в исходниках.
-OBJECTS += $(addsuffix .o, $(SRC_LIBS))
+OBJECTS += $(SRC_LIBS_OBJS)
 
 # Ассемблер листинги.
 ASM     += $(patsubst %.o, %.s, $(OBJECTS))
@@ -212,7 +223,7 @@ LDFLAGS   += -Wl,--gc-sections
 # Без стандартных стартовых файлов.
 LDFLAGS   += -nostartfiles
 # Генерация карты исполнимого файла.
-LDFLAGS   += -Wl,-Map=$(TARGET_MAP),--cref
+LDFLAGS   += -Wl,-Map=$(BUILD_TARGET_MAP),--cref
 # Пути поиска библиотек.
 LDFLAGS   += $(addprefix -L, $(LIBS_PATH))
 # Скрипт линкера.
@@ -236,67 +247,107 @@ SIZE    = $(TOOLKIT_PREFIX)size
 
 # Прочие утилиты.
 RM      = rm -f
+MKDIR   = mkdir -p
+RMDIR   = rmdir --ignore-fail-on-non-empty
+RMDIR_P = rmdir -p --ignore-fail-on-non-empty
+RM_DIR  = rm -fr
 
-# Побочные цели.
+# Переменные сборки.
+# Цель сборки.
+BUILD_TARGET = $(BUILD_DIR)/$(TARGET)
 # Файл прошивки.
-TARGET_HEX = $(TARGET).hex
+BUILD_TARGET_HEX = $(BUILD_TARGET).hex
 # Файл карты бинарного файла.
-TARGET_MAP = $(TARGET).map
+BUILD_TARGET_MAP = $(BUILD_TARGET).map
 # Бинарный файл прошивки.
-TARGET_BIN = $(TARGET).bin
+BUILD_TARGET_BIN = $(BUILD_TARGET).bin
+# Каталоги объектных файлов.
+OBJECTS_DIRS     = $(sort $(filter-out ./, $(dir $(OBJECTS))))
+# Подкаталоги объектных файлов.
+OBJECTS_SUBDIRS  = $(sort $(foreach DIR, $(OBJECTS_DIRS), $(shell expr $(DIR) : "^\\([^/]*\\)")))
+# Каталоги сборки объектных файлов.
+BUILD_OBJECTS_DIRS = $(addprefix $(BUILD_DIR)/, $(OBJECTS_DIRS))
+# Подкаталоги сборки.
+BUILD_OBJECTS_SUBDIRS = $(addprefix $(BUILD_DIR)/, $(OBJECTS_SUBDIRS))
+# Объектные файлы сборки.
+BUILD_OBJECTS      = $(addprefix $(BUILD_DIR)/, $(OBJECTS))
+# Ассемблерные файлы сборки.
+BUILD_ASM          = $(addprefix $(BUILD_DIR)/, $(ASM))
 
 
-all: $(TARGET) size bin hex
 
-strip: $(TARGET)
+.PHONY: all strip size hex bin asm dirs clean clean_all\
+	burn_stflash burn_win burn_openocd erase_openocd burn erase
+
+
+
+all: $(BUILD_TARGET) size bin hex
+
+strip: $(BUILD_TARGET)
 	$(STRIP) $(TARGET)
 
-size: $(TARGET)
-	$(SIZE) -B $(TARGET)
+size: $(BUILD_TARGET)
+	$(SIZE) -B $(BUILD_TARGET)
 
-hex: $(TARGET)
-	$(OBJCOPY) -O ihex $(TARGET) $(TARGET_HEX)
+hex: $(BUILD_TARGET)
+	$(OBJCOPY) -O ihex $(BUILD_TARGET) $(BUILD_TARGET_HEX)
 
-bin: $(TARGET)
-	$(OBJCOPY) -O binary $(TARGET) $(TARGET_BIN)
+bin: $(BUILD_TARGET)
+	$(OBJCOPY) -O binary $(BUILD_TARGET) $(BUILD_TARGET_BIN)
 
-asm: $(ASM)
+asm: $(BUILD_ASM)
 
-#$(TARGET_BIN): all
+$(BUILD_ASM): dirs
 
-$(TARGET): $(OBJECTS)
+$(BUILD_OBJECTS): dirs
+
+dirs: $(BUILD_OBJECTS_DIRS)
+
+$(BUILD_OBJECTS_DIRS): $(BUILD_DIR)
+	$(MKDIR) $@
+
+$(BUILD_DIR):
+	$(MKDIR) $@
+
+$(BUILD_TARGET): $(BUILD_OBJECTS)
 	$(LD) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
-%.o: %.c
+$(BUILD_DIR)/%.o: %.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-%.o: %.s
+$(BUILD_DIR)/%.o: %.s
 	$(AS) -c -o $@ $(ASFLAGS) $<
 
-%.s: %.c
+$(BUILD_DIR)/%.s: %.c
 	$(CC) -S -o $@ $(CFLAGS) $<
 
 clean:
-	$(RM) $(OBJECTS)
-	$(RM) $(ASM)
+	$(RM) $(BUILD_OBJECTS)
 
-clean_all: clean
-	$(RM) $(TARGET)
-	$(RM) $(TARGET_BIN)
-	$(RM) $(TARGET_HEX)
-	$(RM) $(TARGET_MAP)
+clean_asm:
+	$(RM) $(BUILD_ASM)
+
+clean_dirs:
+	$(RM_DIR) $(BUILD_OBJECTS_SUBDIRS)
+
+clean_all: clean clean_asm clean_dirs
+	$(RM) $(BUILD_TARGET)
+	$(RM) $(BUILD_TARGET_BIN)
+	$(RM) $(BUILD_TARGET_HEX)
+	$(RM) $(BUILD_TARGET_MAP)
+	$(RM_DIR) $(BUILD_DIR)
 
 burn_stflash: $(TARGET_BIN)
 	$(STFLASH) erase
-	$(STFLASH) write $(TARGET_BIN) $(MCU_FLASH_ORIGIN)
+	$(STFLASH) write $(BUILD_TARGET_BIN) $(MCU_FLASH_ORIGIN)
 
 burn_win: $(TARGET_BIN)
 	$(STFLASH_WIN) -Q -ME
-	$(STFLASH_WIN) -Q -P $(TARGET_BIN) $(MCU_FLASH_ORIGIN)
+	$(STFLASH_WIN) -Q -P $(BUILD_TARGET_BIN) $(MCU_FLASH_ORIGIN)
 	$(STFLASH_WIN) -Q -Rst
 
 burn_openocd: $(TARGET_BIN)
-	$(OPENOCD_CMD) -c "init" -c "reset halt" -c "flash write_image erase $(TARGET_BIN) $(MCU_FLASH_ORIGIN) bin" -c "reset run" -c "exit"
+	$(OPENOCD_CMD) -c "init" -c "reset halt" -c "flash write_image erase $(BUILD_TARGET_BIN) $(MCU_FLASH_ORIGIN) bin" -c "reset run" -c "exit"
 
 erase_openocd:
 	$(OPENOCD_CMD) -c "init" -c "reset halt" -c "flash erase_sector 0 0 last" -c "exit"

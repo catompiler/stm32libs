@@ -264,7 +264,7 @@ BUILD_TARGET_BIN = $(BUILD_TARGET).bin
 # Каталоги объектных файлов.
 OBJECTS_DIRS     = $(sort $(filter-out ./, $(dir $(OBJECTS))))
 # Подкаталоги объектных файлов.
-OBJECTS_SUBDIRS  = $(sort $(foreach DIR, $(OBJECTS_DIRS), $(shell expr $(DIR) : "^\\([^/]*\\)")))
+OBJECTS_SUBDIRS  = $(sort $(foreach DIR, $(OBJECTS_DIRS), $(shell expr $(DIR) : "\\([^/]*\\)")))
 # Каталоги сборки объектных файлов.
 BUILD_OBJECTS_DIRS = $(addprefix $(BUILD_DIR)/, $(OBJECTS_DIRS))
 # Подкаталоги сборки.

@@ -281,36 +281,36 @@ BUILD_ASM          = $(addprefix $(BUILD_DIR)/, $(ASM))
 
 
 
-all: $(BUILD_TARGET) size bin hex
+all: dirs $(BUILD_TARGET) size bin hex
 
-strip: $(BUILD_TARGET)
+strip: dirs $(BUILD_TARGET)
 	$(STRIP) $(TARGET)
 
-size: $(BUILD_TARGET)
+size: dirs $(BUILD_TARGET)
 	$(SIZE) -B $(BUILD_TARGET)
 
-hex: $(BUILD_TARGET)
-	$(OBJCOPY) -O ihex $(BUILD_TARGET) $(BUILD_TARGET_HEX)
+hex: dirs $(BUILD_TARGET_HEX)
 
-bin: $(BUILD_TARGET)
-	$(OBJCOPY) -O binary $(BUILD_TARGET) $(BUILD_TARGET_BIN)
+bin: dirs $(BUILD_TARGET_BIN)
 
-asm: $(BUILD_ASM)
+asm: dirs $(BUILD_ASM)
 
-$(BUILD_ASM): dirs
+dirs: $(BUILD_DIR)
 
-$(BUILD_OBJECTS): dirs
-
-dirs: $(BUILD_OBJECTS_DIRS)
-
-$(BUILD_OBJECTS_DIRS): $(BUILD_DIR)
+$(BUILD_DIR): $(BUILD_OBJECTS_DIRS)
 	$(MKDIR) $@
 
-$(BUILD_DIR):
+$(BUILD_OBJECTS_DIRS):
 	$(MKDIR) $@
 
 $(BUILD_TARGET): $(BUILD_OBJECTS)
 	$(LD) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+
+$(BUILD_TARGET_HEX): $(BUILD_TARGET)
+	$(OBJCOPY) -O ihex $^ $@
+
+$(BUILD_TARGET_BIN): $(BUILD_TARGET)
+	$(OBJCOPY) -O binary $^ $@
 
 $(BUILD_DIR)/%.o: %.c
 	$(CC) -c -o $@ $(CFLAGS) $<

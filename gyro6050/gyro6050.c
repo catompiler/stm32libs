@@ -2,6 +2,7 @@
 #include "utils/utils.h"
 #include "counter/counter.h"
 #include "cordic/cordic32.h"
+#include <stddef.h>
 #include <string.h>
 
 
@@ -100,17 +101,6 @@ typedef uint8_t gyro6050_io_direction_t;
 #define GYRO6050_STATE_CALIBRATION_READ         15
 
 
-static void gyro6050_do(gyro6050_t* gyro);
-
-
-bool gyro6050_i2c_callback(gyro6050_t* gyro)
-{
-    if(i2c_bus_transfer_id(gyro->i2c) != gyro->i2c_transfer_id) return false;
-    
-    gyro6050_do(gyro);
-    
-    return true;
-}
 
 /**
  * Ждёт завершения текущей операции.
@@ -139,110 +129,30 @@ static void gyro6050_end(gyro6050_t* gyro, err_t err)
     future_finish(&gyro->future, int_to_pvoid(err));
 }
 
-static void gyro6050_do(gyro6050_t* gyro)
+bool gyro6050_i2c_callback(gyro6050_t* gyro)
 {
-    i2c_status_t status = i2c_bus_status(gyro->i2c);
-    switch(gyro->state){
-        default:
-        case GYRO6050_STATE_IDLE:
-            gyro6050_end(gyro, E_NO_ERROR);
-            break;
-        case GYRO6050_STATE_SLEEP_WRITE:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
-        case GYRO6050_STATE_INT_PIN_CONF_WRITE:
-        case GYRO6050_STATE_INT_PIN_CONF_READ:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro->cached_data.int_pin_config = gyro->data_byte;
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
-        case GYRO6050_STATE_INT_CONF_WRITE:
-        case GYRO6050_STATE_INT_CONF_READ:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro->cached_data.int_config = gyro->data_byte;
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
-        case GYRO6050_STATE_RATE_DIVISOR_READ:
-        case GYRO6050_STATE_RATE_DIVISOR_WRITE:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro->cached_data.rate_divisor = gyro->data_byte;
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
-        case GYRO6050_STATE_DLPF_READ:
-        case GYRO6050_STATE_DLPF_WRITE:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro->cached_data.dlpf = gyro->data_byte & 0x7;
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
-        case GYRO6050_STATE_GYRO_RANGE_READ:
-        case GYRO6050_STATE_GYRO_RANGE_WRITE:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro->cached_data.gyro_scale_range = (gyro->data_byte >> GYRO6050_GYRO_CONTROL_FS_SEL_OFFSET) & 0x3;
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
-        case GYRO6050_STATE_ACCEL_RANGE_READ:
-        case GYRO6050_STATE_ACCEL_RANGE_WRITE:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro->cached_data.accel_scale_range = (gyro->data_byte >> GYRO6050_ACCEL_CONTROL_FS_SEL_OFFSET) & 0x3;
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
-        case GYRO6050_STATE_DATA_READ:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro->new_data_avail = true;
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
-        case GYRO6050_STATE_CALIBRATION_READ:
-            if(status == I2C_STATUS_TRANSFERED){
-                gyro->new_data_avail = true;
-                gyro6050_end(gyro, E_NO_ERROR);
-            }else{
-                gyro6050_end(gyro, E_IO_ERROR);
-            }
-            break;
+    if(i2c_bus_transfer_id(gyro->i2c) != gyro->i2c_transfer_id) return false;
+    
+    if(i2c_bus_status(gyro->i2c) == I2C_STATUS_TRANSFERED){
+        gyro6050_end(gyro, E_NO_ERROR);
+    }else{
+        gyro6050_end(gyro, E_IO_ERROR);
     }
-    gyro->state = GYRO6050_STATE_IDLE;
+    
+    return true;
 }
 
-static err_t gyro6050_write_data(gyro6050_t* gyro, uint8_t state, uint8_t page_address, const void* data, size_t data_size)
+static err_t gyro6050_write_data(gyro6050_t* gyro, uint8_t page_address, const void* data, size_t data_size)
 {
     // Установим идентификатор передачи.
     if(!i2c_bus_set_transfer_id(gyro->i2c, gyro->i2c_transfer_id)) return E_BUSY;
     
     gyro6050_start(gyro);
     
-    gyro->state = state;
-    
     gyro->rom_address = page_address;
     gyro->i2c_messages[GYRO6050_I2C_MESSAGE_DATA].direction = I2C_WRITE;
     gyro->i2c_messages[GYRO6050_I2C_MESSAGE_DATA].data = (void*)data;
     gyro->i2c_messages[GYRO6050_I2C_MESSAGE_DATA].data_size = data_size;
-    
-    //err_t err = i2c_master_write_at(gyro->i2c_address, &gyro->rom_address, 1, data, data_size);
     
     err_t err = i2c_bus_transfer(gyro->i2c, gyro->i2c_messages, GYRO6050_I2C_MESSAGES_COUNT);
     
@@ -252,14 +162,12 @@ static err_t gyro6050_write_data(gyro6050_t* gyro, uint8_t state, uint8_t page_a
     return err;
 }
 
-static err_t gyro6050_read_data(gyro6050_t* gyro, uint8_t state, uint8_t page_address, void* data, size_t data_size)
+static err_t gyro6050_read_data(gyro6050_t* gyro, uint8_t page_address, void* data, size_t data_size)
 {
     // Установим идентификатор передачи.
     if(!i2c_bus_set_transfer_id(gyro->i2c, gyro->i2c_transfer_id)) return E_BUSY;
     
     gyro6050_start(gyro);
-    
-    gyro->state = state;
     
     gyro->rom_address = page_address;
     gyro->i2c_messages[GYRO6050_I2C_MESSAGE_DATA].direction = I2C_READ;
@@ -283,22 +191,27 @@ err_t gyro6050_init(gyro6050_t* gyro, i2c_bus_t* i2c, i2c_address_t address)
     gyro->i2c = i2c;
     gyro->i2c_transfer_id = GYRO6050_DEFAULT_I2C_TRANSFER_ID;
     gyro->rom_address = 0;
-    gyro->data_byte = 0;
     
     i2c_message_init(&gyro->i2c_messages[GYRO6050_I2C_MESSAGE_ROM_ADDRESS], address, I2C_WRITE, &gyro->rom_address, 1);
     i2c_message_init(&gyro->i2c_messages[GYRO6050_I2C_MESSAGE_DATA], address, I2C_READ, &gyro->raw_data, sizeof(gyro6050_raw_data_t));
-    
-    gyro->state = GYRO6050_STATE_IDLE;
-    
-    gyro->new_data_avail = false;
     
     future_init(&gyro->future);
     
     memset(&gyro->data, 0x0, sizeof(gyro6050_data_t));
     memset(&gyro->raw_data, 0x0, sizeof(gyro6050_raw_data_t));
-    memset(&gyro->cached_data, 0x0, sizeof(gyro6050_cached_data_t));
+    memset(&gyro->conf_data, 0x0, sizeof(gyro6050_conf_data_t));
     
     return E_NO_ERROR;
+}
+
+void gyro6050_reset(gyro6050_t* gyro)
+{
+    gyro6050_end(gyro, E_NO_ERROR);
+}
+
+void gyro6050_timeout(gyro6050_t* gyro)
+{
+    gyro6050_end(gyro, E_TIME_OUT);
 }
 
 bool gyro6050_done(const gyro6050_t* gyro)
@@ -332,151 +245,252 @@ void gyro6050_set_i2c_transfer_id(gyro6050_t* gyro, i2c_transfer_id_t transfer_i
     gyro->i2c_transfer_id = transfer_id;
 }
 
-err_t gyro6050_read_rate_divisor(gyro6050_t* gyro)
+err_t gyro6050_read_rate_divisor(gyro6050_t* gyro, uint8_t* divisor)
 {
+    if(divisor == NULL) return E_NULL_POINTER;
+    
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    return gyro6050_read_data(gyro, GYRO6050_STATE_RATE_DIVISOR_READ, GYRO6050_SMPRT_DIV_ADDRESS, &gyro->data_byte, 1);
-}
-
-uint8_t gyro6050_rate_divisor(const gyro6050_t* gyro)
-{
-    return gyro->cached_data.rate_divisor;
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    err = gyro6050_read_data(gyro, GYRO6050_SMPRT_DIV_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = gyro6050_wait(gyro);
+    if(err != E_NO_ERROR) return err;
+    
+    *divisor = data;
+    
+    return E_NO_ERROR;
 }
 
 err_t gyro6050_set_rate_divisor(gyro6050_t* gyro, uint8_t divisor)
 {
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    gyro->data_byte = divisor;
-    return gyro6050_write_data(gyro, GYRO6050_STATE_RATE_DIVISOR_WRITE, GYRO6050_SMPRT_DIV_ADDRESS, &gyro->data_byte, 1);
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    data = divisor;
+    
+    err = gyro6050_write_data(gyro, GYRO6050_SMPRT_DIV_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    return gyro6050_wait(gyro);
 }
 
-err_t gyro6050_read_dlpf(gyro6050_t* gyro)
+err_t gyro6050_read_dlpf(gyro6050_t* gyro, gyro6050_dlpf_t* dlpf)
 {
+    if(dlpf == NULL) return E_NULL_POINTER;
+    
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    return gyro6050_read_data(gyro, GYRO6050_STATE_DLPF_READ, GYRO6050_CONTROL_ADDRESS, &gyro->data_byte, 1);
-}
-
-uint8_t gyro6050_dlpf(const gyro6050_t* gyro)
-{
-    return gyro->cached_data.dlpf;
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    err = gyro6050_read_data(gyro, GYRO6050_CONTROL_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = gyro6050_wait(gyro);
+    if(err != E_NO_ERROR) return err;
+    
+    *dlpf = data & 0x7;
+    
+    return E_NO_ERROR;
 }
 
 err_t gyro6050_set_dlpf(gyro6050_t* gyro, gyro6050_dlpf_t dlpf)
 {
     if(dlpf > GYRO6050_DLPF_MAX) return E_INVALID_VALUE;
+    
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    gyro->data_byte = dlpf;
-    return gyro6050_write_data(gyro, GYRO6050_STATE_DLPF_WRITE, GYRO6050_CONTROL_ADDRESS, &gyro->data_byte, 1);
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    data = dlpf;
+    
+    err = gyro6050_write_data(gyro, GYRO6050_CONTROL_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    return gyro6050_wait(gyro);
 }
 
-err_t gyro6050_read_gyro_scale_range(gyro6050_t* gyro)
+err_t gyro6050_read_gyro_scale_range(gyro6050_t* gyro, gyro6050_gyro_scale_range_t* range)
 {
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    return gyro6050_read_data(gyro, GYRO6050_STATE_GYRO_RANGE_READ, GYRO6050_GYRO_CONTROL_ADDRESS, &gyro->data_byte, 1);
-}
-
-gyro6050_gyro_scale_range_t gyro6050_gyro_scale_range(const gyro6050_t* gyro)
-{
-    return gyro->cached_data.gyro_scale_range;
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    err = gyro6050_read_data(gyro, GYRO6050_GYRO_CONTROL_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = gyro6050_wait(gyro);
+    if(err != E_NO_ERROR) return err;
+    
+    gyro->conf_data.gyro_scale_range = (data >> GYRO6050_GYRO_CONTROL_FS_SEL_OFFSET) & 0x3;
+    
+    if(range) *range = gyro->conf_data.gyro_scale_range;
+    
+    return E_NO_ERROR;
 }
 
 err_t gyro6050_set_gyro_scale_range(gyro6050_t* gyro, gyro6050_gyro_scale_range_t range)
 {
     if(range > GYRO6050_GYRO_SCALE_RANGE_MAX) return E_INVALID_VALUE;
+    
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    gyro->data_byte = range << GYRO6050_GYRO_CONTROL_FS_SEL_OFFSET;
-    return gyro6050_write_data(gyro, GYRO6050_STATE_GYRO_RANGE_WRITE, GYRO6050_GYRO_CONTROL_ADDRESS, &gyro->data_byte, 1);
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    data = range << GYRO6050_GYRO_CONTROL_FS_SEL_OFFSET;
+    
+    err = gyro6050_write_data(gyro, GYRO6050_GYRO_CONTROL_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = gyro6050_wait(gyro);
+    if(err != E_NO_ERROR) return err;
+    
+    gyro->conf_data.gyro_scale_range = range;
+    
+    return E_NO_ERROR;
 }
 
-err_t gyro6050_read_accel_scale_range(gyro6050_t* gyro)
+err_t gyro6050_read_accel_scale_range(gyro6050_t* gyro, gyro6050_accel_scale_range_t* range)
 {
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    return gyro6050_read_data(gyro, GYRO6050_STATE_ACCEL_RANGE_READ, GYRO6050_ACCEL_CONTROL_ADDRESS, &gyro->data_byte, 1);
-}
-
-gyro6050_accel_scale_range_t gyro6050_accel_scale_range(const gyro6050_t* gyro)
-{
-    return gyro->cached_data.accel_scale_range;
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    err = gyro6050_read_data(gyro, GYRO6050_ACCEL_CONTROL_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = gyro6050_wait(gyro);
+    if(err != E_NO_ERROR) return err;
+    
+    gyro->conf_data.accel_scale_range = (data >> GYRO6050_ACCEL_CONTROL_FS_SEL_OFFSET) & 0x3;
+    
+    if(range) *range = gyro->conf_data.accel_scale_range;
+    
+    return E_NO_ERROR;
 }
 
 err_t gyro6050_set_accel_scale_range(gyro6050_t* gyro, gyro6050_accel_scale_range_t range)
 {
     if(range > GYRO6050_ACCEL_SCALE_RANGE_MAX) return E_INVALID_VALUE;
+    
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    gyro->data_byte = range << GYRO6050_ACCEL_CONTROL_FS_SEL_OFFSET;
-    return gyro6050_write_data(gyro, GYRO6050_STATE_ACCEL_RANGE_WRITE, GYRO6050_ACCEL_CONTROL_ADDRESS, &gyro->data_byte, 1);
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    data = range << GYRO6050_ACCEL_CONTROL_FS_SEL_OFFSET;
+    
+    err = gyro6050_write_data(gyro, GYRO6050_ACCEL_CONTROL_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = gyro6050_wait(gyro);
+    if(err != E_NO_ERROR) return err;
+    
+    gyro->conf_data.accel_scale_range = range;
+    
+    return E_NO_ERROR;
 }
-
-/*
-#define GYRO6050__ADDRESS 0
-#define GYRO6050__MAX   0
-err_t gyro6050_read_(void)
-{
-    if(!gyro6050_wait_current_op()) return E_BUSY;
-    return gyro6050_read_data(GYRO6050_STATE_IDLE, GYRO6050__ADDRESS, &gyro->data_byte, 1);
-}
-
-uint8_t gyro6050_(void)
-{
-    return gyro->data_byte;
-}
-
-err_t gyro6050_set_(uint8_t data)
-{
-    if(data > GYRO6050__MAX) return E_INVALID_VALUE;
-    if(!gyro6050_wait_current_op()) return E_BUSY;
-    gyro->data_byte = data;
-    return gyro6050_write_data(GYRO6050_STATE_IDLE, GYRO6050__ADDRESS, &gyro->data_byte, 1);
-}
- */
 
 err_t gyro6050_int_pin_configure(gyro6050_t* gyro, gyro6050_int_pin_conf_t conf)
 {
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    gyro->data_byte = conf;
-    return gyro6050_write_data(gyro, GYRO6050_STATE_INT_PIN_CONF_WRITE, GYRO6050_INT_PIN_CFG_ADDRESS, &gyro->data_byte, 1);
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    data = conf;
+    
+    err = gyro6050_write_data(gyro, GYRO6050_INT_PIN_CFG_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    return gyro6050_wait(gyro);
 }
 
-err_t gyro6050_read_int_pin_config(gyro6050_t* gyro)
+err_t gyro6050_read_int_pin_config(gyro6050_t* gyro, gyro6050_int_pin_conf_t* conf)
 {
+    if(conf == NULL) return E_NULL_POINTER;
+    
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    return gyro6050_read_data(gyro, GYRO6050_STATE_INT_PIN_CONF_READ, GYRO6050_INT_PIN_CFG_ADDRESS, &gyro->data_byte, 1);
-}
-
-gyro6050_int_pin_conf_t gyro6050_int_pin_config(const gyro6050_t* gyro)
-{
-    return gyro->cached_data.int_pin_config;
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    err = gyro6050_read_data(gyro, GYRO6050_INT_PIN_CFG_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = gyro6050_wait(gyro);
+    if(err != E_NO_ERROR) return err;
+    
+    *conf = data;
+    
+    return E_NO_ERROR;
 }
 
 err_t gyro6050_int_configure(gyro6050_t* gyro, gyro6050_int_conf_t conf)
 {
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    gyro->data_byte = conf;
-    return gyro6050_write_data(gyro, GYRO6050_STATE_INT_CONF_WRITE, GYRO6050_INT_CFG_ADDRESS, &gyro->data_byte, 1);
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    data = conf;
+    
+    err = gyro6050_write_data(gyro, GYRO6050_INT_CFG_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    return gyro6050_wait(gyro);
 }
 
-err_t gyro6050_read_int_config(gyro6050_t* gyro)
+err_t gyro6050_read_int_config(gyro6050_t* gyro, gyro6050_int_conf_t* conf)
 {
+    if(conf == NULL) return E_NULL_POINTER;
+    
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    return gyro6050_read_data(gyro, GYRO6050_STATE_INT_CONF_READ, GYRO6050_INT_CFG_ADDRESS, &gyro->data_byte, 1);
-}
-
-gyro6050_int_conf_t gyro6050_int_config(const gyro6050_t* gyro)
-{
-    return gyro->cached_data.int_config;
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    err = gyro6050_read_data(gyro, GYRO6050_INT_CFG_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    err = gyro6050_wait(gyro);
+    if(err != E_NO_ERROR) return err;
+    
+    *conf = data;
+    
+    return E_NO_ERROR;
 }
 
 err_t gyro6050_power_control(gyro6050_t* gyro, gyro6050_power_t power_flags, gyro6050_clock_t clock)
 {
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    gyro->data_byte = power_flags | clock;
-    return gyro6050_write_data(gyro, GYRO6050_STATE_SLEEP_WRITE, GYRO6050_PWR_MNGT_1_ADDRESS, &gyro->data_byte, 1);
+    
+    err_t err = E_NO_ERROR;
+    uint8_t data = 0;
+    
+    data = power_flags | clock;
+    
+    err = gyro6050_write_data(gyro, GYRO6050_PWR_MNGT_1_ADDRESS, &data, 1);
+    if(err != E_NO_ERROR) return err;
+    
+    return gyro6050_wait(gyro);
 }
 
 err_t gyro6050_read(gyro6050_t* gyro)
 {
     if(!gyro6050_wait_current_op(gyro)) return E_BUSY;
-    return gyro6050_read_data(gyro, GYRO6050_STATE_DATA_READ, GYRO6050_ACCEL_TEMP_GYRO_DATA_ADDRESS, &gyro->raw_data, sizeof(gyro6050_raw_data_t));
+    
+    return gyro6050_read_data(gyro, GYRO6050_ACCEL_TEMP_GYRO_DATA_ADDRESS, &gyro->raw_data, sizeof(gyro6050_raw_data_t));
 }
 /**
  * Получает значение сырых данных для угловой скорости в 1 градус / с.
@@ -484,7 +498,7 @@ err_t gyro6050_read(gyro6050_t* gyro)
  */
 static int32_t gyro6050_raw_value_1dps(gyro6050_t* gyro)
 {
-    switch(gyro->cached_data.gyro_scale_range){
+    switch(gyro->conf_data.gyro_scale_range){
         default:
         case GYRO6050_GYRO_SCALE_RANGE_250_DPS:
             return (131); // 32768 / 250
@@ -503,7 +517,7 @@ static int32_t gyro6050_raw_value_1dps(gyro6050_t* gyro)
  */
 static int32_t gyro6050_raw_value_1g(gyro6050_t* gyro)
 {
-    switch(gyro->cached_data.accel_scale_range){
+    switch(gyro->conf_data.accel_scale_range){
         default:
         case GYRO6050_ACCEL_SCALE_RANGE_2G:
             return (16384); // 32768 / 2
@@ -518,19 +532,16 @@ static int32_t gyro6050_raw_value_1g(gyro6050_t* gyro)
 
 void gyro6050_calculate(gyro6050_t* gyro)
 {
-    // Если нет новых данных.
-    if(!gyro->new_data_avail) return;
-    
-    gyro->raw_data.temp = __REV16(gyro->raw_data.temp);
-    gyro->raw_data.accel_x = __REV16(gyro->raw_data.accel_x);
-    gyro->raw_data.accel_y = __REV16(gyro->raw_data.accel_y);
-    gyro->raw_data.accel_z = __REV16(gyro->raw_data.accel_z);
-    gyro->raw_data.gyro_w_x = __REV16(gyro->raw_data.gyro_w_x);
-    gyro->raw_data.gyro_w_y = __REV16(gyro->raw_data.gyro_w_y);
-    gyro->raw_data.gyro_w_z = __REV16(gyro->raw_data.gyro_w_z);
+    int16_t temp = __REV16(gyro->raw_data.temp);
+    int16_t accel_x = __REV16(gyro->raw_data.accel_x);
+    int16_t accel_y = __REV16(gyro->raw_data.accel_y);
+    int16_t accel_z = __REV16(gyro->raw_data.accel_z);
+    int16_t gyro_w_x = __REV16(gyro->raw_data.gyro_w_x);
+    int16_t gyro_w_y = __REV16(gyro->raw_data.gyro_w_y);
+    int16_t gyro_w_z = __REV16(gyro->raw_data.gyro_w_z);
 
     // Вычислим температуру.
-    gyro->data.temp = fixed16_make_from_fract((int32_t)gyro->raw_data.temp, 340) + fixed16_make_from_fract(3653, 100);
+    gyro->data.temp = fixed16_make_from_fract((int32_t)temp, 340) + fixed16_make_from_fract(3653, 100);
     
     // Единичные значения.
     // Единичное ускорение.
@@ -539,20 +550,20 @@ void gyro6050_calculate(gyro6050_t* gyro)
     int32_t raw_one_dps = gyro6050_raw_value_1dps(gyro);
     
     // Вычислим данные акселерометра.
-    gyro->data.accel_x = fixed32_make_from_fract((int32_t)gyro->raw_data.accel_x, raw_one_g);
-    gyro->data.accel_y = fixed32_make_from_fract((int32_t)gyro->raw_data.accel_y, raw_one_g);
-    gyro->data.accel_z = fixed32_make_from_fract((int32_t)gyro->raw_data.accel_z, raw_one_g);
+    // X.
+    gyro->data.accel_x = fixed32_make_from_fract((int32_t)accel_x, raw_one_g);
+    // Y.
+    gyro->data.accel_y = fixed32_make_from_fract((int32_t)accel_y, raw_one_g);
+    // Z.
+    gyro->data.accel_z = fixed32_make_from_fract((int32_t)accel_z, raw_one_g);
     
     // Вычислим данные гироскопа.
     // X.
-    gyro->data.gyro_w_x = fixed32_make_from_fract(gyro->raw_data.gyro_w_x, raw_one_dps);
+    gyro->data.gyro_w_x = fixed32_make_from_fract((int32_t)gyro_w_x, raw_one_dps);
     // Y.
-    gyro->data.gyro_w_y = fixed32_make_from_fract(gyro->raw_data.gyro_w_y, raw_one_dps);
+    gyro->data.gyro_w_y = fixed32_make_from_fract((int32_t)gyro_w_y, raw_one_dps);
     // Z.
-    gyro->data.gyro_w_z = fixed32_make_from_fract(gyro->raw_data.gyro_w_z, raw_one_dps);
-    
-    // Установим флаг отсутствия новых данных.
-    gyro->new_data_avail = false;
+    gyro->data.gyro_w_z = fixed32_make_from_fract((int32_t)gyro_w_z, raw_one_dps);
 }
 
 fixed16_t gyro6050_temp(const gyro6050_t* gyro)

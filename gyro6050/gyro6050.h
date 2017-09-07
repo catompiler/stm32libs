@@ -12,6 +12,8 @@
 #include "fixed/fixed32.h"
 #include "future/future.h"
 #include "defs/defs.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 //! Адреса i2c гироскопа.
 //! Пин AD0 подтянут к земле.
@@ -180,21 +182,13 @@ typedef struct _Gyro6050Data{
     fixed32_t gyro_w_z;
 }gyro6050_data_t;
 
-//! Кэшированные конфигурационные данные.
-typedef struct _Gyro6050CachedData{
+//! Конфигурационные данные.
+typedef struct _Gyro6050ConfdData{
     //! Диапазон данных гироскопа.
     gyro6050_gyro_scale_range_t gyro_scale_range;
     //! Диапазон данных акселерометра.
     gyro6050_accel_scale_range_t accel_scale_range;
-    //! Делитель частоты вывода.
-    uint8_t rate_divisor;
-    //! dlpf.
-    uint8_t dlpf;
-    //! Конфигурация пина сигнала о прерываниях.
-    gyro6050_int_pin_conf_t int_pin_config;
-    //! Конфигурация сигнала о прерываниях.
-    gyro6050_int_conf_t int_config;
-}gyro6050_cached_data_t;
+}gyro6050_conf_data_t;
 
 //! Число сообщений i2c.
 #define GYRO6050_I2C_MESSAGES_COUNT 2
@@ -213,8 +207,6 @@ typedef struct _Gyro5060{
     i2c_transfer_id_t i2c_transfer_id;
     //! Адрес страницы i2c.
     uint8_t rom_address;
-    //! Байт данных для обмена.
-    uint8_t data_byte;
     //! Сообщения i2c.
     i2c_message_t i2c_messages[GYRO6050_I2C_MESSAGES_COUNT];
     //! Будущее.
@@ -223,12 +215,8 @@ typedef struct _Gyro5060{
     gyro6050_raw_data_t raw_data;
     //! Вычисленные данные.
     gyro6050_data_t data;
-    //! Кэшированные данные.
-    gyro6050_cached_data_t cached_data;
-    //! Флаг новых данных.
-    bool new_data_avail;
-    //! Состояние (текущее действие).
-    uint8_t state;
+    //! Конфигурационные данные.
+    gyro6050_conf_data_t conf_data;
 }gyro6050_t;
 
 
@@ -248,6 +236,19 @@ EXTERN bool gyro6050_i2c_callback(gyro6050_t* gyro);
  * @return Код ошибки.
  */
 EXTERN err_t gyro6050_init(gyro6050_t* gyro, i2c_bus_t* i2c, i2c_address_t address);
+
+/**
+ * Сбрасывает состояние.
+ * @param gyro Гироскоп.
+ */
+EXTERN void gyro6050_reset(gyro6050_t* gyro);
+
+/**
+ * Завершает операцию
+ * с ошибкой тайм-аута.
+ * @param gyro Гироскоп.
+ */
+EXTERN void gyro6050_timeout(gyro6050_t* gyro);
 
 /**
  * Получает флаг завершения текущего действия.
@@ -295,16 +296,10 @@ EXTERN void gyro6050_set_i2c_transfer_id(gyro6050_t* gyro, i2c_transfer_id_t tra
  * Считывает делитель частоты вывода из гироскопа.
  * Данные действительны до следующей операции с гироскопом.
  * @param gyro Гироскоп.
+ * @param divisor Делитель.
  * @return Код ошибки.
  */
-EXTERN err_t gyro6050_read_rate_divisor(gyro6050_t* gyro);
-
-/**
- * Получает считанное значение делителя частоты вывода гироскопа.
- * @param gyro Гироскоп.
- * @return Считанное значение делителя частоты вывода гироскопа.
- */
-EXTERN uint8_t gyro6050_rate_divisor(const gyro6050_t* gyro);
+EXTERN err_t gyro6050_read_rate_divisor(gyro6050_t* gyro, uint8_t* divisor);
 
 /**
  * Устанавливает делитель частоты вывода гироскопа.
@@ -318,16 +313,10 @@ EXTERN err_t gyro6050_set_rate_divisor(gyro6050_t* gyro, uint8_t divisor);
  * Считывает значение фильтра низких частот..
  * Данные действительны до следующей операции с гироскопом.
  * @param gyro Гироскоп.
+ * @param dlpf Значение фильтра низких частот.
  * @return Код ошибки.
  */
-EXTERN err_t gyro6050_read_dlpf(gyro6050_t* gyro);
-
-/**
- * Получает считанное значение фильтра низких частот.
- * @param gyro Гироскоп.
- * @return Считанное значение фильтра низких частот.
- */
-EXTERN gyro6050_dlpf_t gyro6050_dlpf(const gyro6050_t* gyro);
+EXTERN err_t gyro6050_read_dlpf(gyro6050_t* gyro, gyro6050_dlpf_t* dlpf);
 
 /**
  * Устанавливает значение фильтра низких частот.
@@ -341,16 +330,10 @@ EXTERN err_t gyro6050_set_dlpf(gyro6050_t* gyro, gyro6050_dlpf_t dlpf);
  * Считывает значение диапазона данных гироскопа.
  * Данные действительны до следующей операции с гироскопом.
  * @param gyro Гироскоп.
+ * @param range Значение диапазона данных гироскопа.
  * @return Код ошибки.
  */
-EXTERN err_t gyro6050_read_gyro_scale_range(gyro6050_t* gyro);
-
-/**
- * Получает считанное значение диапазона данных гироскопа.
- * @param gyro Гироскоп.
- * @return Считанное значение диапазона данных гироскопа.
- */
-EXTERN gyro6050_gyro_scale_range_t gyro6050_gyro_scale_range(const gyro6050_t* gyro);
+EXTERN err_t gyro6050_read_gyro_scale_range(gyro6050_t* gyro, gyro6050_gyro_scale_range_t* range);
 
 /**
  * Устанавливает значение диапазона данных гироскопа.
@@ -364,16 +347,10 @@ EXTERN err_t gyro6050_set_gyro_scale_range(gyro6050_t* gyro, gyro6050_gyro_scale
  * Считывает значение диапазона данных акселерометра.
  * Данные действительны до следующей операции с гироскопом.
  * @param gyro Гироскоп.
+ * @param range Значение диапазона данных акселерометра.
  * @return Код ошибки.
  */
-EXTERN err_t gyro6050_read_accel_scale_range(gyro6050_t* gyro);
-
-/**
- * Получает считанное значение диапазона данных акселерометра.
- * @param gyro Гироскоп.
- * @return Считанное значение диапазона данных акселерометра.
- */
-EXTERN gyro6050_accel_scale_range_t gyro6050_accel_scale_range(const gyro6050_t* gyro);
+EXTERN err_t gyro6050_read_accel_scale_range(gyro6050_t* gyro, gyro6050_accel_scale_range_t* range);
 
 /**
  * Устанавливает значение диапазона данных акселерометра.
@@ -382,29 +359,6 @@ EXTERN gyro6050_accel_scale_range_t gyro6050_accel_scale_range(const gyro6050_t*
  * @return Код ошибки.
  */
 EXTERN err_t gyro6050_set_accel_scale_range(gyro6050_t* gyro, gyro6050_accel_scale_range_t range);
-
-/**
- * Считывает .
- * Данные действительны до следующей операции с гироскопом.
- * @param gyro Гироскоп.
- * @return Код ошибки.
- */
-//EXTERN err_t gyro6050_read_(gyro5060_t* gyro);
-
-/**
- * Получает считанное значение .
- * @param gyro Гироскоп.
- * @return Считанное значение .
- */
-//EXTERN uint8_t gyro6050_(gyro5060_t* gyro);
-
-/**
- * Устанавливает .
- * @param gyro Гироскоп.
- * @param data.
- * @return Код ошибки.
- */
-//EXTERN err_t gyro6050_set_(gyro5060_t* gyro, uint8_t data);
 
 /**
  * Конфигурирует пин сигнала о прерываниях.
@@ -417,16 +371,10 @@ EXTERN err_t gyro6050_int_pin_configure(gyro6050_t* gyro, gyro6050_int_pin_conf_
 /**
  * Считывает конфигурацию пина сигнала о прерываниях.
  * @param gyro Гироскоп.
+ * @param conf Конфигурация пина.
  * @return Код ошибки.
  */
-EXTERN err_t gyro6050_read_int_pin_config(gyro6050_t* gyro);
-
-/**
- * Получает считанную конфигурацию пина сигнала о прерываниях.
- * @param gyro Гироскоп.
- * @return Конфигурацию пина сигнала о прерываниях.
- */
-EXTERN gyro6050_int_pin_conf_t gyro6050_int_pin_config(const gyro6050_t* gyro);
+EXTERN err_t gyro6050_read_int_pin_config(gyro6050_t* gyro, gyro6050_int_pin_conf_t* conf);
 
 /**
  * Конфигурирует сигнал о прерываниях.
@@ -439,16 +387,10 @@ EXTERN err_t gyro6050_int_configure(gyro6050_t* gyro, gyro6050_int_conf_t conf);
 /**
  * Считывает конфигурацию сигнала о прерываниях.
  * @param gyro Гироскоп.
+ * @param conf Конфигурация сигнала.
  * @return Код ошибки.
  */
-EXTERN err_t gyro6050_read_int_config(gyro6050_t* gyro);
-
-/**
- * Получает считанную конфигурацию сигнала о прерываниях.
- * @param gyro Гироскоп.
- * @return Конфигурацию сигнала о прерываниях.
- */
-EXTERN gyro6050_int_conf_t gyro6050_int_config(const gyro6050_t* gyro);
+EXTERN err_t gyro6050_read_int_config(gyro6050_t* gyro, gyro6050_int_conf_t* conf);
 
 /**
  * Пробуждает гироскоп.
@@ -459,6 +401,7 @@ EXTERN err_t gyro6050_power_control(gyro6050_t* gyro, gyro6050_power_t power_fla
 
 /**
  * Считывает данные из гироскопа.
+ * Асинхронная операция.
  * @param gyro Гироскоп.
  * @return Код ошибки.
  */

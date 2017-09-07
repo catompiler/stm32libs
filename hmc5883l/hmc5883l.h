@@ -11,6 +11,8 @@
 #include "fixed/fixed16.h"
 #include "fixed/fixed32.h"
 #include "future/future.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 //! Адреса i2c компаса.
 //! Пин AD0 подтянут к земле.
@@ -81,7 +83,7 @@ typedef enum _Hmc5883l_Resoulution {
 
 //! Флаги режима компаса.
 //! Режим высокой скорости i2c.
-#define HMC5883L_MODE_I2C_HIGH_SPEED_3400_KHZ 0x80
+#define HMC5883L_MODE_I2C_HIGH_SPEED_400_KHZ 0x80
 
 //! Режим компаса.
 typedef enum _Hmc5883l_Operating_Mode {
@@ -110,20 +112,10 @@ typedef struct _Hmc5883lData{
 }hmc5883l_data_t;
 
 //! Кэшированные конфигурационные данные.
-typedef struct _Hmc5883lCachedData{
-    //! Число выборок на измерение.
-    hmc5883l_samples_t compass_samples;
-    //! Частота измерений.
-    hmc5883l_output_rate_t output_rate;
-    //! Режим измерений.
-    hmc5883l_measurement_mode_t measurement_mode;
+typedef struct _Hmc5883lConfdData{
     //! Разрешение.
     hmc5883l_resolution_t resolution;
-    //! Режим компаса.
-    hmc5883l_operating_mode_t operating_mode;
-    //! Флаги режима.
-    uint8_t mode_flags;
-}hmc5883l_cached_data_t;
+}hmc5883l_conf_data_t;
 
 //! Число сообщений i2c.
 #define HMC5883L_I2C_MESSAGES_COUNT 2
@@ -142,8 +134,6 @@ typedef struct _Hmc5883l{
     i2c_transfer_id_t i2c_transfer_id;
     //! Адрес страницы i2c.
     uint8_t rom_address;
-    //! Байт данных для обмена.
-    uint8_t data_byte;
     //! Сообщения i2c.
     i2c_message_t i2c_messages[HMC5883L_I2C_MESSAGES_COUNT];
     //! Будущее.
@@ -153,11 +143,7 @@ typedef struct _Hmc5883l{
     //! Вычисленные данные.
     hmc5883l_data_t data;
     //! Кэшированные данные.
-    hmc5883l_cached_data_t cached_data;
-    //! Флаг новых данных.
-    bool new_data_avail;
-    //! Состояние (текущее действие).
-    uint8_t state;
+    hmc5883l_conf_data_t conf_data;
 }hmc5883l_t;
 
 
@@ -177,6 +163,19 @@ extern bool hmc5883l_i2c_callback(hmc5883l_t* compass);
  * @return Код ошибки.
  */
 extern err_t hmc5883l_init(hmc5883l_t* compass, i2c_bus_t* i2c, i2c_address_t address);
+
+/**
+ * Сбрасывает состояние.
+ * @param compass Компас.
+ */
+EXTERN void hmc5883l_reset(hmc5883l_t* compass);
+
+/**
+ * Завершает операцию
+ * с ошибкой тайм-аута.
+ * @param compass Компас.
+ */
+EXTERN void hmc5883l_timeout(hmc5883l_t* compass);
 
 /**
  * Получает флаг завершения текущего действия.
@@ -223,30 +222,13 @@ extern void hmc5883l_set_i2c_transfer_id(hmc5883l_t* compass, i2c_transfer_id_t 
 /**
  * Считывает конфигурацию компаса.
  * @param compass Компас.
+ * @param samples Число выборок.
+ * @param output_rate Частота измерения.
+ * @param measurement_mode режим измерения.
  * @return Код ошибки.
  */
-extern err_t hmc5883l_read_configuration(hmc5883l_t* compass);
-
-/**
- * Получает считанное значение числа выборок.
- * @param compass Компас.
- * @return Считанное значение числа выборок.
- */
-extern hmc5883l_samples_t hmc5883l_samples(hmc5883l_t* compass);
-
-/**
- * Получает считанное значение частоты измерения.
- * @param compass Компас.
- * @return Считанное значение частоты измерения.
- */
-extern hmc5883l_output_rate_t hmc5883l_output_rate(hmc5883l_t* compass);
-
-/**
- * Получает считанное значение режима измерения.
- * @param compass Компас.
- * @return Считанное значение режима измерения.
- */
-extern hmc5883l_measurement_mode_t hmc5883l_measurement_mode(hmc5883l_t* compass);
+extern err_t hmc5883l_read_configuration(hmc5883l_t* compass, hmc5883l_samples_t* samples,
+                                         hmc5883l_output_rate_t* output_rate, hmc5883l_measurement_mode_t* measurement_mode);
 
 /**
  * Устанавливает конфигурацию компаса.
@@ -262,16 +244,10 @@ extern err_t hmc5883l_configure(hmc5883l_t* compass, hmc5883l_samples_t samples,
 /**
  * Считывает разрешение.
  * @param compass Компас.
+ * @param resolution Разрешение.
  * @return Код ошибки.
  */
-extern err_t hmc5883l_read_resolution(hmc5883l_t* compass);
-
-/**
- * Получает считанное значение разрешения.
- * @param compass Компас.
- * @return Считанное значение разрешения.
- */
-extern hmc5883l_resolution_t hmc5883l_resolution(hmc5883l_t* compass);
+extern err_t hmc5883l_read_resolution(hmc5883l_t* compass, hmc5883l_resolution_t* resolution);
 
 /**
  * Устанавливает разрешение.
@@ -284,23 +260,11 @@ extern err_t hmc5883l_set_resolution(hmc5883l_t* compass, hmc5883l_resolution_t 
 /**
  * Считывает режим работы компаса.
  * @param compass Компас.
+ * @param op_mode Режим работы компаса.
+ * @param mode_flags Флаги режима работы компаса.
  * @return Код ошибки.
  */
-extern err_t hmc5883l_read_mode(hmc5883l_t* compass);
-
-/**
- * Получает считанное значение флагов режима работы компаса.
- * @param compass Компас.
- * @return Считанное значение флагов режима работы компаса.
- */
-extern uint8_t hmc5883l_mode_flags(hmc5883l_t* compass);
-
-/**
- * Получает считанное значение режима работы компаса.
- * @param compass Компас.
- * @return Считанное значение режима работы компаса.
- */
-extern hmc5883l_operating_mode_t hmc5883l_operating_mode(hmc5883l_t* compass);
+extern err_t hmc5883l_read_mode(hmc5883l_t* compass, hmc5883l_operating_mode_t* op_mode, uint8_t* mode_flags);
 
 /**
  * Устанавливает режим работы компаса.
@@ -312,29 +276,8 @@ extern hmc5883l_operating_mode_t hmc5883l_operating_mode(hmc5883l_t* compass);
 extern err_t hmc5883l_set_mode(hmc5883l_t* compass, hmc5883l_operating_mode_t op_mode, uint8_t mode_flags);
 
 /**
- * Считывает .
- * @param compass Компас.
- * @return Код ошибки.
- */
-//extern err_t hmc5883l_read_(hmc5883l_t* compass);
-
-/**
- * Получает считанное значение .
- * @param compass Компас.
- * @return Считанное значение .
- */
-//extern uint8_t hmc5883l_(hmc5883l_t* compass);
-
-/**
- * Устанавливает .
- * @param compass Компас.
- * @param data.
- * @return Код ошибки.
- */
-//extern err_t hmc5883l_set_(hmc5883l_t* compass, uint8_t data);
-
-/**
  * Считывает данные из компаса.
+ * Асинхронная операция.
  * @param compass Компас.
  * @return Код ошибки.
  */

@@ -21,6 +21,7 @@ typedef struct _PidController {
     fixed32_t prev_i; //!< Предыдущее значение интегрального звена.
     fixed32_t clamp_min; //!< Минимальное значение.
     fixed32_t clamp_max; //!< Максимальное значение.
+    fixed32_t clamp_width; //!< Максимальное изменение значения.
     fixed32_t value; //!< Текущее значение.
 } pid_controller_t;
 
@@ -128,6 +129,7 @@ ALWAYS_INLINE static void pid_controller_clamp(pid_controller_t* controller, fix
 {
     controller->clamp_min = clamp_min;
     controller->clamp_max = clamp_max;
+    controller->clamp_width = clamp_max - clamp_min;
 }
 
 /**
@@ -137,7 +139,7 @@ ALWAYS_INLINE static void pid_controller_clamp(pid_controller_t* controller, fix
  */
 ALWAYS_INLINE static fixed32_t pid_controller_clamp_width(pid_controller_t* controller)
 {
-    return controller->clamp_max - controller->clamp_min;
+    return controller->clamp_width;
 }
 
 #endif	/* PID_CONTROLLER_H */

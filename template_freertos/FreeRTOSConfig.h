@@ -119,7 +119,7 @@
 #define INCLUDE_uxTaskPriorityGet                   0
 #define INCLUDE_vTaskDelete                         0
 #define INCLUDE_vTaskSuspend                        0
-#define INCLUDE_xResumeFromISR                      0
+#define INCLUDE_xTaskResumeFromISR                  0
 #define INCLUDE_vTaskDelayUntil                     0
 #define INCLUDE_vTaskDelay                          1
 #define INCLUDE_xTaskGetSchedulerState              0
@@ -131,6 +131,5 @@
 #define INCLUDE_xTimerPendFunctionCall              0
 #define INCLUDE_xTaskAbortDelay                     0
 #define INCLUDE_xTaskGetHandle                      0
-#define INCLUDE_xTaskResumeFromISR                  0
 
 #endif  //FREERTOS_CONFIG_H

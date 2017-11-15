@@ -2,7 +2,7 @@
 TARGET    = main
 
 # Объектные файлы.
-OBJECTS   = main.o
+OBJECTS   = main.o FreeRTOS-openocd.o
 
 # Собственные библиотеки в исходниках.
 SRC_LIBS  = circular_buffer usart_buf newlib_stubs
@@ -270,6 +270,8 @@ LDFLAGS   += -Wl,-Map=$(BUILD_TARGET_MAP),--cref
 LDFLAGS   += $(addprefix -L, $(LIBS_PATH))
 # Скрипт линкера.
 LDFLAGS   += -T$(LDSCRIPT)
+# FreeRTOS + OpenOCD
+LDFLAGS   += -Wl,--undefined=uxTopUsedPriority
 # Библиотеки.
 LDLIBS   += $(addprefix -l, $(LIBS))
 

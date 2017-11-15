@@ -7,15 +7,19 @@ set remotetimeout 10
 set remote hardware-watchpoint-limit 4
 set remote hardware-breakpoint-limit 6
 
+# События потоков.
+#set print thread-events
+
 # Цель.
-target extended-remote | openocd -f "interface/stlink-v2.cfg" -f "target/stm32f1x.cfg" -c "gdb_port pipe"
+target extended-remote | openocd -f "interface/stlink-v2.cfg" -f "target/stm32f1x.cfg"\
+                                 -c "stm32f1x.cpu configure -rtos auto" -c "gdb_port pipe"
 #; log_output openocd.log
 
 # Сброс.
 monitor reset halt
 
 # Файл отладки
-file main
+file build/main
 
 ## Раскомментировать, если необходимо
 ## каждый раз загружать прошивку.

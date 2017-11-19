@@ -43,19 +43,18 @@ SECTIONS
     } >FLASH
     
     /* ARM magic sections */
-    .ARM.extab :
+    .ARM.extab : ALIGN(4)
     {
-    . = ALIGN(4);
-       *(.ARM.extab* .gnu.linkonce.armextab.*)
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > FLASH
-        
-    .ARM.exidx :
-    {
+
     . = ALIGN(4);
-    __exidx_start = .;  
-       *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    __exidx_start = .;
+    .ARM.exidx : ALIGN(4)
+    {
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    } > FLASH
     __exidx_end = .;
-    } > FLASH
  
     .text.end :
     {

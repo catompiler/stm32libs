@@ -15,25 +15,12 @@
 #include "ds1307mem.h"
 
 
-#define E_DS1307_BUSY (E_BUSY)
 
 //Адрес ds1307.
 #define DS1307_I2C_ADDRESS 0x68
 
 //Идентификатор передачи i2c для ds1307
-#define DS1307_I2C_TRANSFER_ID DS1307_I2C_ADDRESS
-
-//Тип статуса.
-typedef enum _Ds1307_Status {
-    DS1307_STATUS_NONE = 0, //!< Ничего не происходит.
-    DS1307_STATUS_ERROR, //!< Ошибка.
-    DS1307_STATUS_READ, //!< Начало чтения.
-    DS1307_STATUS_READING, //!< Чтение.
-    DS1307_STATUS_READED, //!< Прочитано.
-    DS1307_STATUS_WRITE, //!< Начало записи.
-    DS1307_STATUS_WRITING, //!< Запись.
-    DS1307_STATUS_WRITED //!< Записано.
-} ds1307_status_t;
+#define DS1307_DEFAULT_I2C_TRANSFER_ID DS1307_I2C_ADDRESS
 
 //! Число сообщений i2c.
 #define DS1307_I2C_MESSAGES_COUNT 2
@@ -44,10 +31,10 @@ typedef enum _Ds1307_Status {
 
 //! Сруктура DS1307.
 typedef struct _Ds1307 {
+    i2c_transfer_id_t i2c_transfer_id; //!< Идентификатор передачи i2c.
     ds1307mem_t memory; //!< Образ памяти часов.
     i2c_bus_t* i2c; //!< Шина i2c.
     future_t future; //!< Будущее.
-    ds1307_status_t status; //!< Статус обмена данными часов.
     uint8_t rom_address; //!< Адрес в памяти часов.
     i2c_message_t i2c_messages[DS1307_I2C_MESSAGES_COUNT]; //!< Сообщения i2c.
 } ds1307_t;
@@ -89,6 +76,19 @@ EXTERN bool ds1307_i2c_callback(ds1307_t* rtc);
 EXTERN bool ds1307_in_process(ds1307_t* rtc);
 
 /**
+ * Сбрасывает состояние.
+ * @param rtc RTC.
+ */
+EXTERN void ds1307_reset(ds1307_t* rtc);
+
+/**
+ * Завершает операцию
+ * с ошибкой тайм-аута.
+ * @param rtc RTC.
+ */
+EXTERN void ds1307_timeout(ds1307_t* rtc);
+
+/**
  * Получает флаг завершения текущей операции.
  * @param rtc RTC.
  * @return Флаг завершения текущей операции.
@@ -98,15 +98,9 @@ EXTERN bool ds1307_done(ds1307_t* rtc);
 /**
  * Ждёт завершения текущей операции.
  * @param rtc RTC.
+ * @return Код ошибки.
  */
-EXTERN void ds1307_wait(ds1307_t* rtc);
-
-/**
- * Получает статус.
- * @param rtc RTC.
- * @return Статус.
- */
-EXTERN ds1307_status_t ds1307_status(ds1307_t* rtc);
+EXTERN err_t ds1307_wait(ds1307_t* rtc);
 
 /**
  * Получает код ошибки.
@@ -116,7 +110,22 @@ EXTERN ds1307_status_t ds1307_status(ds1307_t* rtc);
 EXTERN err_t ds1307_error(ds1307_t* rtc);
 
 /**
+ * Получает идентификатор передачи i2c.
+ * @param rtc RTC.
+ * @return Идентификатор передачи i2c.
+ */
+EXTERN i2c_transfer_id_t ds1307_i2c_transfer_id(const ds1307_t* rtc);
+
+/**
+ * Устанавливает идентификатор передачи i2c.
+ * @param rtc RTC.
+ * @param transfer_id Идентификатор передачи i2c.
+ */
+EXTERN void ds1307_set_i2c_transfer_id(ds1307_t* rtc, i2c_transfer_id_t transfer_id);
+
+/**
  * Читает память.
+ * Асинхронная операция.
  * @param rtc RTC.
  * @return Код ошибки.
  */
@@ -124,6 +133,7 @@ EXTERN err_t ds1307_read(ds1307_t* rtc);
 
 /**
  * Записывает память.
+ * Асинхронная операция.
  * @param rtc RTC.
  * @return Код ошибки.
  */

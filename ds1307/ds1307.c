@@ -5,88 +5,81 @@
 #include "bits/bits.h"
 
 
-static err_t ds1307_do(ds1307_t* rtc);
+
+/**
+ * Ждёт завершения текущей операции.
+ * @return true, если шина i2c занята нами и мы дождались, иначе false.
+ */
+static bool ds1307_wait_current_op(ds1307_t* rtc)
+{
+    // Если шина занята не нами - возврат ошибки занятости.
+    if(i2c_bus_busy(rtc->i2c) && (i2c_bus_transfer_id(rtc->i2c) != rtc->i2c_transfer_id)) return false;
+    // Подождём выполнения предыдущей операции.
+    ds1307_wait(rtc);
+    // Подождём шину i2c.
+    i2c_bus_wait(rtc->i2c);
+    return true;
+}
+
+static void ds1307_start(ds1307_t* rtc)
+{
+    future_start(&rtc->future);
+}
+
+static void ds1307_end(ds1307_t* rtc, err_t err)
+{
+    future_finish(&rtc->future, int_to_pvoid(err));
+}
 
 bool ds1307_i2c_callback(ds1307_t* rtc)
 {
-    if(i2c_bus_transfer_id(rtc->i2c) != DS1307_I2C_TRANSFER_ID) return false;
+    if(i2c_bus_transfer_id(rtc->i2c) != rtc->i2c_transfer_id) return false;
     
-    switch(i2c_bus_status(rtc->i2c)){
-        case I2C_STATUS_IDLE:
-        case I2C_STATUS_TRANSFERING:
-            return false;
-        default:
-            break;
+    if(i2c_bus_status(rtc->i2c) == I2C_STATUS_TRANSFERED){
+        ds1307_end(rtc, E_NO_ERROR);
+    }else{
+        ds1307_end(rtc, E_IO_ERROR);
     }
-    
-    ds1307_do(rtc);
     
     return true;
 }
 
-static void ds1307_start(ds1307_t* rtc, ds1307_status_t status)
+static err_t ds1307_write_data(ds1307_t* rtc, uint8_t page_address, const void* data, size_t data_size)
 {
-    future_start(&rtc->future);
-    rtc->status = status;
+    // Установим идентификатор передачи.
+    if(!i2c_bus_set_transfer_id(rtc->i2c, rtc->i2c_transfer_id)) return E_BUSY;
+    
+    ds1307_start(rtc);
+    
+    rtc->rom_address = page_address;
+    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].direction = I2C_WRITE;
+    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].data = (void*)data;
+    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].data_size = data_size;
+    
+    err_t err = i2c_bus_transfer(rtc->i2c, rtc->i2c_messages, DS1307_I2C_MESSAGES_COUNT);
+    
+    if(err != E_NO_ERROR){
+        ds1307_end(rtc, err);
+    }
+    return err;
 }
 
-static void ds1307_next(ds1307_t* rtc, ds1307_status_t status)
+static err_t ds1307_read_data(ds1307_t* rtc, uint8_t page_address, void* data, size_t data_size)
 {
-    rtc->status = status;
-}
-
-static void ds1307_finish(ds1307_t* rtc, ds1307_status_t status, void* result)
-{
-    future_finish(&rtc->future, result);
-    rtc->status = status;
-}
-
-static err_t ds1307_do(ds1307_t* rtc)
-{
-    err_t err = E_NO_ERROR;
-    switch(rtc->status){
-        case DS1307_STATUS_READ:
-            if(!i2c_bus_set_transfer_id(rtc->i2c, DS1307_I2C_TRANSFER_ID)){
-                ds1307_finish(rtc, DS1307_STATUS_ERROR, int_to_pvoid(E_BUSY));
-                break;
-            }
-            rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].direction = I2C_READ;
-            err = i2c_bus_transfer(rtc->i2c, rtc->i2c_messages, DS1307_I2C_MESSAGES_COUNT);
-            if(err != E_NO_ERROR){
-                ds1307_finish(rtc, DS1307_STATUS_ERROR, int_to_pvoid(err));
-            }else{
-                ds1307_next(rtc, DS1307_STATUS_READING);
-            }
-            break;
-        case DS1307_STATUS_READING:
-            if(i2c_bus_status(rtc->i2c) == I2C_STATUS_TRANSFERED){
-                ds1307_finish(rtc, DS1307_STATUS_READED, int_to_pvoid(E_NO_ERROR));
-            }else{
-                ds1307_finish(rtc, DS1307_STATUS_ERROR, int_to_pvoid(E_IO_ERROR));
-            }
-            break;
-        case DS1307_STATUS_WRITE:
-            if(!i2c_bus_set_transfer_id(rtc->i2c, DS1307_I2C_TRANSFER_ID)){
-                ds1307_finish(rtc, DS1307_STATUS_ERROR, int_to_pvoid(E_BUSY));
-                break;
-            }
-            rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].direction = I2C_WRITE;
-            err = i2c_bus_transfer(rtc->i2c, rtc->i2c_messages, DS1307_I2C_MESSAGES_COUNT);
-            if(err != E_NO_ERROR){
-                ds1307_finish(rtc, DS1307_STATUS_ERROR, int_to_pvoid(err));
-            }else{
-                ds1307_next(rtc, DS1307_STATUS_WRITING);
-            }
-            break;
-        case DS1307_STATUS_WRITING:
-            if(i2c_bus_status(rtc->i2c) == I2C_STATUS_TRANSFERED){
-                ds1307_finish(rtc, DS1307_STATUS_WRITED, int_to_pvoid(E_NO_ERROR));
-            }else{
-                ds1307_finish(rtc, DS1307_STATUS_ERROR, int_to_pvoid(E_IO_ERROR));
-            }
-            break;
-        default:
-            break;
+    // Установим идентификатор передачи.
+    if(!i2c_bus_set_transfer_id(rtc->i2c, rtc->i2c_transfer_id)) return E_BUSY;
+    
+    ds1307_start(rtc);
+    
+    rtc->rom_address = page_address;
+    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].direction = I2C_READ;
+    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].data = data;
+    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].data_size = data_size;
+    
+    err_t err = i2c_bus_transfer(rtc->i2c, rtc->i2c_messages, DS1307_I2C_MESSAGES_COUNT);
+    
+    if(err != E_NO_ERROR){
+        ds1307_end(rtc, err);
     }
     return err;
 }
@@ -97,9 +90,9 @@ err_t ds1307_init(ds1307_t* rtc, i2c_bus_t* i2c)
     
     memset(&rtc->memory, 0x0, sizeof(ds1307mem_t));
     
-    rtc->i2c = i2c;
+    rtc->i2c_transfer_id = DS1307_DEFAULT_I2C_TRANSFER_ID;
     
-    rtc->status = DS1307_STATUS_NONE;
+    rtc->i2c = i2c;
     
     rtc->rom_address = 0;
     
@@ -117,19 +110,25 @@ bool ds1307_in_process(ds1307_t* rtc)
     return future_running(&rtc->future);
 }
 
+void ds1307_reset(ds1307_t* rtc)
+{
+    ds1307_end(rtc, E_NO_ERROR);
+}
+
+void ds1307_timeout(ds1307_t* rtc)
+{
+    ds1307_end(rtc, E_TIME_OUT);
+}
+
 bool ds1307_done(ds1307_t* rtc)
 {
     return future_done(&rtc->future);
 }
 
-void ds1307_wait(ds1307_t* rtc)
+err_t ds1307_wait(ds1307_t* rtc)
 {
     future_wait(&rtc->future);
-}
-
-ds1307_status_t ds1307_status(ds1307_t* rtc)
-{
-    return rtc->status;
+    return ds1307_error(rtc);
 }
 
 err_t ds1307_error(ds1307_t* rtc)
@@ -137,26 +136,36 @@ err_t ds1307_error(ds1307_t* rtc)
     return pvoid_to_int(err_t, future_result(&rtc->future));
 }
 
+i2c_transfer_id_t ds1307_i2c_transfer_id(const ds1307_t* rtc)
+{
+    return rtc->i2c_transfer_id;
+}
+
+void ds1307_set_i2c_transfer_id(ds1307_t* rtc, i2c_transfer_id_t transfer_id)
+{
+    rtc->i2c_transfer_id = transfer_id;
+}
+
 err_t ds1307_read(ds1307_t* rtc)
 {
-    if(future_running(&rtc->future)) return E_DS1307_BUSY;
+    if(!ds1307_wait_current_op(rtc)) return E_BUSY;
     
-    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].data_size = sizeof(ds1307mem_t);
+    err_t err = E_NO_ERROR;
     
-    ds1307_start(rtc, DS1307_STATUS_READ);
+    err = ds1307_read_data(rtc, 0, &rtc->memory, sizeof(ds1307mem_t));
     
-    return ds1307_do(rtc);
+    return err;
 }
 
 err_t ds1307_write(ds1307_t* rtc)
 {
-    if(future_running(&rtc->future)) return E_DS1307_BUSY;
+    if(!ds1307_wait_current_op(rtc)) return E_BUSY;
     
-    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].data_size = sizeof(ds1307mem_t);
+    err_t err = E_NO_ERROR;
     
-    ds1307_start(rtc, DS1307_STATUS_WRITE);
+    err = ds1307_write_data(rtc, 0, &rtc->memory, sizeof(ds1307mem_t));
     
-    return ds1307_do(rtc);
+    return err;
 }
 
 void ds1307_datetime_get(ds1307_t* rtc, ds1307_datetime_t* datetime)
@@ -169,6 +178,7 @@ void ds1307_datetime_get(ds1307_t* rtc, ds1307_datetime_t* datetime)
         datetime->hours   = (rtc->memory.hours_byte.hours10 & 0x1) * 10 + rtc->memory.hours_byte.hours;
     }else{
         datetime->is_ampm = false;
+        datetime->pm = false;
         datetime->hours   = rtc->memory.hours_byte.hours10 * 10 + rtc->memory.hours_byte.hours;
     }
     datetime->day = rtc->memory.day_byte.day;
@@ -218,11 +228,12 @@ void ds1307_set_running(ds1307_t* rtc, bool running)
 
 err_t ds1307_write_running(ds1307_t* rtc)
 {
-    if(future_running(&rtc->future)) return E_DS1307_BUSY;
+    if(!ds1307_wait_current_op(rtc)) return E_BUSY;
     
-    rtc->i2c_messages[DS1307_I2C_MESSAGE_DATA].data_size = sizeof(seconds_byte_t);
+    err_t err = E_NO_ERROR;
     
-    ds1307_start(rtc, DS1307_STATUS_WRITE);
+    err = ds1307_write_data(rtc, 0, &rtc->memory, sizeof(seconds_byte_t));
+    if(err != E_NO_ERROR) return err;
     
-    return ds1307_do(rtc);
+    return ds1307_wait(rtc);
 }

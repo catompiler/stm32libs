@@ -212,12 +212,6 @@ ALWAYS_INLINE static uint8_t lcd12864_data_read(lcd12864_t* lcd)
     // E = 1.
     lcd->gpio_e->BSRR = lcd->gpio_pin_e;
     lcd12864_delay_half_e_period();
-    // E = 0.
-    lcd->gpio_e->BRR = lcd->gpio_pin_e;
-    lcd12864_delay_half_e_period();
-    // E = 1.
-    lcd->gpio_e->BSRR = lcd->gpio_pin_e;
-    lcd12864_delay_half_e_period();
     // read.
     data = lcd12864_data_bus_read(lcd);
     // E = 0.

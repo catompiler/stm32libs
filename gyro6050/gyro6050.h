@@ -414,6 +414,14 @@ EXTERN err_t gyro6050_read(gyro6050_t* gyro);
 EXTERN void gyro6050_calculate(gyro6050_t* gyro);
 
 /**
+ * Получает копию вычисленных данных гироскопа.
+ * @param gyro Гироскоп.
+ * @param data Данные гироскопа.
+ * @return Код ошибки.
+ */
+EXTERN err_t gyro6050_data_get(gyro6050_t* gyro, gyro6050_data_t* data);
+
+/**
  * Получает температуру гироскопа.
  * @param gyro Гироскоп.
  * @return Температура гироскопа.

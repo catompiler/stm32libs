@@ -290,6 +290,14 @@ extern err_t hmc5883l_read(hmc5883l_t* compass);
 extern void hmc5883l_calculate(hmc5883l_t* compass);
 
 /**
+ * Получает копию вычисленных данных компаса.
+ * @param compass Компас.
+ * @param data Данные компаса.
+ * @return Код ошибки.
+ */
+extern err_t hmc5883l_data_get(hmc5883l_t* compass, hmc5883l_data_t* data);
+
+/**
  * Получает значение магнитной индукции по оси X.
  * @param compass Компас.
  * @return Значение магнитной индукции по оси X.

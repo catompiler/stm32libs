@@ -365,6 +365,15 @@ void hmc5883l_calculate(hmc5883l_t* compass)
     compass->data.compass_z = fixed32_make_from_fract((int32_t)compass_z, raw_one_gauss);
 }
 
+err_t hmc5883l_data_get(hmc5883l_t* compass, hmc5883l_data_t* data)
+{
+    if(data == NULL) return E_NULL_POINTER;
+    
+    memcpy(data, &compass->data, sizeof(hmc5883l_data_t));
+    
+    return E_NO_ERROR;
+}
+
 fixed32_t hmc5883l_compass_x(const hmc5883l_t* compass)
 {
     return compass->data.compass_x;

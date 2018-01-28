@@ -566,6 +566,15 @@ void gyro6050_calculate(gyro6050_t* gyro)
     gyro->data.gyro_w_z = fixed32_make_from_fract((int32_t)gyro_w_z, raw_one_dps);
 }
 
+err_t gyro6050_data_get(gyro6050_t* gyro, gyro6050_data_t* data)
+{
+    if(data == NULL) return E_NULL_POINTER;
+    
+    memcpy(data, &gyro->data, sizeof(gyro6050_data_t));
+    
+    return E_NO_ERROR;
+}
+
 fixed16_t gyro6050_temp(const gyro6050_t* gyro)
 {
     return gyro->data.temp;

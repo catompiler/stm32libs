@@ -150,6 +150,24 @@ typedef struct _Modbus_Rtu_Slave_Id {
     size_t data_size; //!< Размер дополнительных данных.
 } modbus_rtu_slave_id_t;
 
+//! Тип структуры запроса доступа к файлу.
+#pragma pack(push, 1)
+typedef struct _Modbus_Rtu_File_Record_Req {
+    uint8_t reference_type; //!< Тип запроса - 0x6.
+    uint16_t file_number; //!< Номер файла.
+    uint16_t record_number; //!< Номер записи.
+    uint16_t record_length; //!< Количество записей.
+} modbus_rtu_file_record_request_t;
+#pragma pack(pop)
+
+//! Тип структуры ответа на чтение файла.
+#pragma pack(push, 1)
+typedef struct _Modbus_Rtu_Read_File_Record_Resp {
+    uint8_t data_length; //!< Количество байт данных.
+    uint8_t reference_type; //!< Тип запроса - 0x6.
+} modbus_rtu_read_file_record_response_t;
+#pragma pack(pop)
+
 
 //! Широковещательный адрес.
 #define MODBUS_RTU_ADDRESS_BROADCAST 0
@@ -227,6 +245,12 @@ typedef modbus_rtu_error_t (*modbus_rtu_change_holding_reg_callback_t)(uint16_t 
 //! Каллбэк получения идентификатора ведомого устройства.
 typedef modbus_rtu_error_t (*modbus_rtu_report_slave_id_callback_t)(modbus_rtu_slave_id_t* slave_id);
 
+//! Каллбэк чтения файла.
+typedef modbus_rtu_error_t (*modbus_rtu_read_file_record_t)(uint16_t file, uint16_t record, uint16_t count, uint16_t* values);
+
+//! Каллбэк чтения файла.
+typedef modbus_rtu_error_t (*modbus_rtu_write_file_record_t)(uint16_t file, uint16_t record, uint16_t count, const uint16_t* values);
+
 /**
  * Каллбэк обработки пользовательской функции.
  * @param func Номер функции.
@@ -256,6 +280,8 @@ typedef struct _Modbus_Rtu {
     modbus_rtu_write_holding_reg_callback_t write_holding_reg_callback; //!< Каллбэк записи регистра хранения.
     modbus_rtu_change_holding_reg_callback_t change_holding_reg_callback; //!< Каллбэк изменения регистра хранения.
     modbus_rtu_report_slave_id_callback_t report_slave_id_callback; //!< Каллбэк получения идентификатора ведомого устройства.
+    modbus_rtu_read_file_record_t read_file_record_callback; //!< Каллбэк чтения файла.
+    modbus_rtu_write_file_record_t write_file_record_callback; //!< Каллбэк записи файла.
     modbus_rtu_custom_function_callback_t custom_function_callback; //!< Каллбэк обработки пользовательской функции.
 } modbus_rtu_t;
 
@@ -591,6 +617,34 @@ EXTERN modbus_rtu_report_slave_id_callback_t modbus_rtu_report_slave_id_callback
  * @param callback Каллбэк получения идентификатора ведомого устройства.
  */
 EXTERN void modbus_rtu_set_report_slave_id_callback(modbus_rtu_t* modbus, modbus_rtu_report_slave_id_callback_t callback);
+
+/**
+ * Получает каллбэк чтения файла.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк чтения файла.
+ */
+EXTERN modbus_rtu_read_file_record_t modbus_rtu_read_file_record_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк чтения файла.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк чтения файла.
+ */
+EXTERN void modbus_rtu_set_read_file_record_callback(modbus_rtu_t* modbus, modbus_rtu_read_file_record_t callback);
+
+/**
+ * Получает каллбэк записи файла.
+ * @param modbus Протокол Modbus RTU.
+ * @return Каллбэк записи файла.
+ */
+EXTERN modbus_rtu_write_file_record_t modbus_rtu_write_file_record_callback(modbus_rtu_t* modbus);
+
+/**
+ * Устанавливает каллбэк записи файла.
+ * @param modbus Протокол Modbus RTU.
+ * @param callback Каллбэк записи файла.
+ */
+EXTERN void modbus_rtu_set_write_file_record_callback(modbus_rtu_t* modbus, modbus_rtu_write_file_record_t callback);
 
 /**
  * Получает каллбэк обработки пользовательской функции.

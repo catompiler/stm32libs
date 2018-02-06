@@ -398,6 +398,26 @@ void modbus_rtu_set_report_slave_id_callback(modbus_rtu_t* modbus, modbus_rtu_re
     modbus->report_slave_id_callback = callback;
 }
 
+modbus_rtu_read_file_record_t modbus_rtu_read_file_record_callback(modbus_rtu_t* modbus)
+{
+    return modbus->read_file_record_callback;
+}
+
+void modbus_rtu_set_read_file_record_callback(modbus_rtu_t* modbus, modbus_rtu_read_file_record_t callback)
+{
+    modbus->read_file_record_callback = callback;
+}
+
+modbus_rtu_write_file_record_t modbus_rtu_write_file_record_callback(modbus_rtu_t* modbus)
+{
+    return modbus->write_file_record_callback;
+}
+
+void modbus_rtu_set_write_file_record_callback(modbus_rtu_t* modbus, modbus_rtu_write_file_record_t callback)
+{
+    modbus->write_file_record_callback = callback;
+}
+
 modbus_rtu_custom_function_callback_t modbus_rtu_custom_function_callback(modbus_rtu_t* modbus)
 {
     return modbus->custom_function_callback;
@@ -841,6 +861,155 @@ static err_t modbus_rtu_disp_report_slave_id(modbus_rtu_t* modbus)
     return modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
 }
 
+static err_t modbus_rtu_disp_read_file_record(modbus_rtu_t* modbus)
+{
+    if(modbus->read_file_record_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) == 0)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    uint8_t* rx_data = (uint8_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint8_t* tx_data = (uint8_t*)modbus_rtu_message_data(modbus->tx_message);
+    
+    uint8_t byte_count = rx_data[0];
+    if(byte_count < 0x7 || byte_count > 0xf5) return MODBUS_RTU_ERROR_INVALID_DATA;
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    uint8_t* request_buffer = (uint8_t*)&rx_data[1];
+    uint8_t* response_buffer = (uint8_t*)&tx_data[1];
+    
+    modbus_rtu_file_record_request_t* request = NULL;
+    modbus_rtu_read_file_record_response_t* response = NULL;
+    
+    uint16_t file = 0;
+    uint16_t record = 0;
+    uint16_t length = 0;
+    
+    uint8_t resp_size = 0;
+    uint16_t index = 0;
+    
+    uint16_t* response_data = NULL;
+    size_t response_cur_data_size = 0;
+    size_t response_cur_size = 0;
+    
+    while(resp_size < MODBUS_RTU_DATA_SIZE_MAX - 1 && byte_count >= sizeof(modbus_rtu_file_record_request_t)){
+        
+        request = (modbus_rtu_file_record_request_t*)request_buffer;
+        response = (modbus_rtu_read_file_record_response_t*)response_buffer;
+        
+        if(request->reference_type != 0x6){
+            modbus_err = MODBUS_RTU_ERROR_INVALID_ADDRESS;
+            break;
+        }
+        file = ntohs(request->file_number);
+        record = ntohs(request->record_number);
+        length = ntohs(request->record_length);
+        
+        if((uint32_t)record + (uint32_t)length > 0x270f /* 9999 file records */){
+            modbus_err = MODBUS_RTU_ERROR_INVALID_ADDRESS;
+            break;
+        }
+        
+        response_data = (uint16_t*)(response_buffer + sizeof(modbus_rtu_read_file_record_response_t));
+        
+        modbus_err = modbus->read_file_record_callback(file, record, length, response_data);
+        if(modbus_err != MODBUS_RTU_ERROR_NONE) break;
+        
+        response_cur_data_size = length * 2;
+        response_cur_size = response_cur_data_size + sizeof(modbus_rtu_read_file_record_response_t);
+        
+        response->data_length = response_cur_data_size + 1;
+        response->reference_type = 0x6;
+        
+        // host to network order.
+        for(index = 0; index < length; index ++){
+            response_data[index] = htons(response_data[index]);
+        }
+        
+        byte_count -= sizeof(modbus_rtu_file_record_request_t);
+        request_buffer += sizeof(modbus_rtu_file_record_request_t);
+        resp_size += response_cur_size;
+        response_buffer += response_cur_size;
+    }
+    
+    if(modbus_err != MODBUS_RTU_ERROR_NONE)
+        return modbus_rtu_disp_fail(modbus, modbus_err);
+    
+    if(byte_count != 0)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    tx_data[0] = resp_size;
+    
+    return modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
+}
+
+static err_t modbus_rtu_disp_write_file_record(modbus_rtu_t* modbus)
+{
+    if(modbus->write_file_record_callback == NULL)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_FUNC);
+    
+    if(modbus_rtu_message_data_size(modbus->rx_message) == 0)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    uint8_t* rx_data = (uint8_t*)modbus_rtu_message_data(modbus->rx_message);
+    uint8_t* tx_data = (uint8_t*)modbus_rtu_message_data(modbus->tx_message);
+    
+    uint8_t byte_count = rx_data[0];
+    if(byte_count < 0x7 || byte_count > 0xf5) return MODBUS_RTU_ERROR_INVALID_DATA;
+    
+    modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
+    
+    modbus_rtu_file_record_request_t* request = (modbus_rtu_file_record_request_t*)&rx_data[1];
+    modbus_rtu_file_record_request_t* response = (modbus_rtu_file_record_request_t*)&tx_data[1];
+    
+    uint16_t file = 0;
+    uint16_t record = 0;
+    uint16_t length = 0;
+    
+    uint16_t* request_data = NULL;
+    size_t request_size = 0;
+    
+    while(byte_count >= sizeof(modbus_rtu_file_record_request_t)){
+        if(request->reference_type != 0x6){
+            modbus_err = MODBUS_RTU_ERROR_INVALID_ADDRESS;
+            break;
+        }
+        file = ntohs(request->file_number);
+        record = ntohs(request->record_number);
+        length = ntohs(request->record_length);
+        
+        if((uint32_t)record + (uint32_t)length > 0x270f /* 9999 file records */){
+            modbus_err = MODBUS_RTU_ERROR_INVALID_ADDRESS;
+            break;
+        }
+        
+        request_data = (uint16_t*)((uint8_t*)request + sizeof(modbus_rtu_file_record_request_t));
+        
+        modbus_err = modbus->write_file_record_callback(file, record, length, request_data);
+        if(modbus_err != MODBUS_RTU_ERROR_NONE) break;
+        
+        request_size = sizeof(modbus_rtu_file_record_request_t) + length * 2;
+        
+        memcpy(response, request, request_size);
+        
+        byte_count -= request_size;
+        request = (modbus_rtu_file_record_request_t*)((uint8_t*)request + request_size);
+        response = (modbus_rtu_file_record_request_t*)((uint8_t*)response + request_size);
+    }
+    
+    if(modbus_err != MODBUS_RTU_ERROR_NONE)
+        return modbus_rtu_disp_fail(modbus, modbus_err);
+    
+    if(byte_count != 0)
+        return modbus_rtu_disp_fail(modbus, MODBUS_RTU_ERROR_INVALID_DATA);
+    
+    tx_data[0] = rx_data[0];
+    
+    return modbus_rtu_disp_succ(modbus, tx_data[0] + 1);
+}
+
 static err_t modbus_rtu_disp_custom(modbus_rtu_t* modbus)
 {
     if(modbus->custom_function_callback == NULL)
@@ -894,6 +1063,10 @@ err_t modbus_rtu_dispatch(modbus_rtu_t* modbus)
             return modbus_rtu_disp_change_reg(modbus);
         case MODBUS_RTU_FUNC_READ_SLAVE_ID:
             return modbus_rtu_disp_report_slave_id(modbus);
+        case MODBUS_RTU_FUNC_READ_FILE:
+            return modbus_rtu_disp_read_file_record(modbus);
+        case MODBUS_RTU_FUNC_WRITE_FILE:
+            return modbus_rtu_disp_write_file_record(modbus);
     }
     
     return E_NO_ERROR;

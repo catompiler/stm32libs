@@ -103,21 +103,21 @@ typedef struct _UsartBus {
  * @param usart Устройство USART.
  * @return Флаг разрешённости передатчика USART.
  */
-EXTERN FunctionalState usart_bus_transmitter_state(USART_TypeDef* usart);
+EXTERN bool usart_bus_transmitter_state(USART_TypeDef* usart);
 
 /**
  * Получает флаг разрешённости приёмника USART.
  * @param usart Устройство USART.
  * @return Флаг разрешённости приёмника USART.
  */
-EXTERN FunctionalState usart_bus_receiver_state(USART_TypeDef* usart);
+EXTERN bool usart_bus_receiver_state(USART_TypeDef* usart);
 
 /**
  * Получает флаг полудуплексного режима USART.
  * @param usart Устройство USART.
  * @return Флаг полудуплексного режима USART.
  */
-EXTERN FunctionalState usart_bus_halfduplex_state(USART_TypeDef* usart);
+EXTERN bool usart_bus_halfduplex_state(USART_TypeDef* usart);
 
 /**
  * Инициализирует шину USART.

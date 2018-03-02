@@ -100,7 +100,8 @@ static void usart_bus_dma_rx_done(usart_bus_t* usart)
     
     usart_bus_dma_unlock_rx_channel(usart);
 
-    USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
+    usart->usart_device->CR1 |= USART_CR1_RXNEIE;
+    //USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
 }
 
 static void usart_bus_dma_rx_error(usart_bus_t* usart)
@@ -112,7 +113,8 @@ static void usart_bus_dma_rx_error(usart_bus_t* usart)
     
     usart_bus_dma_unlock_rx_channel(usart);
 
-    USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
+    usart->usart_device->CR1 |= USART_CR1_RXNEIE;
+    //USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
 }
 
 static void usart_bus_dma_tx_done(usart_bus_t* usart)
@@ -172,19 +174,19 @@ static ITStatus usart_rx_it_state(USART_TypeDef* usart)
     return DISABLE;
 }*/
 
-FunctionalState usart_bus_transmitter_state(USART_TypeDef* usart)
+bool usart_bus_transmitter_state(USART_TypeDef* usart)
 {
     if(usart->CR1 & USART_CR1_TE) return ENABLE;
     return DISABLE;
 }
 
-FunctionalState usart_bus_receiver_state(USART_TypeDef* usart)
+bool usart_bus_receiver_state(USART_TypeDef* usart)
 {
     if(usart->CR1 & USART_CR1_RE) return ENABLE;
     return DISABLE;
 }
 
-FunctionalState usart_bus_halfduplex_state(USART_TypeDef* usart)
+bool usart_bus_halfduplex_state(USART_TypeDef* usart)
 {
     if(usart->CR3 & USART_CR3_HDSEL) return ENABLE;
     return DISABLE;
@@ -219,16 +221,24 @@ err_t usart_bus_init(usart_bus_t* usart, usart_bus_init_t* usart_bus_is)
     
     usart->idle_mode = USART_IDLE_MODE_NONE;
     
-    USART_WakeUpConfig(usart->usart_device, USART_WakeUp_IdleLine);
+    // Режим выхода из сна - свободная шина.
+    usart->usart_device->CR1 &= ~USART_CR1_WAKE;
+    //USART_WakeUpConfig(usart->usart_device, USART_WakeUp_IdleLine);
     
-    if(usart_bus_receiver_state(usart->usart_device) != DISABLE){
-        USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
+    // Если включен приёмник - разрешим прерывания приёма и ошибок.
+    if(usart_bus_receiver_state(usart->usart_device)){
         
-        USART_ITConfig(usart->usart_device, USART_IT_ORE, ENABLE);
-        USART_ITConfig(usart->usart_device, USART_IT_PE, ENABLE);
-        USART_ITConfig(usart->usart_device, USART_IT_NE, ENABLE);
-        USART_ITConfig(usart->usart_device, USART_IT_FE, ENABLE);
-        USART_ITConfig(usart->usart_device, USART_IT_ERR, ENABLE);
+        usart->usart_device->CR1 |= USART_CR1_RXNEIE;
+        //USART_ITConfig(usart->usart_device, USART_IT_RXNE, ENABLE);
+        
+        usart->usart_device->CR1 |= USART_CR1_PEIE;
+        //USART_ITConfig(usart->usart_device, USART_IT_PE, ENABLE);
+        
+        usart->usart_device->CR3 |= USART_CR3_EIE;
+        //USART_ITConfig(usart->usart_device, USART_IT_NE, ENABLE);
+        //USART_ITConfig(usart->usart_device, USART_IT_ORE, ENABLE);
+        //USART_ITConfig(usart->usart_device, USART_IT_FE, ENABLE);
+        //USART_ITConfig(usart->usart_device, USART_IT_ERR, ENABLE);
     }
     
     return E_NO_ERROR;
@@ -280,24 +290,24 @@ bool usart_bus_dma_rx_channel_irq_handler(usart_bus_t* usart)
 {
     if(usart->rx_status != USART_STATUS_TRANSFERING) return false;
     
-    bool can_rx = usart_bus_transmitter_state(usart->usart_device) == ENABLE;
+    bool can_rx = usart_bus_transmitter_state(usart->usart_device);
     
     if(!can_rx || !usart->dma_rx_locked) return false;
     
     uint32_t dma_tc_flag = dma_channel_it_flag(usart->dma_rx_channel, DMA_IT_TC);
     uint32_t dma_te_flag = dma_channel_it_flag(usart->dma_rx_channel, DMA_IT_TE);
 
-    if(DMA_GetITStatus(dma_tc_flag)){
+    if(dma_channel_it_flag_status(dma_tc_flag)){
 
-        DMA_ClearITPendingBit(dma_tc_flag);
+        dma_channel_it_flag_clear(dma_tc_flag);
 
         usart_bus_dma_rx_done(usart);
         
         usart_bus_rx_done(usart);
 
-    }else if(DMA_GetITStatus(dma_te_flag)){
+    }else if(dma_channel_it_flag_status(dma_te_flag)){
 
-        DMA_ClearITPendingBit(dma_te_flag);
+        dma_channel_it_flag_clear(dma_te_flag);
 
         usart_bus_dma_rx_error(usart);
         
@@ -311,24 +321,24 @@ bool usart_bus_dma_tx_channel_irq_handler(usart_bus_t* usart)
 {
     if(usart->tx_status != USART_STATUS_TRANSFERING) return false;
     
-    bool can_tx = usart_bus_transmitter_state(usart->usart_device) == ENABLE;
+    bool can_tx = usart_bus_transmitter_state(usart->usart_device);
     
     if(!can_tx || !usart->dma_tx_locked) return false;
     
     uint32_t dma_tc_flag = dma_channel_it_flag(usart->dma_tx_channel, DMA_IT_TC);
     uint32_t dma_te_flag = dma_channel_it_flag(usart->dma_tx_channel, DMA_IT_TE);
 
-    if(DMA_GetITStatus(dma_tc_flag)){
+    if(dma_channel_it_flag_status(dma_tc_flag)){
 
-        DMA_ClearITPendingBit(dma_tc_flag);
+        dma_channel_it_flag_clear(dma_tc_flag);
 
         usart_bus_dma_tx_done(usart);
         
         usart_bus_tx_done(usart);
 
-    }else if(DMA_GetITStatus(dma_te_flag)){
+    }else if(dma_channel_it_flag_status(dma_te_flag)){
 
-        DMA_ClearITPendingBit(dma_te_flag);
+        dma_channel_it_flag_clear(dma_te_flag);
 
         usart_bus_dma_tx_error(usart);
         
@@ -451,9 +461,11 @@ void usart_bus_set_tc_callback(usart_bus_t* usart, usart_bus_callback_t callback
 {
     if(callback){
         usart->tc_callback = callback;
-        USART_ITConfig(usart->usart_device, USART_IT_TC, ENABLE);
+        usart->usart_device->CR1 |= USART_CR1_TCIE;
+        //USART_ITConfig(usart->usart_device, USART_IT_TC, ENABLE);
     }else{
-        USART_ITConfig(usart->usart_device, USART_IT_TC, DISABLE);
+        usart->usart_device->CR1 &= ~USART_CR1_TCIE;
+        //USART_ITConfig(usart->usart_device, USART_IT_TC, DISABLE);
         usart->tc_callback = callback;
     }
 }
@@ -497,20 +509,24 @@ void usart_bus_set_idle_mode(usart_bus_t* usart, usart_idle_mode_t mode)
 {
     usart->idle_mode = mode;
     if(mode == USART_IDLE_MODE_NONE){
-        USART_ITConfig(usart->usart_device, USART_IT_IDLE, DISABLE);
+        usart->usart_device->CR1 &= ~USART_CR1_IDLEIE;
+        //USART_ITConfig(usart->usart_device, USART_IT_IDLE, DISABLE);
     }else{
-        USART_ITConfig(usart->usart_device, USART_IT_IDLE, ENABLE);
+        usart->usart_device->CR1 |= USART_CR1_IDLEIE;
+        //USART_ITConfig(usart->usart_device, USART_IT_IDLE, ENABLE);
     }
 }
 
 void usart_bus_sleep(usart_bus_t* usart)
 {
-    USART_ReceiverWakeUpCmd(usart->usart_device, ENABLE);
+    usart->usart_device->CR1 |= USART_CR1_RWU;
+    //USART_ReceiverWakeUpCmd(usart->usart_device, ENABLE);
 }
 
 void usart_bus_wake(usart_bus_t* usart)
 {
-    USART_ReceiverWakeUpCmd(usart->usart_device, DISABLE);
+    usart->usart_device->CR1 &= ~USART_CR1_RWU;
+    //USART_ReceiverWakeUpCmd(usart->usart_device, DISABLE);
 }
 
 err_t usart_bus_send(usart_bus_t* usart, const void* data, size_t size)
@@ -541,9 +557,10 @@ err_t usart_bus_recv(usart_bus_t* usart, void* data, size_t size)
     if(size > UINT16_MAX) return E_OUT_OF_RANGE;
     
     if(!usart_bus_dma_lock_rx_channel(usart)) return E_BUSY;
-    if(usart_bus_receiver_state(usart->usart_device) != ENABLE) return E_BUSY;
+    if(!usart_bus_receiver_state(usart->usart_device)) return E_STATE;
     
-    USART_ITConfig(usart->usart_device, USART_IT_RXNE, DISABLE);
+    usart->usart_device->CR1 &= ~USART_CR1_RXNEIE;
+    //USART_ITConfig(usart->usart_device, USART_IT_RXNE, DISABLE);
     
     usart->rx_errors = USART_ERROR_NONE;
     usart->rx_status = USART_STATUS_TRANSFERING;

@@ -11,6 +11,29 @@
 #include "errors/errors.h"
 #include "defs/defs.h"
 
+/*
+ * Флаги прерываний DMA.
+ */
+//! Флаг глобального прерывания.
+#ifndef DMA_IT_GL
+#define DMA_IT_GL 0x1
+#endif
+//! Флаг прерывания завершения передачи.
+#ifndef DMA_IT_TC
+#define DMA_IT_TC 0x2
+#endif
+//! Флаг прерывания завершения половины передачи.
+#ifndef DMA_IT_HT
+#define DMA_IT_HT 0x4
+#endif
+//! Флаг прерывания ошибки передачи.
+#ifndef DMA_IT_TE
+#define DMA_IT_TE 0x8
+#endif
+
+//! Селектор периферии DMA.
+#define DMA_PERIPH_SEL 0x10000000
+
 /**
  * Получает номер канала DMA, 1-7 для DMA1 и 8-12 для DMA2.
  * @param dma_channel Канал DMA.
@@ -19,12 +42,33 @@
 EXTERN uint32_t dma_channel_number(DMA_Channel_TypeDef* dma_channel);
 
 /**
- * Получает заданный флаг прерывания для заданного канала.
+ * Получает периферию DMA заданного канала.
  * @param dma_channel Канал DMA.
- * @param dma_it_flag Флаг прерывания (DMA_IT_TC, DMA_IT_HT, DMA_IT_TE).
+ * @return Периферия DMA.
+ */
+EXTERN DMA_TypeDef* dma_channel_dma_periph(DMA_Channel_TypeDef* dma_channel);
+
+/**
+ * Получает заданный флаг прерывания для заданного канала.
+ * Если канал принадлежит DMA2 - в результате установлен флаг DMA_PERIPH_SEL.
+ * @param dma_channel Канал DMA.
+ * @param dma_it_flag Флаг прерывания (DMA_IT_GL, DMA_IT_TC, DMA_IT_HT, DMA_IT_TE).
  * @return Флаг прерывания для заданного канала, 0 в случае ошибки.
  */
 EXTERN uint32_t dma_channel_it_flag(DMA_Channel_TypeDef* dma_channel, uint32_t dma_it_flag);
+
+/**
+ * Получает состояние флага прерывания для заданного канала
+ * @param dma_ch_it_flag Флаг прерывания канала DMA.
+ * @return Состояние флага прерывания канала DMA.
+ */
+EXTERN bool dma_channel_it_flag_status(uint32_t dma_ch_it_flag);
+
+/**
+ * Очищает флаг прерывания для заданного канала.
+ * @param dma_ch_it_flag Флаг прерывания канала DMA.
+ */
+EXTERN void dma_channel_it_flag_clear(uint32_t dma_ch_it_flag);
 
 /**
  * Ждёт разблокировки канала DMA и блокирует его.

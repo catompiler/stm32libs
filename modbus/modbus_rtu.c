@@ -957,7 +957,7 @@ static err_t modbus_rtu_disp_write_file_record(modbus_rtu_t* modbus)
     uint8_t* tx_data = (uint8_t*)modbus_rtu_message_data(modbus->tx_message);
     
     uint8_t byte_count = rx_data[0];
-    if(byte_count < 0x7 || byte_count > 0xf5) return MODBUS_RTU_ERROR_INVALID_DATA;
+    if(byte_count < 0x9 || byte_count > 0xfb) return MODBUS_RTU_ERROR_INVALID_DATA;
     
     modbus_rtu_error_t modbus_err = MODBUS_RTU_ERROR_NONE;
     
@@ -970,6 +970,8 @@ static err_t modbus_rtu_disp_write_file_record(modbus_rtu_t* modbus)
     
     uint16_t* request_data = NULL;
     size_t request_size = 0;
+    
+    uint16_t index = 0;
     
     while(byte_count >= sizeof(modbus_rtu_file_record_request_t)){
         if(request->reference_type != 0x6){
@@ -986,6 +988,11 @@ static err_t modbus_rtu_disp_write_file_record(modbus_rtu_t* modbus)
         }
         
         request_data = (uint16_t*)((uint8_t*)request + sizeof(modbus_rtu_file_record_request_t));
+        
+        // network to host order.
+        for(index = 0; index < length; index ++){
+            request_data[index] = ntohs(request_data[index]);
+        }
         
         modbus_err = modbus->write_file_record_callback(file, record, length, request_data);
         if(modbus_err != MODBUS_RTU_ERROR_NONE) break;

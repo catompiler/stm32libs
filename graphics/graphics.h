@@ -12,6 +12,15 @@
 #include "defs/defs.h"
 
 
+
+// Если задан хотя бы один формат пиксела - объявим перечисление.
+#if defined(USE_GRAPHICS_FORMAT_BW_1_V) || defined(USE_GRAPHICS_FORMAT_BW_1_H) ||\
+    defined(USE_GRAPHICS_FORMAT_GRAY_2_V) || defined(USE_GRAPHICS_FORMAT_GRAY_2_H) ||\
+    defined(USE_GRAPHICS_FORMAT_GRAY_2_VFD) ||\
+    defined(USE_GRAPHICS_FORMAT_RGB_121_V) || defined(USE_GRAPHICS_FORMAT_RGB_121_H) ||\
+    defined(USE_GRAPHICS_FORMAT_RGB_332) || defined(USE_GRAPHICS_FORMAT_RGB_565) ||\
+    defined(USE_GRAPHICS_FORMAT_RGB_8)
+
 //! Перечисление форматов изображения.
 typedef enum _Graphics_format {
 #ifdef USE_GRAPHICS_FORMAT_BW_1_V
@@ -45,6 +54,15 @@ typedef enum _Graphics_format {
     GRAPHICS_FORMAT_RGB_8 //!<  Цветной, 24 бита.
 #endif
 } graphics_format_t;
+
+#else
+
+// Иначе определим тип как число.
+typedef uint32_t graphics_format_t;
+
+#endif // GRAPHICS_FORMAT_*
+
+
 
 // Макросы цветов.
 #define GRAPHICS_COLOR_BLACK 0x00000000

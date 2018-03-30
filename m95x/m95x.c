@@ -50,7 +50,7 @@
  */
 ALWAYS_INLINE static void m95x_pins_begin(m95x_t* eeprom)
 {
-    GPIO_ResetBits(eeprom->ce_gpio, eeprom->ce_pin);
+    eeprom->ce_gpio->BRR = eeprom->ce_pin;
 }
 
 /**
@@ -59,7 +59,7 @@ ALWAYS_INLINE static void m95x_pins_begin(m95x_t* eeprom)
  */
 ALWAYS_INLINE static void m95x_pins_end(m95x_t* eeprom)
 {
-    GPIO_SetBits(eeprom->ce_gpio, eeprom->ce_pin);
+    eeprom->ce_gpio->BSRR = eeprom->ce_pin;
 }
 
 /**

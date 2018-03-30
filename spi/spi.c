@@ -61,7 +61,7 @@ err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init)
     spi->dma_rx_locked = false;
     spi->dma_tx_locked = false;
     
-    SPI_I2S_ITConfig(spi->spi_device, SPI_I2S_IT_ERR, ENABLE);
+    spi->spi_device->CR2 |= SPI_CR2_ERRIE;
     
     return E_NO_ERROR;
 }
@@ -111,11 +111,11 @@ static void spi_bus_dma_rxtx_config(spi_bus_t* spi, void* rx_address, const void
 ALWAYS_INLINE static void spi_bus_dma_start(spi_bus_t* spi)
 {
     if(spi->dma_rx_locked){
-        spi->spi_device->CR2 |= SPI_I2S_DMAReq_Rx;
+        spi->spi_device->CR2 |= SPI_CR2_RXDMAEN;
         spi->dma_rx_channel->CCR |= DMA_CCR1_EN;
     }
     if(spi->dma_tx_locked){
-        spi->spi_device->CR2 |= SPI_I2S_DMAReq_Tx;
+        spi->spi_device->CR2 |= SPI_CR2_TXDMAEN;
         spi->dma_tx_channel->CCR |= DMA_CCR1_EN;
     }
 }
@@ -125,7 +125,7 @@ ALWAYS_INLINE static void spi_bus_dma_stop_rx(spi_bus_t* spi)
 {
     if(spi->dma_rx_locked){
         spi->dma_rx_channel->CCR &= ~DMA_CCR1_EN;
-        spi->spi_device->CR2 &= ~SPI_I2S_DMAReq_Rx;
+        spi->spi_device->CR2 &= ~SPI_CR2_RXDMAEN;
     }
 }
 
@@ -133,7 +133,7 @@ ALWAYS_INLINE static void spi_bus_dma_stop_tx(spi_bus_t* spi)
 {
     if(spi->dma_tx_locked){
         spi->dma_tx_channel->CCR &= ~DMA_CCR1_EN;
-        spi->spi_device->CR2 &= ~SPI_I2S_DMAReq_Tx;
+        spi->spi_device->CR2 &= ~SPI_CR2_TXDMAEN;
     }
 }
 
@@ -242,6 +242,16 @@ static void spi_bus_transfer_error(spi_bus_t* spi)
     spi_bus_done(spi);
 }
 
+static uint16_t spi_bus_read_dr(spi_bus_t* spi)
+{
+    return spi->spi_device->DR;
+}
+
+static uint16_t spi_bus_read_sr(spi_bus_t* spi)
+{
+    return spi->spi_device->SR;
+}
+
 void spi_bus_irq_handler(spi_bus_t* spi)
 {
 #ifdef SPI_BUS_DEBUG
@@ -252,36 +262,38 @@ void spi_bus_irq_handler(spi_bus_t* spi)
     
     if(SR & SPI_SR_OVR || SR & SPI_SR_UDR){
         // Clear flag.
-        SPI_I2S_ReceiveData(spi->spi_device);
-        SPI_I2S_GetITStatus(spi->spi_device, SPI_I2S_IT_OVR);
+        spi_bus_read_sr(spi);
+        spi_bus_read_dr(spi);
         
         spi->errors |= SPI_ERROR_OVERRUN;
 
     }
     if(SR & SPI_SR_MODF){
         // Clear flag.
-        SPI_Cmd(spi->spi_device, ENABLE);
+        spi_bus_read_sr(spi);
         // Restore master.
         spi->spi_device->CR1 |= SPI_CR1_MSTR;
+        // Enable SPI.
+        spi->spi_device->CR1 |= SPI_CR1_SPE;
         
         spi->errors |= SPI_ERROR_MASTER_MODE_FAULT;
     }
     if(SR & SPI_SR_CRCERR){
         // Clear flag.
-        SPI_I2S_ClearITPendingBit(spi->spi_device, SPI_IT_CRCERR);
+        spi->spi_device->SR &= ~SPI_SR_CRCERR;
         
         spi->errors |= SPI_ERROR_CRC;
     }
 
     if(SR & SPI_SR_RXNE){
         // Clear flag.
-        SPI_I2S_ReceiveData(spi->spi_device);
+        spi_bus_read_dr(spi);
         // Disable interrupt.
-        SPI_I2S_ITConfig(spi->spi_device, SPI_I2S_IT_RXNE, DISABLE);
+        spi->spi_device->CR2 &= ~SPI_CR2_RXNEIE;
         
     }else if(SR & SPI_SR_TXE){
         // Disable interrupt.
-        SPI_I2S_ITConfig(spi->spi_device, SPI_I2S_IT_TXE, DISABLE);
+        spi->spi_device->CR2 &= ~SPI_CR2_TXEIE;
     }
     
     if(spi->errors == SPI_NO_ERROR){
@@ -307,19 +319,19 @@ bool spi_bus_dma_rx_channel_irq_handler(spi_bus_t* spi)
     uint32_t dma_tc_flag = dma_channel_it_flag(spi->dma_rx_channel, DMA_IT_TC);
     uint32_t dma_te_flag = dma_channel_it_flag(spi->dma_tx_channel, DMA_IT_TE);
 
-    if(DMA_GetITStatus(dma_tc_flag)){
+    if(dma_channel_it_flag_status(dma_tc_flag)){
 
-        DMA_ClearITPendingBit(dma_tc_flag);
+        dma_channel_it_flag_clear(dma_tc_flag);
         
         if(!spi_bus_is_crc_enabled(spi)){
             spi_bus_transfer_done(spi);
         }else{
-            SPI_I2S_ITConfig(spi->spi_device, SPI_I2S_IT_RXNE, ENABLE);
+            spi->spi_device->CR2 |= SPI_CR2_RXNEIE;
         }
 
-    }else if(DMA_GetITStatus(dma_te_flag)){
+    }else if(dma_channel_it_flag_status(dma_te_flag)){
 
-        DMA_ClearITPendingBit(dma_te_flag);
+        dma_channel_it_flag_clear(dma_te_flag);
         
         spi->errors |= SPI_ERROR_DMA;
         spi_bus_transfer_error(spi);
@@ -344,21 +356,21 @@ bool spi_bus_dma_tx_channel_irq_handler(spi_bus_t* spi)
     uint32_t dma_tc_flag = dma_channel_it_flag(spi->dma_tx_channel, DMA_IT_TC);
     uint32_t dma_te_flag = dma_channel_it_flag(spi->dma_tx_channel, DMA_IT_TE);
 
-    if(DMA_GetITStatus(dma_tc_flag)){
+    if(dma_channel_it_flag_status(dma_tc_flag)){
 
-        DMA_ClearITPendingBit(dma_tc_flag);
+        dma_channel_it_flag_clear(dma_tc_flag);
 
         if(!can_rx){
             if(!spi_bus_is_crc_enabled(spi)){
                 spi_bus_transfer_done(spi);
             }else{
-                SPI_I2S_ITConfig(spi->spi_device, SPI_I2S_IT_TXE, ENABLE);
+                spi->spi_device->CR2 |= SPI_CR2_TXEIE;
             }
         }
 
-    }else if(DMA_GetITStatus(dma_te_flag)){
+    }else if(dma_channel_it_flag_status(dma_te_flag)){
 
-        DMA_ClearITPendingBit(dma_te_flag);
+        dma_channel_it_flag_clear(dma_te_flag);
         
         spi->errors |= SPI_ERROR_DMA;
         spi_bus_transfer_error(spi);
@@ -368,7 +380,7 @@ bool spi_bus_dma_tx_channel_irq_handler(spi_bus_t* spi)
 
 bool spi_bus_busy(spi_bus_t* spi)
 {
-    return (SPI_I2S_GetFlagStatus(spi->spi_device, SPI_I2S_FLAG_BSY) != RESET);// && spi->state != SPI_STATE_IDLE;
+    return (spi->spi_device->SR & SPI_SR_BSY) != 0;// && spi->state != SPI_STATE_IDLE;
 }
 
 void spi_bus_wait(spi_bus_t* spi)

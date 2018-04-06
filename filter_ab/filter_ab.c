@@ -13,6 +13,11 @@ void filter_ab_reset(filter_ab_t* filter)
     filter->value = 0;
 }
 
+void filter_ab_set_value(filter_ab_t* filter, filter_ab_value_t value)
+{
+    filter->value = value;
+}
+
 void filter_ab_set_weight(filter_ab_t* filter, filter_ab_weight_t weight)
 {
     filter->weight = weight;

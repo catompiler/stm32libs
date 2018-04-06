@@ -16,8 +16,6 @@ typedef uint16_t filter_ab_weight_t;
 //! Число значащих бит веса фильтра.
 #define FILTER_AB_WEIGHT_BITS 16
 
-//! Размер медианного фильтра.
-#define FILTER_AB_SIZE 3
 typedef struct _Filter_AB {
     filter_ab_value_t value; //!< Значение фильтра.
     /**
@@ -40,6 +38,13 @@ EXTERN void filter_ab_init(filter_ab_t* filter);
  * @param filter Фильтр.
  */
 EXTERN void filter_ab_reset(filter_ab_t* filter);
+
+/**
+ * Устанавливает значение фильтра.
+ * @param filter Фильтр.
+ * @param value Значение.
+ */
+EXTERN void filter_ab_set_value(filter_ab_t* filter, filter_ab_value_t value);
 
 /**
  * Устанавливает вес фильтра.

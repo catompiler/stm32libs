@@ -17,6 +17,7 @@
 #define WEAK __attribute__((weak))
 
 #define STRING(s) #s
+#define MAKE_STRING(s) STRING(s)
 #define CONCAT_SIMPLE(a, ...) a ## __VA_ARGS__
 #define CONCAT_SIMPLE3(a, b, ...) a ## b ## __VA_ARGS__
 #define CONCAT(a, ...) CONCAT_SIMPLE(a, __VA_ARGS__)

@@ -109,7 +109,7 @@ err_t ds18x20_read_temp(ds18x20_t* sensor, fixed16_t* temp)
     int16_t res_temp = 0;
     err_t err = E_NO_ERROR;
     
-    ds18x20_select(sensor);
+    err = ds18x20_select(sensor);
     if(err != E_NO_ERROR) return err;
     
     one_wire_send_cmd(sensor->one_wire, DS18X20_CMD_SCRATCHPAD_READ);

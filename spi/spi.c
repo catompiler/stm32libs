@@ -10,8 +10,10 @@
 #include <stdio.h>
 #endif
 
-
-static uint8_t spi_dummy_data = 0;
+// Значение по-умолчанию для мусорных данных.
+#define SPI_DUMMY_DATA_DEF_VAL 0xffff
+// Мусорные данные.
+static uint16_t spi_dummy_data = 0;
 
 
 #define SPI_STATE_IDLE             0
@@ -42,6 +44,11 @@ ALWAYS_INLINE static bool spi_bus_is_crc_enabled(spi_bus_t* spi)
     return (spi->spi_device->CR1 & SPI_CR1_CRCEN) != 0;
 }
 
+ALWAYS_INLINE static bool spi_bus_is_frame_16bit(spi_bus_t* spi)
+{
+    return (spi->spi_device->CR1 & SPI_CR1_DFF) != 0;
+}
+
 err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init)
 {
     if(init == NULL) return E_NULL_POINTER;
@@ -68,8 +75,13 @@ err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init)
 
 static void spi_bus_dma_rxtx_config(spi_bus_t* spi, void* rx_address, const void* tx_address, size_t size)
 {
-    const uint32_t ccr = DMA_CCR1_PL_0 | DMA_CCR1_TEIE | DMA_CCR1_TCIE;
+    uint32_t ccr = DMA_CCR1_PL_0 | DMA_CCR1_TEIE | DMA_CCR1_TCIE;
     
+    if(spi_bus_is_frame_16bit(spi)){
+        ccr |= DMA_CCR1_MSIZE_0 | DMA_CCR1_PSIZE_0;
+        size >>= 1;
+    }
+
     // RX.
     if(spi->dma_rx_locked){
         
@@ -101,7 +113,7 @@ static void spi_bus_dma_rxtx_config(spi_bus_t* spi, void* rx_address, const void
             spi->dma_tx_channel->CMAR = (uint32_t)tx_address;
             spi->dma_tx_channel->CCR = ccr | DMA_CCR1_DIR | DMA_CCR1_MINC;
         }else{
-            spi_dummy_data = 0;
+            spi_dummy_data = SPI_DUMMY_DATA_DEF_VAL;
             spi->dma_tx_channel->CMAR = (uint32_t)&spi_dummy_data;
             spi->dma_tx_channel->CCR = ccr | DMA_CCR1_DIR;
         }
@@ -481,6 +493,27 @@ bool spi_bus_reset_crc(spi_bus_t* spi)
     __NOP();
     spi->spi_device->CR1 |= SPI_CR1_CRCEN;
     
+    return true;
+}
+
+spi_frame_format_t spi_bus_frame_format(spi_bus_t* spi)
+{
+    if(spi_bus_is_frame_16bit(spi)){
+        return SPI_FRAME_FORMAT_16BIT;
+    }
+    return SPI_FRAME_FORMAT_8BIT;
+}
+
+bool spi_bus_set_frame_format(spi_bus_t* spi, spi_frame_format_t format)
+{
+    if(spi_bus_busy(spi)) return false;
+
+    if(format == SPI_FRAME_FORMAT_8BIT){
+        spi->spi_device->CR1 &= ~SPI_CR1_DFF;
+    }else{
+        spi->spi_device->CR1 |= SPI_CR1_DFF;
+    }
+
     return true;
 }
 

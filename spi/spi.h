@@ -41,6 +41,12 @@ typedef uint8_t spi_transfer_id_t;
 //! Идентификатор передачи по умолчанию.
 #define SPI_BUS_DEFAULT_TRANSFER_ID 0
 
+//! Тип формата карда шины spi.
+typedef enum _spi_frame_format {
+    SPI_FRAME_FORMAT_8BIT = 0, //!< 8 бит.
+    SPI_FRAME_FORMAT_16BIT = 1 //!< 16 бит.
+} spi_frame_format_t;
+
 //! Тип статуса шины spi.
 typedef enum _spi_status {
     SPI_STATUS_IDLE = 0,//!< Бездействие.
@@ -241,6 +247,21 @@ EXTERN uint16_t spi_bus_rx_crc(spi_bus_t* spi);
  * @return true в случае успеха, иначе false (шина занята).
  */
 EXTERN bool spi_bus_reset_crc(spi_bus_t* spi);
+
+/**
+ * Получает формат карда данных.
+ * @param spi Шина SPI.
+ * @return Формат кадра данных.
+ */
+EXTERN spi_frame_format_t spi_bus_frame_format(spi_bus_t* spi);
+
+/**
+ * Устанавливает формат кадра данных.
+ * @param spi Шина SPI.
+ * @param format Формат кадра данных.
+ * @return Флаг установки формата кадра данных.
+ */
+EXTERN bool spi_bus_set_frame_format(spi_bus_t* spi, spi_frame_format_t format);
 
 /**
  * Получает состояние шины spi.

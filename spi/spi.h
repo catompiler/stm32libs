@@ -41,10 +41,16 @@ typedef uint8_t spi_transfer_id_t;
 //! Идентификатор передачи по умолчанию.
 #define SPI_BUS_DEFAULT_TRANSFER_ID 0
 
+//! Тип формата данных карда шины spi.
+typedef enum _spi_data_frame_format {
+    SPI_DATA_FRAME_FORMAT_8BIT = 0, //!< 8 бит.
+    SPI_DATA_FRAME_FORMAT_16BIT = 1 //!< 16 бит.
+} spi_data_frame_format_t;
+
 //! Тип формата карда шины spi.
 typedef enum _spi_frame_format {
-    SPI_FRAME_FORMAT_8BIT = 0, //!< 8 бит.
-    SPI_FRAME_FORMAT_16BIT = 1 //!< 16 бит.
+    SPI_FRAME_FORMAT_MSBFIRST = 0, //!< Сперва наиболее значащий бит.
+    SPI_FRAME_FORMAT_LSBFIRST = 1 //!< Сперва наименее значащий бит.
 } spi_frame_format_t;
 
 //! Тип статуса шины spi.
@@ -99,6 +105,7 @@ typedef struct _SPI_Bus {
     uint8_t state;//!< Состояние передачи.
     bool dma_rx_locked;//!< Заблокирован канал получения.
     bool dma_tx_locked;//!< Заблокирован канал передачи.
+    uint16_t tx_default; //!< Передаваемые данные при приёме.
 } spi_bus_t;
 
 //! Структура инициализации шины spi.
@@ -194,6 +201,13 @@ EXTERN spi_transfer_id_t spi_bus_transfer_id(spi_bus_t* spi);
 EXTERN bool spi_bus_set_transfer_id(spi_bus_t* spi, spi_transfer_id_t id);
 
 /**
+ * Устанавливает значение передаваемых данных по-умолчанию.
+ * @param spi Шина SPI.
+ * @param value Значение передаваемых данных по-умолчанию.
+ */
+EXTERN void spi_bus_set_tx_default_value(spi_bus_t* spi, uint16_t value);
+
+/**
  * Получает флаг включения вычисления
  * контрольной суммы CRC и её приёма / передачи.
  * @param spi Шина spi.
@@ -247,6 +261,21 @@ EXTERN uint16_t spi_bus_rx_crc(spi_bus_t* spi);
  * @return true в случае успеха, иначе false (шина занята).
  */
 EXTERN bool spi_bus_reset_crc(spi_bus_t* spi);
+
+/**
+ * Получает формат карда данных.
+ * @param spi Шина SPI.
+ * @return Формат кадра данных.
+ */
+EXTERN spi_data_frame_format_t spi_bus_data_frame_format(spi_bus_t* spi);
+
+/**
+ * Устанавливает формат кадра данных.
+ * @param spi Шина SPI.
+ * @param format Формат кадра данных.
+ * @return Флаг установки формата кадра данных.
+ */
+EXTERN bool spi_bus_set_data_frame_format(spi_bus_t* spi, spi_data_frame_format_t format);
 
 /**
  * Получает формат карда данных.
@@ -355,6 +384,15 @@ ALWAYS_INLINE static void spi_message_set_sender_data(spi_message_t* message, vo
  * @return Код ошибки.
  */
 EXTERN err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_count);
+
+/**
+ * Обменивается данными по шине SPI.
+ * @param spi Шина SPI.
+ * @param tx_data Данные для передачи.
+ * @param rx_data Буфер для приёма, может быть NULL.
+ * @return Код ошибки.
+ */
+EXTERN err_t spi_bus_transmit(spi_bus_t* spi, uint16_t tx_data, uint16_t* rx_data);
 
 #endif	/* SPI_H */
 

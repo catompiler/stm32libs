@@ -12,8 +12,8 @@
 
 // Значение по-умолчанию для мусорных данных.
 #define SPI_DUMMY_DATA_DEF_VAL 0xffff
-// Мусорные данные.
-static uint16_t spi_dummy_data = 0;
+
+static uint16_t spi_rx_default_data = 0;
 
 
 #define SPI_STATE_IDLE             0
@@ -49,6 +49,11 @@ ALWAYS_INLINE static bool spi_bus_is_frame_16bit(spi_bus_t* spi)
     return (spi->spi_device->CR1 & SPI_CR1_DFF) != 0;
 }
 
+ALWAYS_INLINE static bool spi_bus_is_frame_lsbfirst(spi_bus_t* spi)
+{
+    return (spi->spi_device->CR1 & SPI_CR1_LSBFIRST) != 0;
+}
+
 err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init)
 {
     if(init == NULL) return E_NULL_POINTER;
@@ -68,6 +73,8 @@ err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init)
     spi->dma_rx_locked = false;
     spi->dma_tx_locked = false;
     
+    spi->tx_default = SPI_DUMMY_DATA_DEF_VAL;
+
     spi->spi_device->CR2 |= SPI_CR2_ERRIE;
     
     return E_NO_ERROR;
@@ -95,7 +102,7 @@ static void spi_bus_dma_rxtx_config(spi_bus_t* spi, void* rx_address, const void
             spi->dma_rx_channel->CMAR = (uint32_t)rx_address;
             spi->dma_rx_channel->CCR = ccr | DMA_CCR1_MINC;
         }else{
-            spi->dma_rx_channel->CMAR = (uint32_t)&spi_dummy_data;
+            spi->dma_rx_channel->CMAR = (uint32_t)&spi_rx_default_data;
             spi->dma_rx_channel->CCR = ccr;
         }
     }
@@ -113,8 +120,7 @@ static void spi_bus_dma_rxtx_config(spi_bus_t* spi, void* rx_address, const void
             spi->dma_tx_channel->CMAR = (uint32_t)tx_address;
             spi->dma_tx_channel->CCR = ccr | DMA_CCR1_DIR | DMA_CCR1_MINC;
         }else{
-            spi_dummy_data = SPI_DUMMY_DATA_DEF_VAL;
-            spi->dma_tx_channel->CMAR = (uint32_t)&spi_dummy_data;
+            spi->dma_tx_channel->CMAR = (uint32_t)&spi->tx_default;
             spi->dma_tx_channel->CCR = ccr | DMA_CCR1_DIR;
         }
     }
@@ -442,6 +448,11 @@ bool spi_bus_set_transfer_id(spi_bus_t* spi, spi_transfer_id_t id)
     return true;
 }
 
+void spi_bus_set_tx_default_value(spi_bus_t* spi, uint16_t value)
+{
+    spi->tx_default = value;
+}
+
 bool spi_bus_crc_enabled(spi_bus_t* spi)
 {
     return spi_bus_is_crc_enabled(spi);
@@ -496,22 +507,43 @@ bool spi_bus_reset_crc(spi_bus_t* spi)
     return true;
 }
 
-spi_frame_format_t spi_bus_frame_format(spi_bus_t* spi)
+spi_data_frame_format_t spi_bus_data_frame_format(spi_bus_t* spi)
 {
     if(spi_bus_is_frame_16bit(spi)){
-        return SPI_FRAME_FORMAT_16BIT;
+        return SPI_DATA_FRAME_FORMAT_16BIT;
     }
-    return SPI_FRAME_FORMAT_8BIT;
+    return SPI_DATA_FRAME_FORMAT_8BIT;
+}
+
+bool spi_bus_set_data_frame_format(spi_bus_t* spi, spi_data_frame_format_t format)
+{
+    if(spi_bus_busy(spi)) return false;
+
+    if(format == SPI_DATA_FRAME_FORMAT_8BIT){
+        spi->spi_device->CR1 &= ~SPI_CR1_DFF;
+    }else{
+        spi->spi_device->CR1 |= SPI_CR1_DFF;
+    }
+
+    return true;
+}
+
+spi_frame_format_t spi_bus_frame_format(spi_bus_t* spi)
+{
+    if(spi_bus_is_frame_lsbfirst(spi)){
+        return SPI_FRAME_FORMAT_LSBFIRST;
+    }
+    return SPI_FRAME_FORMAT_MSBFIRST;
 }
 
 bool spi_bus_set_frame_format(spi_bus_t* spi, spi_frame_format_t format)
 {
     if(spi_bus_busy(spi)) return false;
 
-    if(format == SPI_FRAME_FORMAT_8BIT){
-        spi->spi_device->CR1 &= ~SPI_CR1_DFF;
+    if(format == SPI_FRAME_FORMAT_MSBFIRST){
+        spi->spi_device->CR1 &= ~SPI_CR1_LSBFIRST;
     }else{
-        spi->spi_device->CR1 |= SPI_CR1_DFF;
+        spi->spi_device->CR1 |= SPI_CR1_LSBFIRST;
     }
 
     return true;
@@ -612,5 +644,19 @@ err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_
     
     spi_bus_dma_start(spi);
     
+    return E_NO_ERROR;
+}
+
+err_t spi_bus_transmit(spi_bus_t* spi, uint16_t tx_data, uint16_t* rx_data)
+{
+    if(spi_bus_busy(spi)) return E_BUSY;
+
+    spi->spi_device->DR = tx_data;
+    spi_bus_wait(spi);
+
+    // Очистим RXNE flag.
+    uint16_t data = spi_bus_read_dr(spi);
+    if(rx_data) *rx_data = data;
+
     return E_NO_ERROR;
 }

@@ -62,6 +62,5 @@ uint16_t crc16_ccitt_first(void)
 
 uint16_t crc16_ccitt_next(uint16_t crc, const void* data)
 {
-    if(data == NULL) return crc;
     return (crc << 8) ^ crc16_ccitt_table[(crc >> 8) ^ *(uint8_t*)data];
 }

@@ -55,6 +55,16 @@ uint16_t crc16_ccitt(const void* data, size_t size)
     return crc;
 }
 
+uint16_t crc16_ccitt_initial(const void* data, size_t size, uint16_t init)
+{
+    uint16_t crc = init;
+
+    while (size --)
+        crc = (crc << 8) ^ crc16_ccitt_table[(crc >> 8) ^ *(uint8_t*)data ++];
+
+    return crc;
+}
+
 uint16_t crc16_ccitt_first(void)
 {
     return 0xffff;

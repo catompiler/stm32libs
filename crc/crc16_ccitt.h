@@ -8,11 +8,23 @@
 /**
  * Вычисляет CRC16 CCITT переданных данных.
  * Полином x^16 + x^12 + x^5 + 1 (0x1021).
+ * Начальное значение 0xffff.
  * @param data Данные.
  * @param size Размер данных.
  * @return CRC16.
  */
 EXTERN uint16_t crc16_ccitt(const void* data, size_t size);
+
+/**
+ * Вычисляет CRC16 CCITT переданных данных
+ * с заданным начальным значением.
+ * Полином x^16 + x^12 + x^5 + 1 (0x1021).
+ * @param data Данные.
+ * @param size Размер данных.
+ * @param init Начальное значение.
+ * @return CRC16.
+ */
+EXTERN uint16_t crc16_ccitt_initial(const void* data, size_t size, uint16_t init);
 
 /**
  * Получает начальное значение CRC16 CCITT.

@@ -54,6 +54,16 @@ ALWAYS_INLINE static bool spi_bus_is_frame_lsbfirst(spi_bus_t* spi)
     return (spi->spi_device->CR1 & SPI_CR1_LSBFIRST) != 0;
 }
 
+ALWAYS_INLINE static void spi_bus_wait_txe(spi_bus_t* spi)
+{
+    WAIT_WHILE_TRUE((spi->spi_device->SR & SPI_SR_TXE) == 0);
+}
+
+ALWAYS_INLINE static void spi_bus_wait_rxne(spi_bus_t* spi)
+{
+    WAIT_WHILE_TRUE((spi->spi_device->SR & SPI_SR_RXNE) == 0);
+}
+
 err_t spi_bus_init(spi_bus_t* spi, spi_bus_init_t* init)
 {
     if(init == NULL) return E_NULL_POINTER;
@@ -652,7 +662,10 @@ err_t spi_bus_transmit(spi_bus_t* spi, uint16_t tx_data, uint16_t* rx_data)
     if(spi_bus_busy(spi)) return E_BUSY;
 
     spi->spi_device->DR = tx_data;
-    spi_bus_wait(spi);
+    // Подождать отправки.
+    spi_bus_wait_txe(spi);
+    // Подождать получения.
+    spi_bus_wait_rxne(spi);
 
     // Очистим RXNE flag.
     uint16_t data = spi_bus_read_dr(spi);

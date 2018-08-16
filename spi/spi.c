@@ -102,7 +102,7 @@ static void spi_bus_dma_rxtx_config(spi_bus_t* spi, void* rx_address, const void
     // RX.
     if(spi->dma_rx_locked){
         
-        spi->dma_rx_channel->CCR &= ~DMA_CCR1_EN;
+        spi->dma_rx_channel->CCR = 0;
         
         spi->dma_rx_channel->CNDTR = size;
         
@@ -120,7 +120,7 @@ static void spi_bus_dma_rxtx_config(spi_bus_t* spi, void* rx_address, const void
     // TX.
     if(spi->dma_tx_locked){
         
-        spi->dma_tx_channel->CCR &= ~DMA_CCR1_EN;
+        spi->dma_tx_channel->CCR = 0;
         
         spi->dma_tx_channel->CNDTR = size;
         
@@ -609,16 +609,17 @@ err_t spi_bus_transfer(spi_bus_t* spi, spi_message_t* messages, size_t messages_
     size_t i = 0;
     
     bool duplex = spi_bus_is_duplex(spi);
-    bool can_rx = spi_bus_can_rx(spi);
-    bool can_tx = spi_bus_can_tx(spi);
     
     spi_message_t* msg = NULL;
     // Если режим передачи по обоим линиям.
     if(duplex){
-        need_rx_channel = can_rx;
-        need_tx_channel = can_tx;
+        need_rx_channel = true;
+        need_tx_channel = true;
     // Иначе.
     }else{
+        // Возможность передачи и приёма.
+        bool can_rx = spi_bus_can_rx(spi);
+        bool can_tx = spi_bus_can_tx(spi);
         // Проверим все сообщения.
         for(; i < messages_count; i ++){
             msg = &messages[i];

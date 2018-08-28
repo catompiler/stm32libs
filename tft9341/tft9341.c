@@ -1,4 +1,5 @@
 #include "tft9341.h"
+#include "gpio/gpio.h"
 #include "utils/utils.h"
 #include "utils/delay.h"
 #include "bits/bits.h"
@@ -269,11 +270,11 @@
 ALWAYS_INLINE static void tft9341_pins_begin(tft9341_t* tft, bool is_data)
 {
     if(is_data){
-        GPIO_SetBits(tft->dc_gpio, tft->dc_pin);
+        gpio_set(tft->dc_gpio, tft->dc_pin);
     }else{
-        GPIO_ResetBits(tft->dc_gpio, tft->dc_pin);
+        gpio_reset(tft->dc_gpio, tft->dc_pin);
     }
-    GPIO_ResetBits(tft->ce_gpio, tft->ce_pin);
+    gpio_reset(tft->ce_gpio, tft->ce_pin);
 }
 
 /**
@@ -282,8 +283,8 @@ ALWAYS_INLINE static void tft9341_pins_begin(tft9341_t* tft, bool is_data)
  */
 ALWAYS_INLINE static void tft9341_pins_end(tft9341_t* tft)
 {
-    GPIO_SetBits(tft->ce_gpio, tft->ce_pin);
-    GPIO_SetBits(tft->dc_gpio, tft->dc_pin);
+    gpio_set(tft->ce_gpio, tft->ce_pin);
+    gpio_set(tft->dc_gpio, tft->dc_pin);
 }
 
 /**
@@ -337,9 +338,9 @@ static void tft9341_cmd_message_start(spi_message_t* message)
     //printf("tft9341_cmd_message_start\r\n");
     tft9341_t* tft = (tft9341_t*)message->sender_data;
     if(tft != NULL){
-        //GPIO_SetBits(tft->ce_gpio, tft->ce_pin);
-        GPIO_ResetBits(tft->dc_gpio, tft->dc_pin);
-        //GPIO_ResetBits(tft->ce_gpio, tft->ce_pin);
+        //gpio_set(tft->ce_gpio, tft->ce_pin);
+        gpio_reset(tft->dc_gpio, tft->dc_pin);
+        //gpio_reset(tft->ce_gpio, tft->ce_pin);
     }
 }
 
@@ -353,9 +354,9 @@ static void tft9341_cmd_message_end(spi_message_t* message)
     //printf("tft9341_cmd_message_end\r\n");
     tft9341_t* tft = (tft9341_t*)message->sender_data;
     if(tft != NULL){
-        //GPIO_SetBits(tft->ce_gpio, tft->ce_pin);
-        GPIO_SetBits(tft->dc_gpio, tft->dc_pin);
-        //GPIO_ResetBits(tft->ce_gpio, tft->ce_pin);
+        //gpio_set(tft->ce_gpio, tft->ce_pin);
+        gpio_set(tft->dc_gpio, tft->dc_pin);
+        //gpio_reset(tft->ce_gpio, tft->ce_pin);
     }
 }
 
@@ -418,7 +419,7 @@ err_t tft9341_init(tft9341_t* tft, tft9341_init_t* tft_init)
     tft9341_pins_end(tft);
     
     // Высокий уровень для пина сброса.
-    GPIO_SetBits(tft->rst_gpio, tft->rst_pin);
+    gpio_set(tft->rst_gpio, tft->rst_pin);
     // Сбросим дисплей.
     //tft9341_reset(tft);
     
@@ -449,9 +450,9 @@ void tft9341_reset(tft9341_t* tft)
     //wait
     future_wait(&tft->future);
     
-    GPIO_ResetBits(tft->rst_gpio, tft->rst_pin);
+    gpio_reset(tft->rst_gpio, tft->rst_pin);
     delay_us(TFT9341_RESET_TIME_US);
-    GPIO_SetBits(tft->rst_gpio, tft->rst_pin);
+    gpio_set(tft->rst_gpio, tft->rst_pin);
     
     delay_ms(TFT9341_RESET_WAIT_TIME_MS);
 }

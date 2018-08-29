@@ -1090,6 +1090,8 @@ static err_t sdcard_read_single_data_block(sdcard_t* sdcard, uint32_t address,
     sdcard_cmd_t cmd;
     sdcard_reply_t reply;
 
+    if(readed) *readed = 0;
+
     sdcard_cmd_setup(&cmd, SDCARD_CMD_READ_SINGLE_BLOCK, address);
 
     // Отправим команду.
@@ -1122,11 +1124,14 @@ static err_t sdcard_read_multiple_data_block(sdcard_t* sdcard, uint32_t address,
                                              void* data, size_t data_size, size_t* readed)
 {
     err_t err = E_NO_ERROR;
+    err_t read_err = E_NO_ERROR;
 
     sdcard_cmd_t cmd;
     sdcard_reply_t reply;
 
     size_t rx_count = 0;
+
+    if(readed) *readed = 0;
 
     sdcard_cmd_setup(&cmd, SDCARD_CMD_READ_MULTIPLE_BLOCK, address);
 
@@ -1140,13 +1145,16 @@ static err_t sdcard_read_multiple_data_block(sdcard_t* sdcard, uint32_t address,
 
     while(data_size >= sdcard->rw_block_size){
         // Получим данные.
-        err = sdcard_read_data(sdcard, data, sdcard->rw_block_size);
-        if(err != E_NO_ERROR) return err;
+        read_err = sdcard_read_data(sdcard, data, sdcard->rw_block_size);
+        // При ошибке.
+        if(read_err != E_NO_ERROR) break;
 
         data += sdcard->rw_block_size;
         data_size -= sdcard->rw_block_size;
         rx_count += sdcard->rw_block_size;
     }
+
+    if(readed) *readed = rx_count;
 
     // Отправим команду завершения передачи.
     err = sdcard_cmd_stop_transmission(sdcard, &reply);
@@ -1163,9 +1171,7 @@ static err_t sdcard_read_multiple_data_block(sdcard_t* sdcard, uint32_t address,
         }
     }
 
-    if(readed) *readed = rx_count;
-
-    return E_NO_ERROR;
+    return read_err;
 }
 
 /**
@@ -1227,6 +1233,8 @@ static err_t sdcard_write_single_data_block(sdcard_t* sdcard, uint32_t address,
     sdcard_cmd_t cmd;
     sdcard_reply_t reply;
 
+    if(written) *written = 0;
+
     sdcard_cmd_setup(&cmd, SDCARD_CMD_WRITE_SINGLE_BLOCK, address);
 
     // Отправим команду.
@@ -1263,11 +1271,14 @@ static err_t sdcard_write_multiple_data_block(sdcard_t* sdcard, uint32_t address
                                               const void* data, size_t data_size, size_t* written)
 {
     err_t err = E_NO_ERROR;
+    err_t write_err = E_NO_ERROR;
 
     sdcard_cmd_t cmd;
     sdcard_reply_t reply;
 
     size_t tx_count = 0;
+
+    if(written) *written = 0;
 
     sdcard_cmd_setup(&cmd, SDCARD_CMD_WRITE_MULTIPLE_BLOCK, address);
 
@@ -1307,25 +1318,16 @@ static err_t sdcard_write_multiple_data_block(sdcard_t* sdcard, uint32_t address
 
     while(data_size >= sdcard->rw_block_size){
         // Отправим данные.
-        err = sdcard_write_data(sdcard, SDCARD_MBW_START_BLOCK_TOKEN, data, sdcard->rw_block_size);
+        write_err = sdcard_write_data(sdcard, SDCARD_MBW_START_BLOCK_TOKEN, data, sdcard->rw_block_size);
         // При ошибке.
-        if(err != E_NO_ERROR){
-            // Подождём окончания занятости карты.
-            err_t bsy_err = sdcard_wait_busy(sdcard);
-            // Карта занята.
-            if(bsy_err != E_NO_ERROR) return err;
-            // Отправим окончание передачи.
-            err_t stp_err = sdcard_cmd_stop_transmission(sdcard, &reply);
-            // Не получилось.
-            if(stp_err != E_NO_ERROR) return err;
-            // Мы сделали всё что могли.
-            return err;
-        }
+        if(write_err != E_NO_ERROR) break;
 
         data += sdcard->rw_block_size;
         data_size -= sdcard->rw_block_size;
         tx_count += sdcard->rw_block_size;
     }
+
+    if(written) *written = tx_count;
 
     // Один пустой цикл.
     err = sdcard_nop(sdcard);
@@ -1347,9 +1349,7 @@ static err_t sdcard_write_multiple_data_block(sdcard_t* sdcard, uint32_t address
     err = sdcard_check_write_status(sdcard);
     if(err != E_NO_ERROR) return err;
 
-    if(written) *written = tx_count;
-
-    return E_NO_ERROR;
+    return write_err;
 }
 
 err_t sdcard_select(sdcard_t* sdcard)

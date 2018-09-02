@@ -65,7 +65,7 @@ typedef enum _spi_status {
 typedef enum _spi_error {
     SPI_NO_ERROR                = 0,//!< Нет ошибки.
     SPI_ERROR_MASTER_MODE_FAULT = 1,//!< Ошибка приоритета, появился новый мастер.
-    SPI_ERROR_OVERRUN           = 2,//!< Слишком медленная/быстрая пересылка данных.
+    SPI_ERROR_OVERRUN           = 2,//!< Слишком быстрая пересылка данных.
     SPI_ERROR_CRC               = 4,//!< Ошибка CRC.
     SPI_ERROR_DMA               = 8//!< Ошибка DMA.
 } spi_error_t;

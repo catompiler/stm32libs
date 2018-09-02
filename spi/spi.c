@@ -288,7 +288,7 @@ void spi_bus_irq_handler(spi_bus_t* spi)
     
     uint16_t SR = spi->spi_device->SR;
     
-    if(SR & SPI_SR_OVR || SR & SPI_SR_UDR){
+    if(SR & SPI_SR_OVR){
         // Clear flag.
         spi_bus_read_sr(spi);
         spi_bus_read_dr(spi);

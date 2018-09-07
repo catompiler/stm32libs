@@ -252,10 +252,12 @@ err_t sdcard_init(sdcard_t* sdcard, sdcard_init_t* init)
     memset(sdcard, 0x0, sizeof(sdcard_t));
 
     sdcard->spi = init->spi;
-    sdcard->set_spi_speed = init->set_spi_speed;
     sdcard->transfer_id = init->transfer_id;
     sdcard->gpio_cs = init->gpio_cs;
     sdcard->pin_cs = init->pin_cs;
+    sdcard->set_spi_speed = init->set_spi_speed;
+    sdcard->timeout_begin = init->timeout_begin;
+    sdcard->timeout_end = init->timeout_end;
 
     future_init(&sdcard->future);
 

@@ -115,8 +115,10 @@ typedef struct _SD_Card_Init {
     spi_bus_t* spi; //!< Шина SPI.
     GPIO_TypeDef* gpio_cs; //!< Порт CS.
     gpio_pin_t pin_cs; //!< Пин CS.
-    sdcard_set_spi_speed_t set_spi_speed; //!< Функция установки скорости SPI.
     spi_transfer_id_t transfer_id; //!< Идентификатор передачи SPI.
+    sdcard_set_spi_speed_t set_spi_speed; //!< Функция установки скорости SPI.
+    sdcard_timeout_begin_t timeout_begin; //!< Функция начала таймаута.
+    sdcard_timeout_end_t timeout_end; //!< Функция завершения таймаута.
 } sdcard_init_t;
 
 
@@ -143,7 +145,7 @@ typedef struct _SD_Card {
     sdcard_type_t card_type; //!< Тип SD-карты.
     sdcard_set_spi_speed_t set_spi_speed; //!< Функция установки скорости SPI.
     sdcard_timeout_begin_t timeout_begin; //!< Функция начала таймаута.
-    sdcard_timeout_end_t timeout_end; //!< Функция завершения таймаута таймаута.
+    sdcard_timeout_end_t timeout_end; //!< Функция завершения таймаута.
     future_t future; //!< Будущее.
     spi_message_t messages[SDCARD_SPI_MESSAGES_COUNT]; //!< Сообщения SPI.
     bool timeout; //!< Флаг таймаута SD-карты.

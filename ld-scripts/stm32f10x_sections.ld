@@ -121,6 +121,9 @@ SECTIONS
         _ebss = .;
     } > RAM
     
+    /* Куча. */
+    PROVIDE(_heap = _ebss);
+    
     /* Стек минимального размера. */
     .min_stack : ALIGN(4)
     {

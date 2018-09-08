@@ -1,29 +1,30 @@
 /*
-Linker script for STM32F10x
-Copyright RAISONANCE 2007 (modified by Lanchon 1-Feb-2008)
-You can use, copy and distribute this file freely, but without any waranty.
-Configure memory sizes, end of stack and boot mode for your project here.
-*/
+ * Скрипт компоновщика для stm32.
+ * Часть задания адресов и областей памяти.
+ */
 
+/* Точка входа. */
+ENTRY(Reset_Handler)
 
-/* include the common STM32F10x sub-script */
-INCLUDE "stm32_common.ld"
-
-/* Memory Spaces Definitions */
+/* Память. */
 MEMORY
 {
-  RAM     (xrw) : ORIGIN = 0x20000000, LENGTH = 48K  /* also change _estack below */
-  FLASH    (rx) : ORIGIN = 0x08000000, LENGTH = 256K
-  FLASHB1  (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB0 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB1 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB2 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB3 (rx) : ORIGIN = 0x00000000, LENGTH = 0
+    BOOT (rx) : ORIGIN = 0x08000000,                LENGTH =   0K                /* Загрузчик. */
+    APP  (rx) : ORIGIN = 0x08000000 + LENGTH(BOOT), LENGTH = 256K - LENGTH(BOOT) /* Флеш-память. */
+    RAM (rwx) : ORIGIN = 0x20000000,                LENGTH =  48K                /* ОЗУ */
 }
 
-/* highest address of the user mode stack */
-_estack = 0x2000c000;
+/* Синоним региона. */
+REGION_ALIAS("FLASH", APP);
 
-/* include the section management sub-script */
-/* (either "stm32_sec_flash.ld" or "stm32_sec_ram.ld") */
-INCLUDE "stm32_sec_flash.ld"
+/* Минимальный размер стека. */
+_min_stack_size = 0x200;
+
+/* Конец стека. */
+_estack = ORIGIN(RAM) + LENGTH(RAM);
+
+/* Адрес начала сегмента основного приложения. */
+_app_origin = ORIGIN(APP);
+
+/* Декларация секций. */
+INCLUDE "stm32f10x_sections.ld"

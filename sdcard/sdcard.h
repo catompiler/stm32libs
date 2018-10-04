@@ -509,12 +509,9 @@ EXTERN err_t sdcard_erase_sector(sdcard_t* sdcard, uint32_t number, size_t count
 /*
  * FatFS diskio.
  */
-
 #ifdef USE_SDCARD_FATFS_DISKIO
 
-#ifndef _DISKIO_DEFINED
-#include "fatfs/diskio.h"
-#endif
+#include "sdcard_diskio.h"
 
 static size_t sdcard_disks_count = 0;
 static sdcard_t* sdcard_disks = NULL;
@@ -547,12 +544,7 @@ DSTATUS disk_initialize(BYTE pdrv)
     sdcard_t* sdcard = sdcard_diskio_get_sdcard(pdrv);
     if(sdcard == NULL) return STA_NOINIT;
 
-    sdcard_init_card(sdcard);
-
-    if(sdcard_initialized(sdcard)) return 0;
-    if(sdcard_identified(sdcard)) return STA_NOINIT;
-
-    return STA_NODISK;
+    return sdcard_disk_initialize(sdcard);
 }
 
 
@@ -561,10 +553,7 @@ DSTATUS disk_status(BYTE pdrv)
     sdcard_t* sdcard = sdcard_diskio_get_sdcard(pdrv);
     if(sdcard == NULL) return STA_NOINIT;
 
-    if(sdcard_initialized(sdcard)) return 0;
-    if(sdcard_identified(sdcard)) return STA_NOINIT;
-
-    return STA_NODISK;
+    return sdcard_disk_status(sdcard);
 }
 
 
@@ -573,18 +562,7 @@ DRESULT disk_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count)
     sdcard_t* sdcard = sdcard_diskio_get_sdcard(pdrv);
     if(sdcard == NULL) return RES_PARERR;
 
-    if(!sdcard_initialized(sdcard)) return RES_NOTRDY;
-
-    err_t err = E_NO_ERROR;
-
-    err = sdcard_select(sdcard);
-    if(err != E_NO_ERROR) return RES_ERROR;
-
-    err = sdcard_read_sector(sdcard, sector, count, buff, NULL);
-    sdcard_deselect(sdcard);
-    if(err != E_NO_ERROR) return RES_ERROR;
-
-    return RES_OK;
+    return sdcard_disk_read(sdcard, buff, sector, count);
 }
 
 #if _USE_WRITE
@@ -593,18 +571,7 @@ DRESULT disk_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count)
     sdcard_t* sdcard = sdcard_diskio_get_sdcard(pdrv);
     if(sdcard == NULL) return RES_PARERR;
 
-    if(!sdcard_initialized(sdcard)) return RES_NOTRDY;
-
-    err_t err = E_NO_ERROR;
-
-    err = sdcard_select(sdcard);
-    if(err != E_NO_ERROR) return RES_ERROR;
-
-    err = sdcard_write_sector(sdcard, sector, count, buff, NULL);
-    sdcard_deselect(sdcard);
-    if(err != E_NO_ERROR) return RES_ERROR;
-
-    return RES_OK;
+    return sdcard_disk_write(sdcard, buff, sector, count);
 }
 
 #endif // _USE_WRITE
@@ -615,56 +582,7 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void* buff)
     sdcard_t* sdcard = sdcard_diskio_get_sdcard(pdrv);
     if(sdcard == NULL) return RES_PARERR;
 
-    if(!sdcard_initialized(sdcard)) return RES_NOTRDY;
-
-    DRESULT res = RES_ERROR;
-    err_t err = E_NO_ERROR;
-
-    uint32_t start_erase_block = 0;
-    uint32_t end_erase_block = 0;
-
-    switch(cmd){
-    case CTRL_SYNC:
-        err = sdcard_select(sdcard);
-        if(err != E_NO_ERROR) break;
-
-        err = sdcard_wait_busy(sdcard);
-        if(err == E_NO_ERROR) res = RES_OK;
-
-        sdcard_deselect(sdcard);
-
-        break;
-    case GET_SECTOR_COUNT:
-        *((DWORD*)buff) = sdcard_sectors_count(sdcard);
-        res = RES_OK;
-        break;
-    case GET_SECTOR_SIZE:
-        *((DWORD*)buff) = sdcard_sector_size(sdcard);
-        res = RES_OK;
-        break;
-    case GET_BLOCK_SIZE:
-        *((DWORD*)buff) = sdcard_erase_block_len(sdcard);
-        res = RES_OK;
-        break;
-    case CTRL_TRIM:
-        err = sdcard_select(sdcard);
-        if(err != E_NO_ERROR) break;
-
-        start_erase_block = ((DWORD*)buff)[0];
-        end_erase_block = ((DWORD*)buff)[1];
-
-        err = sdcard_erase_sector(sdcard, start_erase_block,
-                                  end_erase_block - start_erase_block + 1);
-        if(err == E_NO_ERROR) res = RES_OK;
-
-        sdcard_deselect(sdcard);
-
-        break;
-    default:
-        res = RES_PARERR;
-    }
-
-    return res;
+    return sdcard_disk_ioctl(sdcard, cmd, buff);
 }
 #endif // _USE_IOCTL
 

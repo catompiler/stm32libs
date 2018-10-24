@@ -29,6 +29,7 @@ DRESULT sdcard_disk_read(sdcard_t* sdcard, BYTE* buff, DWORD sector, UINT count)
     if(err != E_NO_ERROR) return RES_ERROR;
 
     err = sdcard_read_sector(sdcard, sector, count, buff, NULL);
+
     sdcard_deselect(sdcard);
     if(err != E_NO_ERROR) return RES_ERROR;
 

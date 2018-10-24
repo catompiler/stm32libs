@@ -764,14 +764,14 @@ static err_t sdcard_read_data_token_check(sdcard_control_token_t token)
     // Проверка на соответствие.
     if(token == SDCARD_START_BLOCK_TOKEN) return E_NO_ERROR;
 
-    if((token & SDCARD_DATA_ERROR_TOKEN_ZERO_MASK) != 0) return E_INVALID_VALUE;
+    if((token & SDCARD_DATA_ERROR_TOKEN_ZERO_MASK) != 0) return E_SDCARD_INVALID_TOKEN;
 
     if(token & SDCARD_DATA_ERROR_TOKEN_OUT_OF_RANGE) return E_SDCARD_OUT_OF_RANGE;
     if(token & SDCARD_DATA_ERROR_TOKEN_CARD_ECC_FAILED) return E_SDCARD_CARD_ECC_FAILED;
     if(token & SDCARD_DATA_ERROR_TOKEN_CC_ERROR) return E_SDCARD_CC_ERROR;
-    if(token & SDCARD_DATA_ERROR_TOKEN_ERROR)return E_SDCARD_ERROR;
+    if(token & SDCARD_DATA_ERROR_TOKEN_ERROR) return E_SDCARD_ERROR;
 
-    return E_IO_ERROR;
+    return E_SDCARD_INVALID_TOKEN;
 }
 
 /**
@@ -782,18 +782,18 @@ static err_t sdcard_read_data_token_check(sdcard_control_token_t token)
 static err_t sdcard_write_data_token_check(sdcard_control_token_t token)
 {
     // Проверка на соответствие.
-    if((token & SDCARD_DATA_RESP_TOKEN_BIT_ZERO) != 0) return E_INVALID_VALUE;
+    if((token & SDCARD_DATA_RESP_TOKEN_BIT_ZERO) != 0) return E_SDCARD_INVALID_TOKEN;
 
     uint8_t status = (token & SDCARD_DATA_RESP_TOKEN_STATUS_MASK)
                             >> SDCARD_DATA_RESP_TOKEN_STATUS_OFFSET;
 
     switch(status){
     default:
-        return E_INVALID_VALUE;
+        return E_SDCARD_INVALID_TOKEN;
     case SDCARD_DATA_RESP_TOKEN_STATUS_CRC_ERROR:
         return E_CRC;
     case SDCARD_DATA_RESP_TOKEN_STATUS_WRITE_ERROR:
-        return E_IO_ERROR;
+        return E_SDCARD_WRITE_ERROR;
     case SDCARD_DATA_RESP_TOKEN_STATUS_DATA_ACCEPTED:
         break;
     }

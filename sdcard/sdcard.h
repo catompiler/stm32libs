@@ -45,40 +45,46 @@
 #define E_SDCARD (E_USER + 10)
 //! Неподдерживаемая карта.
 #define E_SDCARD_INVALID (E_SDCARD + 0)
+//! Принят некорректный токен данных.
+#define E_SDCARD_INVALID_TOKEN (E_SDCARD + 1)
+//! Ошибка записи данных картой.
+#define E_SDCARD_WRITE_ERROR (E_SDCARD + 2)
+//! Ошибки в статусе карты.
+#define E_SDCARD_STATUS (E_SDCARD + 3)
 //! Карта заблокирована.
-#define E_SDCARD_CARD_IS_LOCKED (E_SDCARD + 1)
+#define E_SDCARD_CARD_IS_LOCKED (E_SDCARD_STATUS + 0)
 //! Ошибка последовательности блокировки/разблокировки.
-#define E_SDCARD_LOCK_UNLOCK_CMD_FAILED (E_SDCARD + 2)
+#define E_SDCARD_LOCK_UNLOCK_CMD_FAILED (E_SDCARD_STATUS + 1)
 //! Стирание защищённого от записи блока.
-#define E_SDCARD_WP_ERASE_SKIP (E_SDCARD + 2)
+#define E_SDCARD_WP_ERASE_SKIP (E_SDCARD_STATUS + 1)
 //! Общая или неизвестная ошибка.
-#define E_SDCARD_ERROR (E_SDCARD + 3)
+#define E_SDCARD_ERROR (E_SDCARD_STATUS + 2)
 //! Ошибка контроллера карты.
-#define E_SDCARD_CC_ERROR (E_SDCARD + 4)
+#define E_SDCARD_CC_ERROR (E_SDCARD_STATUS + 3)
 //! Ошибка ECC.
-#define E_SDCARD_CARD_ECC_FAILED (E_SDCARD + 5)
+#define E_SDCARD_CARD_ECC_FAILED (E_SDCARD_STATUS + 4)
 //! Запись в защищённый от записи блок.
-#define E_SDCARD_WP_VIOLATION (E_SDCARD + 6)
+#define E_SDCARD_WP_VIOLATION (E_SDCARD_STATUS + 5)
 //! Параметр стирания.
-#define E_SDCARD_ERASE_PARAM (E_SDCARD + 7)
+#define E_SDCARD_ERASE_PARAM (E_SDCARD_STATUS + 6)
 //! Передапись CSD.
-#define E_SDCARD_CSD_OVERWRITE (E_SDCARD + 8)
+#define E_SDCARD_CSD_OVERWRITE (E_SDCARD_STATUS + 7)
 //! Выход за пределы.
-#define E_SDCARD_OUT_OF_RANGE (E_SDCARD + 8)
+#define E_SDCARD_OUT_OF_RANGE (E_SDCARD_STATUS + 7)
 //! В состоянии IDLE.
-#define E_SDCARD_IN_IDLE_STATE (E_SDCARD + 9)
+#define E_SDCARD_IN_IDLE_STATE (E_SDCARD_STATUS + 8)
 //! Сброс стирания.
-#define E_SDCARD_ERASE_RESET (E_SDCARD + 10)
+#define E_SDCARD_ERASE_RESET (E_SDCARD_STATUS + 9)
 //! Недопустимая команда.
-#define E_SDCARD_ILLEGAL_COMMAND (E_SDCARD + 11)
+#define E_SDCARD_ILLEGAL_COMMAND (E_SDCARD_STATUS + 10)
 //! Ошибка CRC команды.
-#define E_SDCARD_COM_CRC_ERROR (E_SDCARD + 12)
+#define E_SDCARD_COM_CRC_ERROR (E_SDCARD_STATUS + 11)
 //! Ошибка последовательности стирания.
-#define E_SDCARD_ERASE_SEQ_ERROR (E_SDCARD + 13)
+#define E_SDCARD_ERASE_SEQ_ERROR (E_SDCARD_STATUS + 12)
 //! Ошибка адреса.
-#define E_SDCARD_ADDR_ERROR (E_SDCARD + 14)
+#define E_SDCARD_ADDR_ERROR (E_SDCARD_STATUS + 13)
 //! Ошибка параметра.
-#define E_SDCARD_PARAM_ERROR (E_SDCARD + 15)
+#define E_SDCARD_PARAM_ERROR (E_SDCARD_STATUS + 14)
 
 
 //! Идентификатор передачи SPI.

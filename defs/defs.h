@@ -16,6 +16,8 @@
 
 #define WEAK __attribute__((weak))
 
+#define PACKED __attribute__((packed))
+
 #define STRING(s) #s
 #define MAKE_STRING(s) STRING(s)
 #define CONCAT_SIMPLE(a, ...) a ## __VA_ARGS__

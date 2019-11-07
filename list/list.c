@@ -1,6 +1,5 @@
 #include "list.h"
 #include <stddef.h>
-#include <malloc.h>
 #include "utils/utils.h"
 
 
@@ -35,25 +34,36 @@ ALWAYS_INLINE static void list_item_link2_safe(list_item_t* prev, list_item_t* i
     if(next) next->prev = item;
 }
 
-ALWAYS_INLINE static list_item_t* list_alloc_item(void* data)
+ALWAYS_INLINE static list_item_t* list_alloc_item(list_t* list, void* data)
 {
-    list_item_t* res = (list_item_t*)malloc(sizeof(list_item_t));
-    
-    list_item_init_data(res, data);
+    if(!list->alloc_item) return NULL;
+
+    list_item_t* res = list->alloc_item();
+
+    if(res != NULL) list_item_init_data(res, data);
     
     return res;
 }
 
-ALWAYS_INLINE static void list_free_item(list_item_t* item)
+ALWAYS_INLINE static void list_free_item(list_t* list, list_item_t* item)
 {
-    free(item);
+    if(list->free_item && item != NULL) list->free_item(item);
 }
 
 err_t list_init(list_t* list)
 {
     list->head = NULL;
     list->tail = NULL;
+    list->alloc_item = NULL;
+    list->free_item = NULL;
+
     return E_NO_ERROR;
+}
+
+void list_set_allocator(list_t* list, list_alloc_item_t alloc_item, list_free_item_t free_item)
+{
+    list->alloc_item = alloc_item;
+    list->free_item = free_item;
 }
 
 err_t list_append(list_t* list, list_item_t* item)
@@ -147,6 +157,38 @@ err_t list_insert_sorted(list_t* list, list_item_t* item, int (*compare)(const v
     return E_NO_ERROR;
 }
 
+err_t list_rinsert_sorted(list_t* list, list_item_t* item, int (*compare)(const void*, const void*))
+{
+    if(item == NULL) return E_NULL_POINTER;
+    if(compare == NULL) return E_NULL_POINTER;
+
+    if(list->head == NULL){
+        list->head = item;
+        list->tail = item;
+        return E_NO_ERROR;
+    }
+
+    list_item_t* cur = list->tail;
+    int cmp = 0;
+
+    while(cur){
+        cmp = compare(item->data, cur->data);
+        if(cmp < 0){
+            if(cur->prev){
+                cur = cur->prev;
+            }else{
+                list_insert_before(list, cur, item);
+                break;
+            }
+        }else{
+            list_insert_after(list, cur, item);
+            break;
+        }
+    }
+
+    return E_NO_ERROR;
+}
+
 err_t list_remove(list_t* list, list_item_t* item)
 {
     if(item == NULL) return E_NULL_POINTER;
@@ -170,7 +212,7 @@ err_t list_remove(list_t* list, list_item_t* item)
 
 list_item_t* list_append_new(list_t* list, void* data)
 {
-    list_item_t* item = list_alloc_item(data);
+    list_item_t* item = list_alloc_item(list, data);
     
     list_append(list, item);
     
@@ -179,7 +221,7 @@ list_item_t* list_append_new(list_t* list, void* data)
 
 list_item_t* list_prepend_new(list_t* list, void* data)
 {
-    list_item_t* item = list_alloc_item(data);
+    list_item_t* item = list_alloc_item(list, data);
     
     list_prepend(list, item);
     
@@ -188,7 +230,7 @@ list_item_t* list_prepend_new(list_t* list, void* data)
 
 list_item_t* list_insert_after_new(list_t* list, list_item_t* ref, void* data)
 {
-    list_item_t* item = list_alloc_item(data);
+    list_item_t* item = list_alloc_item(list, data);
     
     list_insert_after(list, ref, item);
     
@@ -197,7 +239,7 @@ list_item_t* list_insert_after_new(list_t* list, list_item_t* ref, void* data)
 
 list_item_t* list_insert_before_new(list_t* list, list_item_t* ref, void* data)
 {
-    list_item_t* item = list_alloc_item(data);
+    list_item_t* item = list_alloc_item(list, data);
     
     list_insert_before(list, ref, item);
     
@@ -206,7 +248,7 @@ list_item_t* list_insert_before_new(list_t* list, list_item_t* ref, void* data)
 
 list_item_t* list_insert_sorted_new(list_t* list, void* data, int (*compare)(const void*, const void*))
 {
-    list_item_t* item = list_alloc_item(data);
+    list_item_t* item = list_alloc_item(list, data);
     
     list_insert_sorted(list, data, compare);
     
@@ -216,7 +258,7 @@ list_item_t* list_insert_sorted_new(list_t* list, void* data, int (*compare)(con
 err_t list_delete(list_t* list, list_item_t* item)
 {
     RETURN_ERR_IF_FAIL(list_remove(list, item));
-    list_free_item(item);
+    list_free_item(list, item);
     
     return E_NO_ERROR;
 }

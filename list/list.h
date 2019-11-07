@@ -7,19 +7,27 @@
 #include "defs/defs.h"
 
 //! Предварительная декларация структуры элемента списка.
-struct _List_Item;
+typedef struct _List_Item list_item_t;
+
+//! Тип функции выделения памяти элемента списка.
+typedef list_item_t* (*list_alloc_item_t)(void);
+
+//! Тип функции освобождения памяти элемента списка.
+typedef void (*list_free_item_t)(list_item_t* item);
 
 //! Тип списка.
 typedef struct _List {
-    struct _List_Item* head; //!< Первый элемент списка.
-    struct _List_Item* tail; //!< Последний элемент списка.
+    list_item_t* head; //!< Первый элемент списка.
+    list_item_t* tail; //!< Последний элемент списка.
+    list_alloc_item_t alloc_item; //!< Функция выделения памяти.
+    list_free_item_t free_item; //!< Функция освобождения памяти.
 } list_t;
 
 //! Тип элемента списка.
 typedef struct _List_Item {
     void* data; //!< Данные элемента списка.
-    struct _List_Item* prev; //!< Предыдущий элемент.
-    struct _List_Item* next; //!< Следующий элемент.
+    list_item_t* prev; //!< Предыдущий элемент.
+    list_item_t* next; //!< Следующий элемент.
 } list_item_t;
 
 
@@ -29,6 +37,14 @@ typedef struct _List_Item {
  * @return Код ошибки.
  */
 EXTERN err_t list_init(list_t* list);
+
+/**
+ * Устанавливает функции выделения/освобождения памяти.
+ * @param list Список.
+ * @param alloc_item Функция выделения памяти.
+ * @param free_item Функция освобождения памяти.
+ */
+EXTERN void list_set_allocator(list_t* list, list_alloc_item_t alloc_item, list_free_item_t free_item);
 
 /**
  * Получает первый элемент списка.
@@ -92,6 +108,15 @@ EXTERN err_t list_insert_before(list_t* list, list_item_t* ref, list_item_t* ite
  * @return Код ошибки.
  */
 EXTERN err_t list_insert_sorted(list_t* list, list_item_t* item, int (*compare)(const void*, const void*));
+
+/**
+ * Добавляет элемент в сортированный список, начиная обход с конца.
+ * @param list Список.
+ * @param item Элемент списка.
+ * @param compare Функция сравнения.
+ * @return Код ошибки.
+ */
+EXTERN err_t list_rinsert_sorted(list_t* list, list_item_t* item, int (*compare)(const void*, const void*));
 
 /**
  * Удаляет элемент из списка.

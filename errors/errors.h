@@ -33,8 +33,12 @@ typedef uint8_t err_t;
 #define E_STATE 9
 //! Ошибка тайм-аута.
 #define E_TIME_OUT 10
-// Неправильная операция.
+//! Неправильная операция.
 #define E_INVALID_OPERATION 11
+//! Операция выполняется.
+#define E_IN_PROGRESS 12
+//! Операция отменена.
+#define E_CANCELED 13
 
 //! Начальный код для пользовательских ошибок.
 #define E_USER 100

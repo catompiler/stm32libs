@@ -6,6 +6,8 @@
 #ifndef BITS_H
 #define	BITS_H
 
+#include <stdint.h>
+#include <stddef.h>
 #include "defs/defs.h"
 
 #ifndef BIT_SET_TEST_0BIT
@@ -116,7 +118,7 @@
  * @param bits Массив.
  * @param bit_n Номер бита.
  */
-ALWAYS_INLINE static void bits_on(uint8_t* bits, uint8_t bit_n)
+ALWAYS_INLINE static void bits_on(uint8_t* bits, size_t bit_n)
 {
     BIT_ON(bits[bit_n >> 3], bit_n & 0x7);
 }
@@ -126,7 +128,7 @@ ALWAYS_INLINE static void bits_on(uint8_t* bits, uint8_t bit_n)
  * @param bits Массив.
  * @param bit_n Номер бита.
  */
-ALWAYS_INLINE static void bits_off(uint8_t* bits, uint8_t bit_n)
+ALWAYS_INLINE static void bits_off(uint8_t* bits, size_t bit_n)
 {
     BIT_OFF(bits[bit_n >> 3], bit_n & 0x7);
 }
@@ -137,7 +139,7 @@ ALWAYS_INLINE static void bits_off(uint8_t* bits, uint8_t bit_n)
  * @param bit_n Номер бита.
  * @return Бит.
  */
-ALWAYS_INLINE static uint8_t bits_value(uint8_t* bits, uint8_t bit_n)
+ALWAYS_INLINE static uint8_t bits_value(const uint8_t* bits, size_t bit_n)
 {
     return BIT_VALUE(bits[bit_n >> 3], bit_n & 0x7);
 }
@@ -148,10 +150,10 @@ ALWAYS_INLINE static uint8_t bits_value(uint8_t* bits, uint8_t bit_n)
  * @param bit_n Номер бита.
  * @param bit Значение бита.
  */
-static ALWAYS_INLINE void bits_set_value(uint8_t* bits, uint8_t bit_n, uint8_t bit)
+ALWAYS_INLINE static void bits_set_value(uint8_t* bits, size_t bit_n, uint8_t bit)
 {
-    uint8_t byte_n = bit_n >> 3;
-    uint8_t byte_bit_n = bit_n & 0x7;
+    size_t byte_n = bit_n >> 3;
+    size_t byte_bit_n = bit_n & 0x7;
     
     BIT_SET(bits[byte_n], byte_bit_n, bit);
 }
